@@ -11,6 +11,8 @@ The first supported component is `XiaoyanProfitPipe`.
 
 ## Render Command
 
+This command is added by the render automation task.
+
 ```bash
 npm run xiaoyan:profit-pipe
 ```

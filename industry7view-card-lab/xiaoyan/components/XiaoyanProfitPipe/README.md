@@ -37,6 +37,8 @@ type XiaoyanProfitPipeProps = {
 
 ## Render
 
+This command is added by the render automation task.
+
 ```bash
 npm run xiaoyan:profit-pipe
 ```
