@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>05a · Business Loop Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== Loop-specific ============== */
+    .loop-card::after { display: none; }
+    .loop-title {
+      color: var(--navy);
+      font-size: 28px;
+      font-weight: 900;
+      left: 32px;
+      letter-spacing: -0.05em;
+      line-height: 1.18;
+      position: absolute;
+      right: 32px;
+      top: 86px;
+      z-index: 2;
+    }
+    .loop-title::after {
+      background: var(--gold);
+      content: "";
+      display: block;
+      height: 3px;
+      margin-top: 12px;
+      width: 32px;
+    }
+    .loop-list {
+      display: grid;
+      gap: 8px;
+      left: 32px;
+      position: absolute;
+      right: 32px;
+      top: 180px;
+      z-index: 2;
+    }
+    .step {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(15, 39, 71, 0.16);
+      border-left: 3px solid rgba(184, 131, 45, 0.6);
+      border-radius: 0;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 40px 1fr;
+      min-height: 52px;
+      padding: 10px 14px;
+    }
+    .step-no {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 900;
+    }
+    .step-text {
+      color: var(--navy);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .step.final {
+      background: var(--data-bg);
+      border-color: var(--data-border);
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>05a · Business Loop Card</h1>
+    <p>商业闭环 / 业务流程卡（线性 5–6 步，关键步骤高亮）。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card loop-card">
+    <div class="brand-row">
+      <span class="tag">业务闭环</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <h2 class="loop-title">什么叫量产？不是研发成功</h2>
+    <div class="loop-list">
+      <div class="step"><span class="step-no">01</span><span class="step-text">百万台级别</span></div>
+      <div class="step"><span class="step-no">02</span><span class="step-text">成本压低</span></div>
+      <div class="step"><span class="step-no">03</span><span class="step-text">批量制造</span></div>
+      <div class="step"><span class="step-no">04</span><span class="step-text">稳定交付</span></div>
+      <div class="step final"><span class="step-no">05</span><span class="step-text">客户付费</span></div>
+    </div>
+    <div class="bottom-note">看商业兑现，看复购订单。</div>
+  </article>
+</body>
+</html>

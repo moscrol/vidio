@@ -1,0 +1,37 @@
+{
+  "name": "industry7view-card-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8787",
+    "check": "node check-cards.mjs",
+    "check:motion": "node check-motion-plan.mjs",
+    "export": "node export-cards.mjs",
+    "video:card-plan": "node scripts/generate-card-plan-from-srt.mjs",
+    "video:cards:draft": "node scripts/generate-cards-from-card-plan.mjs",
+    "video:from-srt:draft": "node scripts/draft-from-srt.mjs",
+    "video:promote:draft": "node scripts/promote-draft.mjs",
+    "video:timeline:draft": "node scripts/generate-timeline-rules-draft.mjs",
+    "video:timeline:from-plan": "node scripts/generate-timeline-rules-from-card-plan.mjs",
+    "video:transcript-plan": "node scripts/generate-transcript-card-plan.mjs",
+    "video:timeline": "node scripts/generate-motion-plan-from-srt.mjs",
+    "video:assets": "node scripts/prepare-remotion-assets.mjs",
+    "video:prepare": "npm run export && npm run check:motion && npm run video:assets",
+    "video:preview": "npm run video:prepare && remotion preview remotion/index.ts",
+    "video:render": "npm run video:prepare && mkdir -p output/video && remotion render remotion/index.ts CardDeckVideo output/video/card-deck-with-talk.mp4",
+    "video:publish": "node scripts/render-publish-version.mjs",
+    "video:publish:cover": "node scripts/export-cover-thumbnail.mjs"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^18.3.29",
+    "@types/react-dom": "^18.3.7",
+    "playwright": "^1.52.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.0"
+  }
+}

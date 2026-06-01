@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industry 7View · 卡片静态库总览</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    body {
+      align-items: stretch;
+      padding: 36px 24px 80px;
+    }
+    .lab-header {
+      max-width: 1180px;
+      margin: 0 auto 28px;
+    }
+    .lab-header h1 {
+      color: var(--navy);
+      font-size: 30px;
+      margin: 0 0 8px;
+    }
+    .lab-header p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+      max-width: 720px;
+    }
+    .lab-header .hint {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: var(--data-bg);
+      border-left: 3px solid var(--gold);
+      font-size: 13px;
+      color: var(--navy);
+      font-weight: 800;
+      max-width: 720px;
+    }
+    .lab-grid {
+      display: grid;
+      gap: 32px;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .card-cell {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-cell .meta {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+      width: 360px;
+    }
+    .card-cell .meta .num {
+      background: var(--navy);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 900;
+      padding: 5px 8px;
+    }
+    .card-cell .meta .name {
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 15px;
+      flex: 1;
+    }
+    .card-cell .meta a {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .card-cell iframe {
+      border: none;
+      width: 360px;
+      height: 640px;
+      box-shadow: var(--shadow);
+      background: var(--paper);
+    }
+  </style>
+</head>
+<body>
+  <header class="lab-header">
+    <h1>Industry 7View · 卡片静态库</h1>
+    <p>所有可复用的 PNG 卡片单独抽出来。每张卡片对应一个 HTML 文件，独立编辑、单独预览，再统一回写到 <code>index.html</code> / Remotion 组件库。</p>
+    <div class="hint">建议工作流：① 打开单个 HTML 文件直接改 CSS 数值 → ② 浏览器实时刷新预览 → ③ 满意后把变更同步回 <code>../index.html</code> 与 <code>../remotion/components/*</code>。</div>
+  </header>
+  <main class="lab-grid">
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">00</span>
+        <span class="name">Cover · 封面</span>
+        <a href="cover.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="cover.html#card-only" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">01</span>
+        <span class="name">Hook · 反常识金句</span>
+        <a href="hook.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="hook.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">02</span>
+        <span class="name">Data Hero · 核心数据</span>
+        <a href="dataHero.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="dataHero.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">03</span>
+        <span class="name">Logistics · 真实挑战</span>
+        <a href="logistics.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="logistics.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">04</span>
+        <span class="name">Compare · 不是 A 是 B</span>
+        <a href="compare.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="compare.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">05a</span>
+        <span class="name">Loop · 业务闭环</span>
+        <a href="loop.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="loop.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">05b</span>
+        <span class="name">Order Validation · 验证链条</span>
+        <a href="orderValidation.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="orderValidation.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">06</span>
+        <span class="name">Checklist · 跟踪清单</span>
+        <a href="checklist.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="checklist.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">07</span>
+        <span class="name">Quote · 金句结尾</span>
+        <a href="quote.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="quote.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">08</span>
+        <span class="name">Evidence Grid · 证据网格</span>
+        <a href="evidenceGrid.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="evidenceGrid.html" scrolling="no"></iframe>
+    </div>
+    <div class="card-cell">
+      <div class="meta">
+        <span class="num">09</span>
+        <span class="name">Supply Chain Shift · 供应链迁移</span>
+        <a href="supplyChainShift.html" target="_blank">EDIT →</a>
+      </div>
+      <iframe src="supplyChainShift.html" scrolling="no"></iframe>
+    </div>
+  </main>
+</body>
+</html>
