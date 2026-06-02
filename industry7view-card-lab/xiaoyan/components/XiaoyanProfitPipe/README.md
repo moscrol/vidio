@@ -42,3 +42,23 @@ This command is added by the render automation task.
 ```bash
 npm run xiaoyan:profit-pipe
 ```
+
+## Output Contract
+
+Each render writes:
+
+```text
+xiaoyan/renders/<props.id>/
+  xiaoyan-profit-pipe.mp4
+  preview.png
+  props.json
+  render-report.md
+```
+
+## v0.1 Acceptance
+
+- Default props render to 1080x1920 MP4.
+- Alternate props render without editing SVG or HTML.
+- HyperFrames lint has 0 errors.
+- HyperFrames inspect has 0 layout issues.
+- Xiaoyan remains a flat 2D stick figure with magnifier.

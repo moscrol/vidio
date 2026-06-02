@@ -17,6 +17,14 @@ This command is added by the render automation task.
 npm run xiaoyan:profit-pipe
 ```
 
+## Alternate Props
+
+```bash
+node xiaoyan/scripts/render-xiaoyan-profit-pipe.mjs xiaoyan/components/XiaoyanProfitPipe/cashflow-props.json
+```
+
+Use alternate props to verify that the component is reusable and not hard-wired to one SVG label set.
+
 The command renders the canonical sample props into:
 
 ```text
