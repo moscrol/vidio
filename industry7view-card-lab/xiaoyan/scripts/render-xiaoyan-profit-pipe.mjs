@@ -15,10 +15,11 @@ const COMPONENT_INDEX_PATH = path.join(
   PROJECT_ROOT,
   "xiaoyan/components/XiaoyanProfitPipe/index.html",
 );
+const RENDERS_ROOT = path.join(PROJECT_ROOT, "xiaoyan/renders");
 const CHROME_EXECUTABLE_PATH =
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const VIEWPORT = { width: 1080, height: 1920 };
-const PREVIEW_WAIT_MS = 5200;
+const TIMELINE_ID = "xiaoyan-profit-pipe";
 
 const propsPath = process.argv[2]
   ? path.resolve(process.cwd(), process.argv[2])
@@ -32,6 +33,8 @@ function validateProps(props) {
   } else {
     if (typeof props.id !== "string" || props.id.trim() === "") {
       errors.push("props.id must be a non-empty string");
+    } else if (props.id === "." || props.id === "..") {
+      errors.push("props.id must not be . or ..");
     } else if (!/^[A-Za-z0-9._-]+$/.test(props.id)) {
       errors.push("props.id may only contain letters, numbers, dots, underscores, and hyphens");
     }
@@ -48,6 +51,17 @@ function validateProps(props) {
   if (errors.length > 0) {
     throw new Error(`Invalid props:\n- ${errors.join("\n- ")}`);
   }
+}
+
+function resolveOutputDir(propsId) {
+  const outputDir = path.resolve(RENDERS_ROOT, propsId);
+  const relativePath = path.relative(RENDERS_ROOT, outputDir);
+
+  if (relativePath === "" || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    throw new Error(`Invalid props.id output directory: ${propsId}`);
+  }
+
+  return outputDir;
 }
 
 async function readJson(filePath) {
@@ -70,8 +84,9 @@ function injectProps(html, props) {
 
 function runCommand(command, args, options = {}) {
   return new Promise((resolve, reject) => {
+    const cwd = options.cwd || process.cwd();
     const child = spawn(command, args, {
-      cwd: options.cwd,
+      cwd,
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -84,10 +99,21 @@ function runCommand(command, args, options = {}) {
     child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
     });
-    child.on("error", reject);
+    child.on("error", (error) => {
+      error.result = {
+        command: [command, ...args].join(" "),
+        cwd,
+        code: null,
+        stdout,
+        stderr,
+        output: `${stdout}${stderr}`,
+      };
+      reject(error);
+    });
     child.on("close", (code) => {
       const result = {
         command: [command, ...args].join(" "),
+        cwd,
         code,
         stdout,
         stderr,
@@ -106,14 +132,16 @@ function runCommand(command, args, options = {}) {
 }
 
 async function withStaticServer(rootDir, callback) {
+  const resolvedRootDir = path.resolve(rootDir);
   const server = createServer(async (req, res) => {
     try {
       const requestUrl = new URL(req.url || "/", "http://127.0.0.1");
       const decodedPath = decodeURIComponent(requestUrl.pathname);
       const relativePath = decodedPath === "/" ? "index.html" : decodedPath.slice(1);
-      const filePath = path.resolve(rootDir, relativePath);
+      const filePath = path.resolve(resolvedRootDir, relativePath);
+      const serverRelativePath = path.relative(resolvedRootDir, filePath);
 
-      if (!filePath.startsWith(rootDir)) {
+      if (serverRelativePath.startsWith("..") || path.isAbsolute(serverRelativePath)) {
         res.writeHead(403);
         res.end("Forbidden");
         return;
@@ -161,7 +189,26 @@ async function capturePreview(tempCompositionDir, previewPath) {
     try {
       const page = await browser.newPage({ viewport: VIEWPORT });
       await page.goto(url, { waitUntil: "networkidle" });
-      await page.waitForTimeout(PREVIEW_WAIT_MS);
+      await page.waitForFunction(
+        (timelineId) => {
+          const timeline = window.__timelines?.[timelineId];
+          return timeline && typeof timeline.duration === "function" && timeline.duration() > 0;
+        },
+        TIMELINE_ID,
+      );
+      await page.evaluate((timelineId) => {
+        const timeline = window.__timelines[timelineId];
+        const nearFinalTime = Math.max(timeline.duration() - 0.1, 0);
+        timeline.pause();
+        timeline.seek(nearFinalTime, false);
+      }, TIMELINE_ID);
+      await page.waitForFunction(
+        (timelineId) => {
+          const timeline = window.__timelines?.[timelineId];
+          return timeline && timeline.time() >= Math.max(timeline.duration() - 0.11, 0);
+        },
+        TIMELINE_ID,
+      );
       await page.screenshot({ path: previewPath, fullPage: false });
     } finally {
       await browser.close();
@@ -173,16 +220,78 @@ function reportSection(title, body) {
   return `## ${title}\n\n\`\`\`text\n${body.trim() || "(no output)"}\n\`\`\``;
 }
 
+function commandReportSection(result) {
+  const body = [
+    `Command: ${result.command}`,
+    `CWD: ${result.cwd}`,
+    `Exit code: ${result.code ?? "(spawn error)"}`,
+    "",
+    "STDOUT:",
+    result.stdout.trim() || "(no output)",
+    "",
+    "STDERR:",
+    result.stderr.trim() || "(no output)",
+  ].join("\n");
+
+  return reportSection(result.label, body);
+}
+
+function buildReport({ status, paths, commandResults, error }) {
+  const sections = [
+    "# Xiaoyan Profit Pipe Render Report",
+    "",
+    `Status: ${status}`,
+    "",
+    `Props: ${paths.outputPropsPath}`,
+    `Temp composition: ${paths.tempCompositionDir}`,
+    `Rendered MP4: ${paths.mp4Path}`,
+    `Preview PNG: ${paths.previewPath}`,
+    "",
+  ];
+
+  if (error) {
+    sections.push(reportSection("Failure", error.stack || error.message));
+    sections.push("");
+  }
+
+  for (const result of commandResults) {
+    sections.push(commandReportSection(result));
+    sections.push("");
+  }
+
+  return sections.join("\n");
+}
+
+async function runTrackedCommand(commandResults, label, command, args, options = {}) {
+  try {
+    const result = await runCommand(command, args, options);
+    commandResults.push({ label, ...result });
+    return result;
+  } catch (error) {
+    if (error.result) {
+      commandResults.push({ label, ...error.result });
+    }
+    throw error;
+  }
+}
+
 async function main() {
   const props = await readJson(propsPath);
   validateProps(props);
 
-  const outputDir = path.join(PROJECT_ROOT, "xiaoyan/renders", props.id);
+  const outputDir = resolveOutputDir(props.id);
   const tempCompositionDir = path.join(outputDir, "composition-temp");
   const mp4Path = path.join(outputDir, "xiaoyan-profit-pipe.mp4");
   const previewPath = path.join(outputDir, "preview.png");
   const reportPath = path.join(outputDir, "render-report.md");
   const outputPropsPath = path.join(outputDir, "props.json");
+  const paths = {
+    outputPropsPath,
+    tempCompositionDir,
+    mp4Path,
+    previewPath,
+  };
+  const commandResults = [];
 
   await fs.mkdir(outputDir, { recursive: true });
   await fs.rm(tempCompositionDir, { recursive: true, force: true });
@@ -192,56 +301,50 @@ async function main() {
   await fs.writeFile(path.join(tempCompositionDir, "index.html"), injectProps(componentHtml, props));
   await fs.writeFile(outputPropsPath, `${JSON.stringify(props, null, 2)}\n`);
 
-  const lintResult = await runCommand("npx", ["hyperframes", "lint", "--verbose"], {
-    cwd: tempCompositionDir,
-  });
-  const inspectResult = await runCommand(
-    "npx",
-    ["hyperframes", "inspect", "--samples", "8", "--json"],
-    { cwd: tempCompositionDir },
-  );
-  const renderResult = await runCommand(
-    "npx",
-    ["hyperframes", "render", "--quality", "draft", "--output", mp4Path],
-    { cwd: tempCompositionDir },
-  );
+  try {
+    await runTrackedCommand(commandResults, "HyperFrames Lint", "npx", ["hyperframes", "lint", "--verbose"], {
+      cwd: tempCompositionDir,
+    });
+    await runTrackedCommand(
+      commandResults,
+      "HyperFrames Inspect",
+      "npx",
+      ["hyperframes", "inspect", "--samples", "8", "--json"],
+      { cwd: tempCompositionDir },
+    );
+    await runTrackedCommand(
+      commandResults,
+      "HyperFrames Render",
+      "npx",
+      ["hyperframes", "render", "--quality", "draft", "--output", mp4Path],
+      { cwd: tempCompositionDir },
+    );
 
-  await capturePreview(tempCompositionDir, previewPath);
+    await capturePreview(tempCompositionDir, previewPath);
 
-  const ffprobeResult = await runCommand(
-    "ffprobe",
-    [
-      "-v",
-      "error",
-      "-select_streams",
-      "v:0",
-      "-show_entries",
-      "stream=width,height,r_frame_rate,duration",
-      "-of",
-      "default=nw=1",
-      mp4Path,
-    ],
-    { cwd: PROJECT_ROOT },
-  );
+    await runTrackedCommand(
+      commandResults,
+      "ffprobe",
+      "ffprobe",
+      [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=width,height,r_frame_rate,duration",
+        "-of",
+        "default=nw=1",
+        mp4Path,
+      ],
+      { cwd: PROJECT_ROOT },
+    );
 
-  const report = [
-    "# Xiaoyan Profit Pipe Render Report",
-    "",
-    `Props: ${outputPropsPath}`,
-    `Temp composition: ${tempCompositionDir}`,
-    `Rendered MP4: ${mp4Path}`,
-    `Preview PNG: ${previewPath}`,
-    "",
-    reportSection("HyperFrames Lint", lintResult.output),
-    "",
-    reportSection("HyperFrames Inspect", inspectResult.output),
-    "",
-    reportSection("HyperFrames Render", renderResult.output),
-    "",
-    reportSection("ffprobe", ffprobeResult.output),
-    "",
-  ].join("\n");
-  await fs.writeFile(reportPath, report);
+    await fs.writeFile(reportPath, buildReport({ status: "success", paths, commandResults }));
+  } catch (error) {
+    await fs.writeFile(reportPath, buildReport({ status: "failure", paths, commandResults, error }));
+    throw error;
+  }
 
   console.log(`Rendered MP4: ${mp4Path}`);
   console.log(`Preview PNG: ${previewPath}`);
