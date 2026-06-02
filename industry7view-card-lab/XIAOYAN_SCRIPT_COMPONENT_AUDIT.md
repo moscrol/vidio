@@ -100,7 +100,7 @@ BusinessLoop 可以临时兜底，但语义不够精准。
 
 | 排名 | 候选 | 证据 | 结论 |
 |---:|---|---|---|
-| 1 | `XiaoyanValidationChain` | 半导体设备强匹配；人形机器人中强匹配；既有 `OrderValidationCard` 已是 promotion_candidate | 进入 v0.1 设计 spec |
+| 1 | `XiaoyanValidationChain` | 半导体设备强匹配；人形机器人中强匹配；既有 `OrderValidationCard` 已是 promotion_candidate | v0.1 已实现并完成双 props 渲染 |
 | 2 | `XiaoyanIndustryScroll` | 商业航天强匹配；未来产业链拆解高频 | 继续用商业航天、稀土永磁、半导体设备分类压测 |
 | 3 | `XiaoyanProfitPipe` props 扩展 | 商业航天持续收费、人形机器人成本量产都可复用 | 先补样例 props，不急新增结构 |
 | 4 | `XiaoyanNoiseFilter` | Demo vs 产品、概念 vs 兑现等反复出现 | 目前 CompareMotion 足够，继续观察 |
@@ -174,3 +174,18 @@ type XiaoyanValidationChainProps = {
 5. 只用半导体设备做第一条样片，人形机器人作为第二组 props。
 ```
 
+## 9. XiaoyanValidationChain v0.1 验证记录
+
+| 主题 | props | 输出 | 状态 |
+|---|---|---|---|
+| 半导体设备 | `xiaoyan/components/XiaoyanValidationChain/sample-props.json` | `outputs/xiaoyan-validation-chain-v0.1/semi/xiaoyan-validation-chain.mp4` | 已通过 |
+| 人形机器人 | `xiaoyan/components/XiaoyanValidationChain/robot-props.json` | `outputs/xiaoyan-validation-chain-v0.1/robot/xiaoyan-validation-chain.mp4` | 已通过 |
+
+验证结果：
+
+```text
+1. HyperFrames lint / inspect / render 均成功。
+2. ffprobe 显示 1080x1920、30fps、8.000000 秒。
+3. 小研保持二维平面火柴人，并持续拿着放大镜。
+4. 画面语义读作阶段验证链，不是利润管道或商业闭环。
+```

@@ -105,7 +105,7 @@ Pattern 是完整表达场景，直接接演讲稿。
 | 组件 | 适用口播 | 主要字段 | 当前判断 |
 |---|---|---|---|
 | `XiaoyanProfitPipe` | 利润从哪里来、成本/价格/竞争如何影响利润 | factors, bottleneck, result | v0.1 已代码化并通过双 props 渲染 |
-| `XiaoyanValidationChain` | 样机到订单、从技术可用到客户敢用 | stages, riskStage, finalProof | 下一优先组件，进入 v0.1 设计 |
+| `XiaoyanValidationChain` | 样机到订单、从技术可用到客户敢用 | stages, riskStage, finalProof | v0.1 已代码化并通过双 props 渲染 |
 | `XiaoyanIndustryScroll` | 拆产业链、上中下游、谁先兑现 | nodes, highlightNode, direction | P1 |
 | `XiaoyanNoiseFilter` | 热点噪音 vs 真实变量 | noiseItems, realVariables | P1 |
 | `XiaoyanSupplyShift` | 利润池/话语权/价值迁移 | from, to, drivers, result | P1 |
@@ -168,6 +168,42 @@ type XiaoyanValidationChainProps = XiaoyanBaseProps & {
   riskStage?: string;
   finalProof?: string;
 };
+```
+
+v0.1 已实现字段：
+
+```ts
+type XiaoyanValidationChainV01Props = {
+  id: string;
+  topic: string;
+  title: string;
+  stages: Array<{
+    label: string;
+    desc?: string;
+    state: 'done' | 'current' | 'next' | 'risk';
+  }>;
+  riskStage?: string;
+  finalProof: string;
+  blueNote?: string;
+  redNote?: string;
+  footer?: string;
+  durationSeconds?: number;
+};
+```
+
+已验证样例：
+
+| props | 主题 | 输出 |
+|---|---|---|
+| `sample-props.json` | 半导体设备验证链 | `outputs/xiaoyan-validation-chain-v0.1/semi/xiaoyan-validation-chain.mp4` |
+| `robot-props.json` | 人形机器人 Demo 到产品 | `outputs/xiaoyan-validation-chain-v0.1/robot/xiaoyan-validation-chain.mp4` |
+
+渲染入口：
+
+```bash
+cd industry7view-card-lab
+npm run xiaoyan:validation-chain
+node xiaoyan/scripts/render-xiaoyan-validation-chain.mjs xiaoyan/components/XiaoyanValidationChain/robot-props.json
 ```
 
 `XiaoyanProfitPipe` 字段：
@@ -309,7 +345,8 @@ P1：先做三个高频 Pattern
 
 ```text
 已完成：XiaoyanProfitPipe v0.1
-下一步：XiaoyanValidationChain v0.1 design spec
+已完成：XiaoyanValidationChain v0.1
+下一步：XiaoyanIndustryScroll 候选审计或 ProfitPipe props 扩展
 暂缓：XiaoyanIndustryScroll，等待商业航天和更多产业链稿件压测
 ```
 
