@@ -22,7 +22,8 @@
     "video:render": "npm run video:prepare && mkdir -p output/video && remotion render remotion/index.ts CardDeckVideo output/video/card-deck-with-talk.mp4",
     "video:publish": "node scripts/render-publish-version.mjs",
     "video:publish:cover": "node scripts/export-cover-thumbnail.mjs",
-    "xiaoyan:profit-pipe": "node xiaoyan/scripts/render-xiaoyan-profit-pipe.mjs"
+    "xiaoyan:profit-pipe": "node xiaoyan/scripts/render-xiaoyan-profit-pipe.mjs",
+    "xiaoyan:validation-chain": "node xiaoyan/scripts/render-xiaoyan-validation-chain.mjs"
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.0",
