@@ -195,8 +195,8 @@
       .note {
         position: absolute;
         z-index: 3;
-        max-width: 240px;
-        font-size: 35px;
+        max-width: 310px;
+        font-size: 33px;
         line-height: 1.14;
         font-weight: 850;
         transform: rotate(-5deg);
@@ -213,16 +213,16 @@
 
       .final-proof {
         position: absolute;
-        right: 74px;
+        right: 56px;
         top: 1034px;
-        width: 330px;
+        width: 410px;
         min-height: 132px;
         padding: 28px 26px;
         border: 5px solid var(--green);
         border-radius: 8px;
         background: #fffefa;
         color: var(--green);
-        font-size: 42px;
+        font-size: 40px;
         line-height: 1.18;
         font-weight: 900;
         text-align: center;
@@ -371,7 +371,6 @@
         "durationSeconds": 8
       }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
       const root = document.querySelector("#xiaoyan-validation-chain");
       const props = JSON.parse(document.querySelector("#xiaoyan-props").textContent);
@@ -425,31 +424,79 @@
       blueNote.style.left = `${Math.max(currentPoint.x - 120, 76)}px`;
       blueNote.style.top = `${currentPoint.y + 178}px`;
 
-      const tl = gsap.timeline({ paused: true, defaults: { overwrite: "auto" } });
-      root.__hyperframesTimeline = tl;
+      const totalDuration = props.durationSeconds || 8;
+      const q = (selector) => Array.from(document.querySelectorAll(selector));
+      const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+      const easeOut = (value) => 1 - Math.pow(1 - clamp(value), 3);
+      const progress = (time, start, duration) => easeOut((time - start) / duration);
+
+      function reveal(nodes, time, start, duration, from = {}) {
+        const p = progress(time, start, duration);
+        nodes.forEach((node) => {
+          const opacity = p;
+          const x = (from.x || 0) * (1 - p);
+          const y = (from.y || 0) * (1 - p);
+          const scale = (from.scale || 1) + (1 - (from.scale || 1)) * p;
+          const rotate = (from.rotate || 0) * (1 - p);
+          node.style.opacity = String(opacity);
+          node.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+        });
+      }
+
+      function drawPaths(nodes, time, start, duration, length) {
+        const p = progress(time, start, duration);
+        nodes.forEach((node) => {
+          node.style.opacity = String(p);
+          node.style.strokeDasharray = `${length * p} ${length}`;
+        });
+      }
+
+      let currentTime = 0;
+      const timeline = {
+        duration() {
+          return totalDuration;
+        },
+        pause() {
+          return this;
+        },
+        time() {
+          return currentTime;
+        },
+        seek(nextTime) {
+          currentTime = clamp(Number(nextTime) || 0, 0, totalDuration);
+          renderFrame(currentTime);
+          return this;
+        },
+      };
+
+      function renderFrame(time) {
+        reveal(q(".brand, .topic"), time, 0.1, 0.42, { y: -14 });
+        reveal(q(".title"), time, 0.25, 0.56, { y: 24, rotate: -3 });
+        reveal(q(".subtitle-line, .paper-mark"), time, 0.58, 0.42, { scale: 0.3 });
+        reveal(q(".xiaoyan"), time, 0.82, 0.62, { x: -58, rotate: -3 });
+        drawPaths(q(".main-path, .main-path-light"), time, 1.4, 0.9, 1200);
+        reveal(q(".arrow-head"), time, 2.12, 0.28, { x: -22 });
+
+        q(".stage").forEach((node, index) => {
+          reveal([node], time, 1.55 + index * 0.2, 0.36, { y: 20, scale: 0.9 });
+        });
+
+        drawPaths(q(".blue-arrow, .blue-arrow-head"), time, 3.72, 0.46, 280);
+        reveal(q(".blue-note"), time, 4.02, 0.34, { y: 18, rotate: -9 });
+        drawPaths(q(".risk-arrow, .risk-arrow-head"), time, 4.62, 0.45, 260);
+        reveal(q(".red-note"), time, 4.92, 0.36, { y: 16, rotate: 8 });
+        reveal(q(".final-proof"), time, 5.75, 0.54, { y: 28, scale: 0.92 });
+        reveal(q(".caption"), time, 6.55, 0.56, { y: 34 });
+
+        const swing = time >= 4.22 && time <= 5.6 ? Math.sin((time - 4.22) * 10) * 8 : 0;
+        document.querySelector(".magnifier").style.transformOrigin = "144px 162px";
+        document.querySelector(".magnifier").style.transform = `rotate(${-swing}deg)`;
+      }
+
+      renderFrame(0);
+      root.__hyperframesTimeline = timeline;
       window.__timelines = window.__timelines || {};
-      window.__timelines["xiaoyan-validation-chain"] = tl;
-
-      gsap.set(".stage, .note, .final-proof, .caption, .xiaoyan", { opacity: 0 });
-      gsap.set(".main-path, .main-path-light, .arrow-head, .blue-arrow, .blue-arrow-head, .risk-arrow, .risk-arrow-head", {
-        opacity: 0,
-      });
-
-      tl.fromTo(".brand, .topic", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.42, stagger: 0.08, ease: "power2.out" }, 0.1);
-      tl.fromTo(".title", { opacity: 0, y: 24, rotate: -3 }, { opacity: 1, y: 0, rotate: -1, duration: 0.56, ease: "expo.out" }, 0.25);
-      tl.fromTo(".subtitle-line, .paper-mark", { opacity: 0, scaleX: 0.3 }, { opacity: 1, scaleX: 1, duration: 0.42, stagger: 0.08, ease: "power2.out" }, 0.58);
-      tl.fromTo(".xiaoyan", { opacity: 0, x: -58, rotate: -3 }, { opacity: 1, x: 0, rotate: 0, duration: 0.62, ease: "expo.out" }, 0.82);
-      tl.fromTo(".main-path, .main-path-light", { opacity: 0, strokeDasharray: "0 1200" }, { opacity: 1, strokeDasharray: "1200 1200", duration: 0.9, stagger: 0.05, ease: "power2.inOut" }, 1.4);
-      tl.fromTo(".arrow-head", { opacity: 0, x: -22 }, { opacity: 1, x: 0, duration: 0.28, ease: "power2.out" }, 2.12);
-      tl.fromTo(".stage", { opacity: 0, y: 20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.36, stagger: 0.2, ease: "back.out(1.9)" }, 1.55);
-      tl.fromTo(".blue-arrow, .blue-arrow-head", { opacity: 0, strokeDasharray: "0 280" }, { opacity: 1, strokeDasharray: "280 280", duration: 0.46, stagger: 0.04, ease: "power2.out" }, 3.72);
-      tl.fromTo(".blue-note", { opacity: 0, y: 18, rotate: -9 }, { opacity: 1, y: 0, rotate: -5, duration: 0.34, ease: "back.out(2)" }, 4.02);
-      tl.to(".magnifier", { rotate: -12, transformOrigin: "144px 162px", duration: 0.46, yoyo: true, repeat: 2, ease: "sine.inOut" }, 4.22);
-      tl.fromTo(".risk-arrow, .risk-arrow-head", { opacity: 0, strokeDasharray: "0 260" }, { opacity: 1, strokeDasharray: "260 260", duration: 0.45, stagger: 0.04, ease: "power2.out" }, 4.62);
-      tl.fromTo(".red-note", { opacity: 0, y: 16, rotate: 8 }, { opacity: 1, y: 0, rotate: 4, duration: 0.36, ease: "back.out(2)" }, 4.92);
-      tl.fromTo(".final-proof", { opacity: 0, y: 28, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.54, ease: "back.out(1.7)" }, 5.75);
-      tl.fromTo(".caption", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.56, ease: "expo.out" }, 6.55);
-      tl.to(".final-proof", { boxShadow: "12px 14px 0 rgba(22, 143, 74, 0.2)", duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 6.9);
+      window.__timelines["xiaoyan-validation-chain"] = timeline;
     </script>
   </body>
 </html>
