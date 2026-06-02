@@ -1,0 +1,15 @@
+{
+  "id": "profit-pipe-cashflow",
+  "topic": "商业兑现现金流",
+  "title": "现金流水管",
+  "factors": ["需求", "交付", "回款", "成本", "现金流"],
+  "bottleneck": {
+    "label": "堵点",
+    "targetFactor": "回款"
+  },
+  "resultLabel": "现金流",
+  "blueNote": "看回款",
+  "redNote": "堵点",
+  "footer": "故事讲得再热，最后也要看现金流能不能真正流回来。",
+  "durationSeconds": 6
+}
