@@ -46,6 +46,14 @@ function validateProps(props) {
     if (typeof props.resultLabel !== "string" || props.resultLabel.trim() === "") {
       errors.push("props.resultLabel must be a non-empty string");
     }
+
+    if (
+      props.durationSeconds !== undefined &&
+      props.durationSeconds !== 6 &&
+      props.durationSeconds !== 8
+    ) {
+      errors.push("props.durationSeconds must be 6 or 8 when provided");
+    }
   }
 
   if (errors.length > 0) {
@@ -236,6 +244,54 @@ function commandReportSection(result) {
   return reportSection(result.label, body);
 }
 
+function parseFfprobeOutput(output) {
+  const metadata = {};
+
+  for (const line of output.split(/\r?\n/)) {
+    const separatorIndex = line.indexOf("=");
+    if (separatorIndex <= 0) {
+      continue;
+    }
+
+    const key = line.slice(0, separatorIndex).trim();
+    const value = line.slice(separatorIndex + 1).trim();
+    metadata[key] = value;
+  }
+
+  return metadata;
+}
+
+function validateVideoMetadata(ffprobeResult, expectedDurationSeconds) {
+  const metadata = parseFfprobeOutput(ffprobeResult.stdout);
+  const failures = [];
+  const durationToleranceSeconds = 0.08;
+
+  if (metadata.width !== "1080") {
+    failures.push(`width must be 1080, got ${metadata.width || "(missing)"}`);
+  }
+
+  if (metadata.height !== "1920") {
+    failures.push(`height must be 1920, got ${metadata.height || "(missing)"}`);
+  }
+
+  if (metadata.r_frame_rate !== "30/1") {
+    failures.push(`r_frame_rate must be 30/1, got ${metadata.r_frame_rate || "(missing)"}`);
+  }
+
+  const duration = Number(metadata.duration);
+  if (!Number.isFinite(duration)) {
+    failures.push(`duration must be numeric, got ${metadata.duration || "(missing)"}`);
+  } else if (Math.abs(duration - expectedDurationSeconds) > durationToleranceSeconds) {
+    failures.push(
+      `duration must be ${expectedDurationSeconds}s +/- ${durationToleranceSeconds}s, got ${duration}s`,
+    );
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`ffprobe validation failed:\n- ${failures.join("\n- ")}`);
+  }
+}
+
 function buildReport({ status, paths, commandResults, error }) {
   const sections = [
     "# Xiaoyan Profit Pipe Render Report",
@@ -322,7 +378,7 @@ async function main() {
 
     await capturePreview(tempCompositionDir, previewPath);
 
-    await runTrackedCommand(
+    const ffprobeResult = await runTrackedCommand(
       commandResults,
       "ffprobe",
       "ffprobe",
@@ -339,6 +395,7 @@ async function main() {
       ],
       { cwd: PROJECT_ROOT },
     );
+    validateVideoMetadata(ffprobeResult, props.durationSeconds || 6);
 
     await fs.writeFile(reportPath, buildReport({ status: "success", paths, commandResults }));
   } catch (error) {

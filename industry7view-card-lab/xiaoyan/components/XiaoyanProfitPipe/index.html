@@ -271,7 +271,7 @@
             <path d="M-34 28 H34 M0 14 V42 M-24 17 L24 39 M-24 39 L24 17" stroke="#121212" stroke-width="3" stroke-linecap="round" />
           </g>
 
-          <g class="leak" fill="none" stroke="#121212" stroke-linecap="round">
+          <g class="leak bottleneck-target" fill="none" stroke="#121212" stroke-linecap="round">
             <path d="M414 376 C410 398, 414 412, 404 430" stroke-width="3" />
             <path d="M392 452 C410 444, 430 444, 448 454" stroke-width="3" opacity="0.55" />
             <path d="M410 398 C402 410, 404 420, 414 426" stroke="#df2626" stroke-width="4" />
@@ -279,8 +279,8 @@
 
           <path class="flow-mark" d="M468 504 C552 496, 622 496, 704 506" fill="none" stroke="#1d65d8" stroke-width="5" stroke-linecap="round" />
           <path class="flow-mark-head" d="M684 486 L706 506 L680 524" fill="none" stroke="#1d65d8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-          <path class="block-arrow" d="M382 504 L404 436" fill="none" stroke="#df2626" stroke-width="4" stroke-linecap="round" />
-          <path class="block-arrow-head" d="M392 450 L404 436 L412 454" fill="none" stroke="#df2626" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <path class="block-arrow bottleneck-target" d="M382 504 L404 436" fill="none" stroke="#df2626" stroke-width="4" stroke-linecap="round" />
+          <path class="block-arrow-head bottleneck-target" d="M392 450 L404 436 L412 454" fill="none" stroke="#df2626" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
 
         <div class="tag demand" data-factor-index="0">需求</div>
@@ -288,7 +288,7 @@
         <div class="tag price" data-factor-index="2">价格</div>
         <div class="tag compete" data-factor-index="3">竞争</div>
         <div class="tag profit" data-factor-index="4">利润</div>
-        <div class="scribble block" data-prop="redNote">卡点</div>
+        <div class="scribble block bottleneck-note" data-prop="redNote">卡点</div>
         <div class="scribble flow" data-prop="blueNote">看流向</div>
 
         <svg class="xiaoyan" viewBox="0 0 214 300" aria-label="小研">
@@ -340,12 +340,26 @@
       root.dataset.duration = String(props.durationSeconds || 6);
 
       document.querySelector('[data-prop="title"]').textContent = props.title || "";
-      document.querySelector('[data-prop="redNote"]').textContent = props.redNote || "";
+      const redNote = props.redNote || props.bottleneck?.label || "";
+      document.querySelector('[data-prop="redNote"]').textContent = redNote;
       document.querySelector('[data-prop="blueNote"]').textContent = props.blueNote || "";
       document.querySelectorAll("[data-factor-index]").forEach((node) => {
         const index = Number(node.dataset.factorIndex);
         node.textContent = props.factors[index] || "";
       });
+
+      const targetFactor = props.bottleneck?.targetFactor;
+      const targetIndex = Array.isArray(props.factors)
+        ? props.factors.findIndex((factor) => factor === targetFactor)
+        : -1;
+      const factorValveX = [206, 404, 604, 794, 938];
+      const fallbackTargetIndex = 1;
+      const bottleneckIndex =
+        targetIndex >= 0 && targetIndex < factorValveX.length ? targetIndex : fallbackTargetIndex;
+      const bottleneckOffsetX = factorValveX[bottleneckIndex] - factorValveX[fallbackTargetIndex];
+      const redNoteNode = document.querySelector('[data-prop="redNote"]');
+      redNoteNode.style.left = `${332 + bottleneckOffsetX}px`;
+      redNoteNode.style.top = `${bottleneckIndex === fallbackTargetIndex ? 530 : 500}px`;
 
       const footer = props.footer || "";
       const caption = document.querySelector('[data-prop="footer"]');
@@ -363,6 +377,7 @@
       }
 
       const tl = gsap.timeline({ paused: true, defaults: { overwrite: "auto" } });
+      gsap.set(".bottleneck-target", { x: bottleneckOffsetX });
       root.__hyperframesTimeline = tl;
       window.__timelines = window.__timelines || {};
       window.__timelines["xiaoyan-profit-pipe"] = tl;
