@@ -93,7 +93,44 @@ time / voiceover / intent / semanticComponent / renderer / existingComponent / p
 5. 明确哪些镜头适合 HyperFrames 动效，哪些只适合静态图或 B-roll。
 ```
 
-## 6. 半导体设备样例
+## 6. 本地自动生成
+
+已有本地规则脚本可先生成组件匹配表草稿：
+
+```bash
+cd industry7view-card-lab
+npm run xiaoyan:component-plan -- ../短视频演讲稿/商业航天/商业航天不是发火箭_分镜执行表.md 商业航天不是发火箭_单条
+npm run xiaoyan:component-plan -- ../短视频演讲稿/半导体设备/半导体设备_AI口播稿.md
+```
+
+输出：
+
+```text
+xiaoyan/component-plans/<slug>.component-plan.json
+xiaoyan/component-plans/<slug>.component-plan.md
+```
+
+脚本定位：
+
+```text
+1. 只做规则拆分和 props 草案。
+2. 不调用 LLM。
+3. 不修改 cards.js。
+4. 不自动渲染 MP4。
+5. 输出必须人工审阅后，才进入具体 Xiaoyan props 或视频时间线。
+```
+
+适合用法：
+
+```text
+1. 粘贴一篇新稿件。
+2. 先跑 component-plan。
+3. 看哪些段落命中 ProfitPipe / ValidationChain / IndustryScroll。
+4. 只挑 1-2 个小研镜头进入渲染。
+5. 其余段落交给 A-roll、B-roll 或 SwissCard。
+```
+
+## 7. 半导体设备样例
 
 | time | voiceover | intent | semanticComponent | renderer | existingComponent | propsDraft | gap | decision |
 |---|---|---|---|---|---|---|---|---|
@@ -103,7 +140,7 @@ time / voiceover / intent / semanticComponent / renderer / existingComponent / p
 | 45-65s | 别只问有没有国产替代故事，要问三个问题。 | checklist | TrackingChecklist | SwissCard | `ChecklistMotion` | items: 头部晶圆厂验证/重复订单/收入毛利兑现 | 无 | use-existing |
 | 65-75s | 真正的终点不是做出来，而是晶圆厂敢用、产线跑得稳、客户继续下单。 | quote | ClosingQuote | A-roll or SwissCard | `QuoteMotion` | titleHtml: `真正的国产化，在产线和订单里` | 无 | use-existing |
 
-## 7. Gap Log 写法
+## 8. Gap Log 写法
 
 当发现缺口，不立刻写代码，先记录：
 
@@ -117,7 +154,7 @@ Need one more validation: 人形机器人量产链 / 商业航天成本-组网-�
 Decision: candidate-component
 ```
 
-## 8. 验收标准
+## 9. 验收标准
 
 ```text
 1. 每段口播都有明确 renderer，不出现“随便生成图”。
@@ -126,4 +163,3 @@ Decision: candidate-component
 4. 每个新增候选组件能列出字段、边界、复用主题。
 5. 真正进入代码前，至少经过 2 个主题压测。
 ```
-
