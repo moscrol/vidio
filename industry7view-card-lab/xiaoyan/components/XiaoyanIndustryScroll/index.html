@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Industry7View Xiaoyan Industry Scroll</title>
+    <style>
+      :root {
+        --ink: #121212;
+        --paper: #fffefa;
+        --blue: #1d65d8;
+        --red: #df2626;
+        --green: #168f4a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #ece9df;
+        font-family:
+          "Kaiti SC", "STKaiti", "Songti SC", "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+      }
+
+      #xiaoyan-industry-scroll {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 46% 46%, rgba(0, 0, 0, 0.035), transparent 42%),
+          var(--paper);
+        color: var(--ink);
+      }
+
+      .brand {
+        position: absolute;
+        left: 82px;
+        top: 82px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+        font-size: 24px;
+        font-weight: 750;
+      }
+
+      .topic {
+        position: absolute;
+        right: 82px;
+        top: 76px;
+        padding: 8px 20px 10px;
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        background: #fffefa;
+        font-size: 27px;
+        font-weight: 850;
+        transform: rotate(2deg);
+      }
+
+      .title {
+        position: absolute;
+        left: 90px;
+        top: 190px;
+        right: 90px;
+        font-size: 72px;
+        line-height: 1.12;
+        font-weight: 900;
+        letter-spacing: 0;
+        transform: rotate(-1deg);
+      }
+
+      .title-mark {
+        position: absolute;
+        left: 96px;
+        top: 384px;
+        width: 560px;
+        height: 38px;
+        border-bottom: 5px solid rgba(18, 18, 18, 0.72);
+        border-radius: 50%;
+        transform: rotate(-2deg);
+      }
+
+      .scroll-wrap {
+        position: absolute;
+        left: 42px;
+        top: 600px;
+        width: 996px;
+        height: 650px;
+      }
+
+      .scroll-svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 996px;
+        height: 650px;
+        overflow: visible;
+      }
+
+      .node-layer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 996px;
+        height: 650px;
+      }
+
+      .node {
+        position: absolute;
+        width: 154px;
+        min-height: 118px;
+        padding: 22px 13px 16px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        border: 4px solid var(--ink);
+        border-radius: 7px;
+        background: #fffefa;
+        box-shadow: 8px 10px 0 rgba(18, 18, 18, 0.08);
+        transform: translate(-50%, -50%) rotate(var(--node-rotate));
+      }
+
+      .node::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -15px;
+        width: 20px;
+        height: 20px;
+        border: 4px solid var(--ink);
+        border-radius: 50%;
+        background: #fffefa;
+        transform: translateX(-50%);
+      }
+
+      .node-label {
+        font-size: 29px;
+        line-height: 1.16;
+        font-weight: 900;
+      }
+
+      .node[data-role="upstream"] {
+        border-color: rgba(18, 18, 18, 0.7);
+      }
+
+      .node[data-role="midstream"] {
+        border-color: var(--blue);
+      }
+
+      .node[data-role="downstream"] {
+        border-style: dashed;
+      }
+
+      .node[data-role="application"] {
+        border-color: var(--green);
+        color: var(--green);
+      }
+
+      .note {
+        position: absolute;
+        z-index: 3;
+        max-width: 300px;
+        font-size: 34px;
+        line-height: 1.12;
+        font-weight: 900;
+      }
+
+      .blue-note {
+        left: 184px;
+        top: 504px;
+        color: var(--blue);
+        transform: rotate(-5deg);
+      }
+
+      .red-note {
+        left: 76px;
+        top: 84px;
+        color: var(--red);
+        transform: rotate(4deg);
+      }
+
+      .xiaoyan {
+        position: absolute;
+        left: 96px;
+        top: 1068px;
+        width: 246px;
+        height: 340px;
+        overflow: visible;
+      }
+
+      .caption {
+        position: absolute;
+        left: 86px;
+        right: 86px;
+        bottom: 210px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+        font-size: 40px;
+        line-height: 1.36;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .paper-mark {
+        position: absolute;
+        border: 3px solid rgba(18, 18, 18, 0.2);
+        border-left: 0;
+        border-right: 0;
+        border-radius: 50%;
+        transform: rotate(2deg);
+      }
+
+      .paper-mark.one {
+        right: 160px;
+        top: 368px;
+        width: 210px;
+        height: 44px;
+      }
+
+      .paper-mark.two {
+        left: 128px;
+        bottom: 134px;
+        width: 230px;
+        height: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="xiaoyan-industry-scroll"
+      data-composition-id="xiaoyan-industry-scroll"
+      data-width="1080"
+      data-height="1920"
+      data-duration="8"
+      data-start="0"
+      data-track-index="0"
+    >
+      <div class="brand">INDUSTRY 7VIEW / XIAOYAN</div>
+      <div class="topic" data-prop="topic">商业航天</div>
+      <div class="title" data-prop="title">上天后怎么赚钱</div>
+      <div class="title-mark"></div>
+      <div class="paper-mark one"></div>
+      <div class="paper-mark two"></div>
+
+      <div class="scroll-wrap">
+        <svg class="scroll-svg" viewBox="0 0 996 650" aria-label="产业链卷轴">
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path class="scroll-shadow" d="M64 284 C216 236, 380 260, 502 252 S780 222, 940 268" stroke="#121212" stroke-width="92" opacity="0.06" />
+            <path class="scroll-back" d="M54 262 C210 214, 374 238, 500 230 S780 198, 948 246" stroke="#121212" stroke-width="118" opacity="0.1" />
+            <path class="scroll-paper" d="M54 244 C210 198, 378 220, 502 214 S780 184, 948 228" stroke="#fffefa" stroke-width="92" />
+            <path class="scroll-top" d="M56 198 C210 154, 378 176, 504 170 S780 142, 948 184" stroke="#121212" stroke-width="5" />
+            <path class="scroll-bottom" d="M56 290 C214 246, 380 268, 504 262 S778 234, 948 276" stroke="#121212" stroke-width="5" opacity="0.72" />
+            <path class="direction-path" d="M94 246 C226 202, 374 232, 502 222 S764 196, 910 238" stroke="#1d65d8" stroke-width="5" />
+            <path class="direction-head" d="M884 216 L914 238 L882 260" stroke="#1d65d8" stroke-width="5" />
+            <path class="wrong-arrow" d="M146 126 C168 158, 180 184, 206 204" stroke="#df2626" stroke-width="5" />
+            <path class="wrong-head" d="M180 200 L206 204 L198 178" stroke="#df2626" stroke-width="5" />
+            <ellipse class="highlight-ring" cx="836" cy="230" rx="96" ry="72" stroke="#168f4a" stroke-width="6" transform="rotate(-4 836 230)" />
+          </g>
+        </svg>
+        <div class="node-layer" data-node-layer></div>
+        <div class="note blue-note" data-prop="blueNote">看完整链条</div>
+        <div class="note red-note" data-prop="redNote">别只盯火箭</div>
+      </div>
+
+      <svg class="xiaoyan" viewBox="0 0 246 340" aria-label="小研">
+        <g class="xy-body" fill="none" stroke="#121212" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="80" cy="58" r="36" fill="#fffefa" />
+          <path d="M66 54 L56 62" />
+          <circle cx="93" cy="55" r="2.5" fill="#121212" stroke="none" />
+          <path d="M80 96 L84 170" />
+          <path d="M82 118 L48 150" />
+          <path d="M84 120 L144 150" />
+          <path d="M84 170 L46 270" />
+          <path d="M84 170 L134 270 L104 270" />
+          <path d="M144 150 L170 122" />
+        </g>
+        <g class="magnifier" fill="none" stroke="#121212" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="184" cy="104" rx="42" ry="47" transform="rotate(-16 184 104)" fill="rgba(255,255,255,0.58)" />
+          <ellipse cx="184" cy="104" rx="30" ry="35" transform="rotate(-16 184 104)" stroke-width="3" opacity="0.5" />
+          <path d="M160 140 L144 162" />
+        </g>
+      </svg>
+
+      <div class="caption" data-prop="footer">商业航天不是能不能上天，而是上天之后能不能赚钱。</div>
+    </div>
+
+    <script type="application/json" id="xiaoyan-props">
+      {
+        "id": "industry-scroll-space",
+        "topic": "商业航天",
+        "title": "上天后怎么赚钱",
+        "nodes": [
+          {"label": "低成本发射", "role": "upstream"},
+          {"label": "卫星制造", "role": "midstream"},
+          {"label": "星座组网", "role": "midstream"},
+          {"label": "地面终端", "role": "downstream"},
+          {"label": "应用收费", "role": "application"}
+        ],
+        "highlightNode": "应用收费",
+        "blueNote": "看完整链条",
+        "redNote": "别只盯火箭",
+        "footer": "商业航天不是能不能上天，而是上天之后能不能赚钱。",
+        "durationSeconds": 8
+      }
+    </script>
+    <script>
+      const root = document.querySelector("#xiaoyan-industry-scroll");
+      const props = JSON.parse(document.querySelector("#xiaoyan-props").textContent);
+      root.dataset.duration = String(props.durationSeconds || 8);
+
+      document.querySelector('[data-prop="topic"]').textContent = props.topic || "";
+      document.querySelector('[data-prop="title"]').textContent = props.title || "";
+      document.querySelector('[data-prop="blueNote"]').textContent = props.blueNote || "";
+      document.querySelector('[data-prop="redNote"]').textContent = props.redNote || "";
+      document.querySelector('[data-prop="footer"]').textContent = props.footer || "";
+
+      const nodeLayer = document.querySelector("[data-node-layer]");
+      const nodes = Array.isArray(props.nodes) ? props.nodes.slice(0, 6) : [];
+      const coords = [
+        { x: 118, y: 246, r: "-3deg" },
+        { x: 300, y: 214, r: "2deg" },
+        { x: 492, y: 236, r: "-1deg" },
+        { x: 680, y: 204, r: "2deg" },
+        { x: 846, y: 238, r: "-2deg" },
+        { x: 928, y: 168, r: "3deg" },
+      ];
+
+      nodes.forEach((item, index) => {
+        const point = coords[index] || coords[coords.length - 1];
+        const node = document.createElement("div");
+        node.className = "node";
+        node.dataset.role = item.role || "";
+        node.dataset.label = item.label || "";
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y}px`;
+        node.style.setProperty("--node-rotate", point.r);
+        node.innerHTML = `<div class="node-label">${item.label || ""}</div>`;
+        nodeLayer.append(node);
+      });
+
+      const highlightIndex = Math.max(
+        nodes.findIndex((item) => item.label === props.highlightNode),
+        nodes.length - 1,
+      );
+      const highlightPoint = coords[highlightIndex] || coords[4];
+      document.querySelector(".highlight-ring").setAttribute("cx", String(highlightPoint.x));
+      document.querySelector(".highlight-ring").setAttribute("cy", String(highlightPoint.y));
+
+      const totalDuration = props.durationSeconds || 8;
+      const q = (selector) => Array.from(document.querySelectorAll(selector));
+      const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+      const easeOut = (value) => 1 - Math.pow(1 - clamp(value), 3);
+      const progress = (time, start, duration) => easeOut((time - start) / duration);
+
+      function reveal(items, time, start, duration, from = {}) {
+        const p = progress(time, start, duration);
+        items.forEach((item) => {
+          const x = (from.x || 0) * (1 - p);
+          const y = (from.y || 0) * (1 - p);
+          const scale = (from.scale || 1) + (1 - (from.scale || 1)) * p;
+          const rotate = (from.rotate || 0) * (1 - p);
+          item.style.opacity = String(p);
+          item.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+        });
+      }
+
+      function draw(items, time, start, duration, length) {
+        const p = progress(time, start, duration);
+        items.forEach((item) => {
+          item.style.opacity = String(p);
+          item.style.strokeDasharray = `${length * p} ${length}`;
+        });
+      }
+
+      let currentTime = 0;
+      const timeline = {
+        duration() {
+          return totalDuration;
+        },
+        pause() {
+          return this;
+        },
+        time() {
+          return currentTime;
+        },
+        seek(nextTime) {
+          currentTime = clamp(Number(nextTime) || 0, 0, totalDuration);
+          renderFrame(currentTime);
+          return this;
+        },
+      };
+
+      function renderFrame(time) {
+        reveal(q(".brand, .topic"), time, 0.1, 0.42, { y: -14 });
+        reveal(q(".title"), time, 0.25, 0.56, { y: 24, rotate: -3 });
+        reveal(q(".title-mark, .paper-mark"), time, 0.58, 0.42, { scale: 0.3 });
+        draw(q(".scroll-back, .scroll-paper, .scroll-top, .scroll-bottom"), time, 0.8, 0.8, 1300);
+        draw(q(".direction-path, .direction-head"), time, 1.35, 0.9, 1000);
+        q(".node").forEach((node, index) => {
+          reveal([node], time, 1.65 + index * 0.22, 0.36, { y: 18, scale: 0.9 });
+        });
+        reveal(q(".xiaoyan"), time, 2.55, 0.58, { x: -58, rotate: -3 });
+        reveal(q(".blue-note"), time, 3.9, 0.34, { y: 18, rotate: -8 });
+        draw(q(".wrong-arrow, .wrong-head"), time, 4.35, 0.42, 240);
+        reveal(q(".red-note"), time, 4.65, 0.34, { y: 14, rotate: 7 });
+        reveal(q(".highlight-ring"), time, 5.3, 0.48, { scale: 0.7 });
+        reveal(q(".caption"), time, 6.35, 0.56, { y: 34 });
+
+        const swing = time >= 3.9 && time <= 5.6 ? Math.sin((time - 3.9) * 9) * 8 : 0;
+        document.querySelector(".magnifier").style.transformOrigin = "144px 162px";
+        document.querySelector(".magnifier").style.transform = `rotate(${-swing}deg)`;
+      }
+
+      renderFrame(0);
+      root.__hyperframesTimeline = timeline;
+      window.__timelines = window.__timelines || {};
+      window.__timelines["xiaoyan-industry-scroll"] = timeline;
+    </script>
+  </body>
+</html>
