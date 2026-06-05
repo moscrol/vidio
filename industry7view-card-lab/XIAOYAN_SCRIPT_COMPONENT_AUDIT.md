@@ -101,7 +101,7 @@ BusinessLoop 可以临时兜底，但语义不够精准。
 | 排名 | 候选 | 证据 | 结论 |
 |---:|---|---|---|
 | 1 | `XiaoyanValidationChain` | 半导体设备强匹配；人形机器人中强匹配；既有 `OrderValidationCard` 已是 promotion_candidate | v0.1 已实现并完成双 props 渲染 |
-| 2 | `XiaoyanIndustryScroll` | 商业航天强匹配；未来产业链拆解高频 | 继续用商业航天、稀土永磁、半导体设备分类压测 |
+| 2 | `XiaoyanIndustryScroll` | 商业航天强匹配；未来产业链拆解高频 | v0.1 已实现并完成双 props 渲染 |
 | 3 | `XiaoyanProfitPipe` props 扩展 | 商业航天持续收费、人形机器人成本量产都可复用 | 先补样例 props，不急新增结构 |
 | 4 | `XiaoyanNoiseFilter` | Demo vs 产品、概念 vs 兑现等反复出现 | 目前 CompareMotion 足够，继续观察 |
 | 5 | `XiaoyanSupplyShift` | 已有 SupplyChainShift promotion_candidate | 等 Swiss 侧字段更稳定后再做小研版 |
@@ -188,4 +188,20 @@ type XiaoyanValidationChainProps = {
 2. ffprobe 显示 1080x1920、30fps、8.000000 秒。
 3. 小研保持二维平面火柴人，并持续拿着放大镜。
 4. 画面语义读作阶段验证链，不是利润管道或商业闭环。
+```
+
+## 10. XiaoyanIndustryScroll v0.1 验证记录
+
+| 主题 | props | 输出 | 状态 |
+|---|---|---|---|
+| 商业航天 | `xiaoyan/components/XiaoyanIndustryScroll/sample-props.json` | `outputs/xiaoyan-industry-scroll-v0.1/space/xiaoyan-industry-scroll.mp4` | 已通过 |
+| 半导体设备 | `xiaoyan/components/XiaoyanIndustryScroll/semi-props.json` | `outputs/xiaoyan-industry-scroll-v0.1/semi/xiaoyan-industry-scroll.mp4` | 已通过 |
+
+验证结果：
+
+```text
+1. HyperFrames lint / inspect / render 均成功。
+2. ffprobe 显示 1080x1920、30fps、8.000000 秒。
+3. 小研保持二维平面火柴人，并持续拿着放大镜。
+4. 画面语义读作产业链卷轴/地图，不是利润管道或验证门。
 ```

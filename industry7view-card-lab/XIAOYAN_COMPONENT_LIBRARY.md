@@ -106,7 +106,7 @@ Pattern 是完整表达场景，直接接演讲稿。
 |---|---|---|---|
 | `XiaoyanProfitPipe` | 利润从哪里来、成本/价格/竞争如何影响利润 | factors, bottleneck, result | v0.1 已代码化并通过双 props 渲染 |
 | `XiaoyanValidationChain` | 样机到订单、从技术可用到客户敢用 | stages, riskStage, finalProof | v0.1 已代码化并通过双 props 渲染 |
-| `XiaoyanIndustryScroll` | 拆产业链、上中下游、谁先兑现 | nodes, highlightNode, direction | P1 |
+| `XiaoyanIndustryScroll` | 拆产业链、上中下游、谁先兑现 | nodes, highlightNode, direction | v0.1 已代码化并通过双 props 渲染 |
 | `XiaoyanNoiseFilter` | 热点噪音 vs 真实变量 | noiseItems, realVariables | P1 |
 | `XiaoyanSupplyShift` | 利润池/话语权/价值迁移 | from, to, drivers, result | P1 |
 | `XiaoyanChecklistInspect` | 看订单、收入、现金流等检查项 | items, activeItem, verdict | P2 |
@@ -259,6 +259,42 @@ node xiaoyan/scripts/render-xiaoyan-profit-pipe.mjs xiaoyan/components/XiaoyanPr
 人形机器人：BOM 成本 / 产线效率 / 稳定性 / 售价。
 ```
 
+`XiaoyanIndustryScroll` 字段：
+
+```ts
+type XiaoyanIndustryScrollV01Props = {
+  id: string;
+  topic: string;
+  title: string;
+  nodes: Array<{
+    label: string;
+    desc?: string;
+    role?: 'upstream' | 'midstream' | 'downstream' | 'application';
+  }>;
+  highlightNode?: string;
+  direction?: 'left-to-right' | 'upstream-to-downstream';
+  blueNote?: string;
+  redNote?: string;
+  footer?: string;
+  durationSeconds?: number;
+};
+```
+
+已验证样例：
+
+| props | 主题 | 输出 |
+|---|---|---|
+| `sample-props.json` | 商业航天产业链 | `outputs/xiaoyan-industry-scroll-v0.1/space/xiaoyan-industry-scroll.mp4` |
+| `semi-props.json` | 半导体设备产业路径 | `outputs/xiaoyan-industry-scroll-v0.1/semi/xiaoyan-industry-scroll.mp4` |
+
+渲染入口：
+
+```bash
+cd industry7view-card-lab
+npm run xiaoyan:industry-scroll
+node xiaoyan/scripts/render-xiaoyan-industry-scroll.mjs xiaoyan/components/XiaoyanIndustryScroll/semi-props.json
+```
+
 ## 5. 与现有 Remotion 卡片库的关系
 
 现有 Swiss/Remotion 卡片负责“结构化结论”，小研组件负责“解释动作”。
@@ -346,8 +382,8 @@ P1：先做三个高频 Pattern
 ```text
 已完成：XiaoyanProfitPipe v0.1
 已完成：XiaoyanValidationChain v0.1
-下一步：XiaoyanIndustryScroll 候选审计或 ProfitPipe props 扩展
-暂缓：XiaoyanIndustryScroll，等待商业航天和更多产业链稿件压测
+已完成：XiaoyanIndustryScroll v0.1
+下一步：演讲稿自动拆组件表 / ProfitPipe props 扩展
 ```
 
 拆分审计入口：
