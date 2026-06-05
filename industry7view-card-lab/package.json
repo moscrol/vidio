@@ -23,7 +23,8 @@
     "video:publish": "node scripts/render-publish-version.mjs",
     "video:publish:cover": "node scripts/export-cover-thumbnail.mjs",
     "xiaoyan:profit-pipe": "node xiaoyan/scripts/render-xiaoyan-profit-pipe.mjs",
-    "xiaoyan:validation-chain": "node xiaoyan/scripts/render-xiaoyan-validation-chain.mjs"
+    "xiaoyan:validation-chain": "node xiaoyan/scripts/render-xiaoyan-validation-chain.mjs",
+    "xiaoyan:industry-scroll": "node xiaoyan/scripts/render-xiaoyan-industry-scroll.mjs"
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.0",
