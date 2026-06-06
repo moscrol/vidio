@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
-import { SCENES, TOTAL_DURATION } from "./scenes.mjs";
-import { validateScenes } from "./validate-scenes.mjs";
+import { SCENES, TOTAL_DURATION } from "./scenes.js";
+import { validateScenes } from "./validate-scenes.js";
 
 assert.equal(TOTAL_DURATION, 90.2);
 assert.doesNotThrow(() => validateScenes(SCENES, TOTAL_DURATION));

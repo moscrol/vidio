@@ -1,29 +1,29 @@
-import { captionAt } from "./captions.mjs";
-import { updatePaperTransition } from "./paper-transition.mjs";
-import { SCENES, TOTAL_DURATION } from "./scenes.mjs";
-import { validateScenes } from "./validate-scenes.mjs";
-import { mountGateLens, updateGateLens } from "./scenes/gate-lens.mjs";
-import { mountRiskDomino, updateRiskDomino } from "./scenes/risk-domino.mjs";
+import { captionAt } from "./captions.js";
+import { updatePaperTransition } from "./paper-transition.js";
+import { SCENES, TOTAL_DURATION } from "./scenes.js";
+import { validateScenes } from "./validate-scenes.js";
+import { mountGateLens, updateGateLens } from "./scenes/gate-lens.js";
+import { mountRiskDomino, updateRiskDomino } from "./scenes/risk-domino.js";
 import {
   mountValidationScroll,
   updateValidationScroll,
-} from "./scenes/validation-scroll.mjs";
+} from "./scenes/validation-scroll.js";
 import {
   mountBarrierScale,
   updateBarrierScale,
-} from "./scenes/barrier-scale.mjs";
+} from "./scenes/barrier-scale.js";
 import {
   mountCertificationTunnel,
   updateCertificationTunnel,
-} from "./scenes/certification-tunnel.mjs";
+} from "./scenes/certification-tunnel.js";
 import {
   mountResearchGates,
   updateResearchGates,
-} from "./scenes/research-gates.mjs";
+} from "./scenes/research-gates.js";
 import {
   mountBusinessProof,
   updateBusinessProof,
-} from "./scenes/business-proof.mjs";
+} from "./scenes/business-proof.js";
 
 validateScenes(SCENES, TOTAL_DURATION);
 

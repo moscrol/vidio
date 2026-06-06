@@ -1,5 +1,5 @@
-import { xiaoyanCharacter } from "../character.mjs";
-import { easeOut, progress, setReveal } from "../sketch-primitives.mjs";
+import { xiaoyanCharacter } from "../character.js";
+import { easeOut, progress, setReveal } from "../sketch-primitives.js";
 
 const STAGES = [
   ["样机", "能跑通"],

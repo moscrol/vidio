@@ -1,4 +1,4 @@
-import { SCENES } from "./scenes.mjs";
+import { SCENES } from "./scenes.js";
 
 const BOUNDARIES = SCENES.slice(1)
   .filter((scene, index) => scene.type !== SCENES[index].type)
