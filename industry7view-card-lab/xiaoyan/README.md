@@ -2,7 +2,8 @@
 
 This directory contains the hand-drawn Xiaoyan IP motion track for Industry 7View.
 
-The first supported component is `XiaoyanProfitPipe`.
+The library now includes reusable component samples plus a full 90.2-second
+semiconductor equipment production.
 
 ## Production Split
 
@@ -15,6 +16,36 @@ This command is added by the render automation task.
 
 ```bash
 npm run xiaoyan:profit-pipe
+```
+
+Render the complete semiconductor equipment video:
+
+```bash
+npm run xiaoyan:semiconductor:v2
+```
+
+The production alternates the original A-roll with seven full-screen Xiaoyan
+explanation scenes. Xiaoyan occupies about 73% of the timeline, while the
+original voice track remains the single timing source.
+
+```text
+xiaoyan/finished/SemiconductorFinishedV2/
+  scenes.js                 # timeline contract
+  captions.js               # Xiaoyan scene captions
+  scenes/                   # seven reusable full-screen scene modules
+  composition.js            # deterministic scene assembly
+  styles.css                # shared Xiaoyan visual system
+```
+
+Final output:
+
+```text
+../../outputs/semiconductor-finished-v2/
+  semiconductor-equipment-xiaoyan-v2.mp4
+  semiconductor-xiaoyan-v2-visual.mp4
+  qa-*.png
+  ffprobe.json
+  render-report.md
 ```
 
 ## Alternate Props

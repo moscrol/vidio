@@ -105,7 +105,7 @@ run("ffmpeg", [
   finalOutput,
 ]);
 
-const qaTimes = [2, 8, 16, 25, 40, 51, 58, 65, 73, 81, 87];
+const qaTimes = [2, 8, 16, 25, 40, 51, 58, 66, 73, 81, 85, 89];
 for (const second of qaTimes) {
   run("ffmpeg", [
     "-y",

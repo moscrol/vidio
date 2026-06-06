@@ -28,10 +28,11 @@ export function updateGateLens(host, time, duration) {
   setReveal(host.querySelector(".scene-title"), title, 34);
   const launch = host.querySelector(".bubble-launch");
   const lab = host.querySelector(".bubble-lab");
-  launch.style.opacity = String(push);
-  launch.style.transform = `translateX(${(-170 * push).toFixed(1)}px) rotate(-${(8 * push).toFixed(1)}deg)`;
-  lab.style.opacity = String(push);
-  lab.style.transform = `translateX(${(155 * push).toFixed(1)}px) rotate(${(7 * push).toFixed(1)}deg)`;
+  const bubbleOpacity = push * (1 - progress(push, 1, 0.58, 1));
+  launch.style.opacity = String(bubbleOpacity);
+  launch.style.transform = `translateX(${(-138 * push).toFixed(1)}px) rotate(-${(8 * push).toFixed(1)}deg)`;
+  lab.style.opacity = String(bubbleOpacity);
+  lab.style.transform = `translateX(${(128 * push).toFixed(1)}px) rotate(${(7 * push).toFixed(1)}deg)`;
   const fab = host.querySelector(".fab-gate");
   fab.style.opacity = String(gate);
   fab.style.transform = `scale(${(0.65 + gate * 0.35).toFixed(3)})`;
@@ -43,4 +44,3 @@ export function updateGateLens(host, time, duration) {
   setReveal(host.querySelector(".gate-stamp"), stamp, 22);
   host.querySelector(".gate-ring").style.opacity = String(stamp * 0.32);
 }
-
