@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>半导体设备小研成片 v2</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main
+      id="semiconductor-finished-v2"
+      data-composition-id="semiconductor-finished-v2"
+      data-start="0"
+      data-duration="90.2"
+      data-width="720"
+      data-height="1280"
+    >
+      <video
+        id="aroll"
+        class="clip aroll-video"
+        data-start="0"
+        data-duration="90.2"
+        data-track-index="0"
+        src="./media/aroll-hf.mp4"
+        muted
+        playsinline
+      ></video>
+      <div class="aroll-shade"></div>
+      <div id="scene-layer"></div>
+      <div id="brand" class="brand light">INDUSTRY 7 VIEW / XIAOYAN</div>
+      <div id="topic-chip" class="topic-chip">半导体设备</div>
+      <div id="caption-layer" class="caption-layer"></div>
+      <div id="paper-transition" class="paper-transition"></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const semiconductorTimeline = gsap.timeline({ paused: true });
+      semiconductorTimeline.to(
+        {},
+        {
+          duration: 90.2,
+          onUpdate: () => {
+            if (window.__seekSemiconductorV2) {
+              window.__seekSemiconductorV2(semiconductorTimeline.time());
+            }
+          },
+        },
+        0,
+      );
+      window.__timelines["semiconductor-finished-v2"] = semiconductorTimeline;
+    </script>
+    <script type="module" src="./composition.mjs"></script>
+  </body>
+</html>
