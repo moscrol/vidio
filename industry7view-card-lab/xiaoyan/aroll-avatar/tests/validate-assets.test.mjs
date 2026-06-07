@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { validateManifest } from "../scripts/validate-assets.mjs";
 
 const contract = JSON.parse(
   readFileSync(new URL("../character-contract.json", import.meta.url), "utf8"),
@@ -50,4 +51,13 @@ test("locks the A-roll identity anchors", () => {
     "paper-grain",
     "clean-white-background",
   ]);
+});
+
+test("requires the complete approved asset set", async () => {
+  const result = await validateManifest(
+    new URL("../asset-manifest.json", import.meta.url),
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.assets.length, 5);
 });
