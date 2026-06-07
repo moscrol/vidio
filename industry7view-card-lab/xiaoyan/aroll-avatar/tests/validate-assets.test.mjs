@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
-import contract from "../character-contract.json" with { type: "json" };
+
+const contract = JSON.parse(
+  readFileSync(new URL("../character-contract.json", import.meta.url), "utf8"),
+);
 
 test("locks the A-roll identity anchors", () => {
   assert.equal(contract.characterId, "ar-schema");
