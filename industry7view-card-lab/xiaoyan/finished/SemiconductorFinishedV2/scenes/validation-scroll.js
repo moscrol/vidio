@@ -47,12 +47,11 @@ export function updateValidationScroll(host, time, duration) {
     stage.classList.toggle("active", journey >= (index + 0.45) / stages.length);
   });
   const character = host.querySelector(".scroll-xiaoyan");
-  character.style.left = `${64 + journey * 488}px`;
-  character.style.transform = `scale(.72) translateY(${(Math.sin(journey * Math.PI * 14) * 6).toFixed(1)}px)`;
+  character.style.left = `${64 + journey * 456}px`;
+  character.style.transform = `scale(.62) translateY(${(Math.sin(journey * Math.PI * 14) * 5).toFixed(1)}px)`;
   setReveal(
     host.querySelector(".scroll-distance"),
     easeOut(progress(time, duration, 0.79, 0.98)),
     20,
   );
 }
-

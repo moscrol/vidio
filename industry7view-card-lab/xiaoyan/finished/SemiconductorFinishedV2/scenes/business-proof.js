@@ -12,7 +12,7 @@ export function mountBusinessProof(host) {
         <div class="proof-orders"><i>订单</i><i>复购</i><i>订单</i></div>
         <div class="margin-chart"><span>毛利兑现</span><svg viewBox="0 0 240 120"><polyline points="8,103 52,94 92,76 132,79 176,48 230,20"/></svg></div>
       </div>
-      ${xiaoyanCharacter({ className: "proof-xiaoyan", pose: "point" })}
+      ${xiaoyanCharacter({ className: "proof-xiaoyan", pose: "writing" })}
       <div class="proof-focus"></div>
     </div>`;
 }
@@ -32,6 +32,5 @@ export function updateBusinessProof(host, time, duration) {
   const focus = easeOut(progress(time, duration, 0.78, 0.98));
   host.querySelector(".proof-focus").style.opacity = String(focus);
   host.querySelector(".proof-focus").style.transform = `scale(${(0.72 + focus * 0.28).toFixed(3)})`;
-  host.querySelector(".proof-xiaoyan").style.transform = `translateX(${(focus * 62).toFixed(1)}px)`;
+  host.querySelector(".proof-xiaoyan").style.transform = `scale(.66) translateX(${(focus * 44).toFixed(1)}px)`;
 }
-

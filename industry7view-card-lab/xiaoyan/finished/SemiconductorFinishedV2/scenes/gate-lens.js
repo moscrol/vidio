@@ -14,7 +14,7 @@ export function mountGateLens(host) {
         <strong>晶圆厂</strong>
       </div>
       <div class="gate-stamp">敢不敢用？</div>
-      ${xiaoyanCharacter({ className: "gate-xiaoyan", pose: "push" })}
+      ${xiaoyanCharacter({ className: "gate-xiaoyan", pose: "point" })}
       <div class="focus-beam"></div>
       <div class="scribble-ring gate-ring"></div>
     </div>`;
@@ -40,7 +40,7 @@ export function updateGateLens(host, time, duration) {
   beam.style.opacity = String(gate);
   beam.style.transform = `scaleX(${gate.toFixed(3)})`;
   const character = host.querySelector(".gate-xiaoyan");
-  character.style.transform = `translateX(${(push * 78).toFixed(1)}px)`;
+  character.style.transform = `scale(.76) translateX(${(push * 58).toFixed(1)}px)`;
   setReveal(host.querySelector(".gate-stamp"), stamp, 22);
   host.querySelector(".gate-ring").style.opacity = String(stamp * 0.32);
 }

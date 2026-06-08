@@ -28,8 +28,7 @@ export function updateCertificationTunnel(host, time, duration) {
     checkpoint.style.transform = `translateY(${((1 - amount) * 25).toFixed(1)}px)`;
   });
   const character = host.querySelector(".tunnel-xiaoyan");
-  character.style.left = `${42 + ruler * 490}px`;
-  character.style.transform = "scale(.66)";
+  character.style.left = `${42 + ruler * 448}px`;
+  character.style.transform = "scale(.58)";
   setReveal(host.querySelector(".tunnel-note"), easeOut(progress(time, duration, 0.72, 0.98)), 16);
 }
-

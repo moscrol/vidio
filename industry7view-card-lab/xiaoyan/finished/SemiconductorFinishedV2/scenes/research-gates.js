@@ -11,7 +11,7 @@ export function mountResearchGates(host) {
   host.innerHTML = `
     <div class="scene-content research-gates">
       <div class="scene-kicker">研究半导体设备，要问三个问题</div>
-      <h2 class="scene-title">小研的<br><span class="blue">三道检查门</span></h2>
+      <h2 class="scene-title">研究的<br><span class="blue">三道检查门</span></h2>
       <div class="gate-row">
         ${GATES.map(([number, title, proof], index) => `
           <div class="research-gate gate-${index}">
@@ -34,9 +34,8 @@ export function updateResearchGates(host, time, duration) {
     gate.classList.toggle("passed", pass > 0.75);
   });
   const journey = easeOut(progress(time, duration, 0.16, 0.88));
-  host.querySelector(".gates-xiaoyan").style.left = `${36 + journey * 500}px`;
-  host.querySelector(".gates-xiaoyan").style.transform = "scale(.62)";
+  host.querySelector(".gates-xiaoyan").style.left = `${36 + journey * 452}px`;
+  host.querySelector(".gates-xiaoyan").style.transform = "scale(.54)";
   const light = easeOut(progress(time, duration, 0.83, 0.98));
   setReveal(host.querySelector(".pass-light"), light, 18);
 }
-

@@ -36,7 +36,6 @@ export function updateRiskDomino(host, time, duration) {
   host.querySelector(".risk-wave").style.transform = `scaleX(${wave.toFixed(3)})`;
   host.querySelector(".risk-wave").style.opacity = String(wave);
   const character = host.querySelector(".risk-xiaoyan");
-  character.style.transform = `translateX(${(wave * 28).toFixed(1)}px) rotate(${(-wave * 5).toFixed(1)}deg)`;
+  character.style.transform = `scale(.72) translateX(${(wave * 20).toFixed(1)}px) rotate(${(-wave * 4).toFixed(1)}deg)`;
   setReveal(host.querySelector(".risk-note"), easeOut(progress(time, duration, 0.65, 0.96)), 18);
 }
-

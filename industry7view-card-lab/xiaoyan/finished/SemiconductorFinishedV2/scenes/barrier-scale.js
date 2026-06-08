@@ -16,7 +16,7 @@ export function mountBarrierScale(host) {
           <div class="trust-weight">产线信任</div>
         </div>
       </div>
-      ${xiaoyanCharacter({ className: "scale-xiaoyan", pose: "stamp" })}
+      ${xiaoyanCharacter({ className: "scale-xiaoyan", pose: "point" })}
       <div class="approval-stamp">真正壁垒</div>
     </div>`;
 }
@@ -36,6 +36,5 @@ export function updateBarrierScale(host, time, duration) {
   host.querySelector(".pan-right").style.transform = `translateY(${(trust * 36).toFixed(1)}px)`;
   const stamp = easeOut(progress(time, duration, 0.68, 0.94));
   setReveal(host.querySelector(".approval-stamp"), stamp, 24);
-  host.querySelector(".scale-xiaoyan").style.transform = `translateX(${(stamp * 52).toFixed(1)}px)`;
+  host.querySelector(".scale-xiaoyan").style.transform = `scale(.68) translateX(${(stamp * 42).toFixed(1)}px)`;
 }
-
