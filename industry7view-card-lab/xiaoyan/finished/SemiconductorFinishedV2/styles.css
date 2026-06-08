@@ -695,6 +695,22 @@ body {
   font-weight: 900;
 }
 .scale-xiaoyan { left: 54px; bottom: 188px; transform: scale(.68); }
+.barrier-turn {
+  position: absolute;
+  left: 248px;
+  top: 808px;
+  width: 220px;
+  padding: 12px 14px;
+  border: 4px solid var(--xy-ink);
+  border-radius: 7px;
+  background: #fff8bd;
+  text-align: center;
+  font-size: 22px;
+  line-height: 1.22;
+  font-weight: 900;
+  opacity: 0;
+}
+.barrier-turn strong { color: var(--xy-blue); }
 .approval-stamp {
   position: absolute;
   right: 70px;
@@ -757,6 +773,24 @@ body {
 .cp-test { left: 92px; }
 .cp-fix { left: 300px; background: #fff4b8; }
 .cp-retest { right: 75px; border-color: var(--xy-blue); color: var(--xy-blue); }
+.cert-hold {
+  position: absolute;
+  right: 70px;
+  top: 318px;
+  width: 220px;
+  padding: 14px 16px;
+  border: 4px solid var(--xy-red);
+  border-radius: 7px;
+  background: #fff8f5;
+  color: var(--xy-red);
+  text-align: center;
+  font-size: 23px;
+  line-height: 1.22;
+  font-weight: 950;
+  opacity: 0;
+  transform-origin: center;
+}
+.cert-hold strong { color: var(--xy-ink); }
 .tunnel-xiaoyan { top: 746px; transform: scale(.58); }
 .tunnel-note { position: absolute; left: 205px; right: 55px; bottom: 215px; font-size: 29px; }
 
@@ -816,6 +850,20 @@ body {
 .research-gate.passed { border-color: var(--xy-blue); background: #f7fbff; }
 .research-gate.passed > i { opacity: 1; }
 .gates-xiaoyan { top: 800px; transform: scale(.54); }
+.gate-pass-burst {
+  position: absolute;
+  left: 262px;
+  bottom: 218px;
+  padding: 12px 18px;
+  border: 5px solid var(--xy-blue);
+  border-radius: 7px;
+  background: #f5fbff;
+  color: var(--xy-blue);
+  font-size: 28px;
+  font-weight: 950;
+  opacity: 0;
+  transform-origin: center;
+}
 .pass-light {
   position: absolute;
   right: 78px;

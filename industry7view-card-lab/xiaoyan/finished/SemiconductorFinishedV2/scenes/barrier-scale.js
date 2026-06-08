@@ -17,6 +17,7 @@ export function mountBarrierScale(host) {
         </div>
       </div>
       ${xiaoyanCharacter({ className: "scale-xiaoyan", pose: "point" })}
+      <div class="barrier-turn">参数很多<br><strong>但信任更重</strong></div>
       <div class="approval-stamp">真正壁垒</div>
     </div>`;
 }
@@ -34,6 +35,7 @@ export function updateBarrierScale(host, time, duration) {
   host.querySelector(".scale-beam").style.transform = `rotate(${(trust * 10 - params * 3).toFixed(1)}deg)`;
   host.querySelector(".pan-left").style.transform = `translateY(${(-trust * 36).toFixed(1)}px)`;
   host.querySelector(".pan-right").style.transform = `translateY(${(trust * 36).toFixed(1)}px)`;
+  setReveal(host.querySelector(".barrier-turn"), trust, 18);
   const stamp = easeOut(progress(time, duration, 0.68, 0.94));
   setReveal(host.querySelector(".approval-stamp"), stamp, 24);
   host.querySelector(".scale-xiaoyan").style.transform = `scale(.68) translateX(${(stamp * 42).toFixed(1)}px)`;
