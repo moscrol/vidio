@@ -1,5 +1,9 @@
 @import url("./shared/styles.css");
 
+.aroll-video {
+  transform: scale(.94);
+}
+
 .watermark-cover {
   position: absolute;
   right: 18px;
