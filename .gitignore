@@ -10,6 +10,7 @@ mcp_config.json
 feishu_config.json
 .claude/settings.local.json
 .stitch/
+.superpowers/
 
 node_modules/
 **/node_modules/
@@ -30,3 +31,6 @@ _check-*.png
 _t*.png
 cards-static/_preview-*.png
 .git-embedded-backups/
+
+industry7view-card-lab/xiaoyan/renders/*
+!industry7view-card-lab/xiaoyan/renders/.gitkeep
