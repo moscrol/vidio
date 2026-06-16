@@ -18,6 +18,31 @@ This command is added by the render automation task.
 npm run xiaoyan:profit-pipe
 ```
 
+Generate the A-roll+B-roll decision package from a digital-human A-roll and a
+Whisper timestamp JSON:
+
+```bash
+npm run xiaoyan:aroll-broll:pipeline -- \
+  --aroll xiaoyan/finished/JimengXiaoyanBrollTestV1/media/aroll.mp4 \
+  --transcript xiaoyan/finished/JimengXiaoyanBrollTestV1/transcript.json \
+  --slug jimeng-semiconductor-test
+```
+
+The command writes:
+
+```text
+xiaoyan/auto-edits/<slug>/
+  transcript.normalized.json
+  edit-decision.json
+  scenes.generated.js
+  captions.generated.js
+  README.md
+```
+
+This is the v0.1 automation contract: Whisper timestamps become caption beats,
+caption beats become Xiaoyan B-roll decisions, and the generated modules can be
+fed into a HyperFrames or Remotion assembly step.
+
 Render the complete semiconductor equipment video:
 
 ```bash
