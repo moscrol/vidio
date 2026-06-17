@@ -21,7 +21,13 @@
     "video:preview": "npm run video:prepare && remotion preview remotion/index.ts",
     "video:render": "npm run video:prepare && mkdir -p output/video && remotion render remotion/index.ts CardDeckVideo output/video/card-deck-with-talk.mp4",
     "video:publish": "node scripts/render-publish-version.mjs",
-    "video:publish:cover": "node scripts/export-cover-thumbnail.mjs"
+    "video:publish:cover": "node scripts/export-cover-thumbnail.mjs",
+    "xiaoyan:profit-pipe": "node xiaoyan/scripts/render-xiaoyan-profit-pipe.mjs",
+    "xiaoyan:validation-chain": "node xiaoyan/scripts/render-xiaoyan-validation-chain.mjs",
+    "xiaoyan:industry-scroll": "node xiaoyan/scripts/render-xiaoyan-industry-scroll.mjs",
+    "xiaoyan:component-plan": "node xiaoyan/scripts/generate-xiaoyan-component-plan.mjs",
+    "xiaoyan:aroll-broll:pipeline": "node xiaoyan/scripts/run-aroll-broll-pipeline.mjs",
+    "xiaoyan:semiconductor:v2": "node xiaoyan/scripts/render-semiconductor-finished-v2.mjs"
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.0",

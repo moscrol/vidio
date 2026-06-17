@@ -1,0 +1,32 @@
+{
+  "id": "industry-scroll-space",
+  "topic": "商业航天",
+  "title": "上天后怎么赚钱",
+  "nodes": [
+    {
+      "label": "低成本发射",
+      "role": "upstream"
+    },
+    {
+      "label": "卫星制造",
+      "role": "midstream"
+    },
+    {
+      "label": "星座组网",
+      "role": "midstream"
+    },
+    {
+      "label": "地面终端",
+      "role": "downstream"
+    },
+    {
+      "label": "应用收费",
+      "role": "application"
+    }
+  ],
+  "highlightNode": "应用收费",
+  "blueNote": "看完整链条",
+  "redNote": "别只盯火箭",
+  "footer": "商业航天不是能不能上天，而是上天之后能不能赚钱。",
+  "durationSeconds": 8
+}

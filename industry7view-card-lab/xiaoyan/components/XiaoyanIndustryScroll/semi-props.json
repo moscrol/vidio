@@ -1,0 +1,32 @@
+{
+  "id": "industry-scroll-semi",
+  "topic": "半导体设备",
+  "title": "造芯片先造机器",
+  "nodes": [
+    {
+      "label": "核心零部件",
+      "role": "upstream"
+    },
+    {
+      "label": "整机设备",
+      "role": "midstream"
+    },
+    {
+      "label": "晶圆厂导入",
+      "role": "midstream"
+    },
+    {
+      "label": "稳定跑产",
+      "role": "downstream"
+    },
+    {
+      "label": "订单兑现",
+      "role": "application"
+    }
+  ],
+  "highlightNode": "订单兑现",
+  "blueNote": "设备先过产线",
+  "redNote": "别停在样机",
+  "footer": "半导体设备的机会，不在传闻里，而在产线和订单里。",
+  "durationSeconds": 8
+}

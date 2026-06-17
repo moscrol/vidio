@@ -1,0 +1,33 @@
+{
+  "id": "validation-chain-robot",
+  "topic": "人形机器人",
+  "title": "从 Demo 到产品",
+  "stages": [
+    {
+      "label": "Demo",
+      "state": "done"
+    },
+    {
+      "label": "进工厂",
+      "state": "current"
+    },
+    {
+      "label": "稳定干活",
+      "state": "risk"
+    },
+    {
+      "label": "客户验收",
+      "state": "next"
+    },
+    {
+      "label": "批量付费",
+      "state": "next"
+    }
+  ],
+  "riskStage": "稳定干活",
+  "finalProof": "客户愿意付钱",
+  "blueNote": "不是动作炫技",
+  "redNote": "死亡谷在稳定性",
+  "footer": "会跳舞的是样品，能干活不坏的才是产品。",
+  "durationSeconds": 8
+}
