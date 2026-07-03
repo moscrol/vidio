@@ -2,9 +2,9 @@
 question: 深挖汇成股份
 greeting: [Deep Fomo · A 股深度研究 Agent, 盘面 × 证据 × 生命周期，一次问答跑完一份研究报告]
 chips: [个股深度研究, 题材深度探索, 行情前瞻研判]
-ending: [评论区报你想深挖的票, Deep Fomo 公开跑一次]
-end_placeholder: 直接评论：深挖 + 股票名
-danmaku: [深挖汇成股份, 先进封装还能追吗？, 高位分歧怎么办？]
+ending: [让研究先于情绪, Deep Fomo · A 股深度研究 Agent]
+end_placeholder: 问点什么…
+danmaku: [明天怎么看？, 高位分歧怎么办？, 下一个主线是什么？]
 rate: 75
 ---
 
