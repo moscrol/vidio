@@ -46,3 +46,5 @@ python3 render6.py        # 输出 frames/f%05d.png（约 2250 帧，~4 分钟�
 - 品牌色：深蓝 #12294B / 金 #C08A2D / 浅灰底 #F5F7FA；关键句加亮用 `linear-gradient(transparent 70%, #F0DDB4 70%)` 黄底划线。
 - Logo：`logo_crop.png`（用户提供）。
 - 改文案只动 `THINK` / `ANSWER` 两个数组；时长、排期、`TOTAL` 全部自动重算。
+
+> 已抽成可复用组件库：见 `../deepfomo-kit/`，给一份 content.md 原文即可一键生成同风格视频。
