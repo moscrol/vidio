@@ -48,3 +48,5 @@ python3 render6.py        # 输出 frames/f%05d.png（约 2250 帧，~4 分钟�
 - 改文案只动 `THINK` / `ANSWER` 两个数组；时长、排期、`TOTAL` 全部自动重算。
 
 > 已抽成可复用组件库：见 `../deepfomo-kit/`，给一份 content.md 原文即可一键生成同风格视频。
+
+| `anim7.html` / `render7.py` | 30s | 抖音优化版：3s 结论钩子开场 + 快剪思考 + 精简正文 + 关键数字大字弹出 + 音底 |
