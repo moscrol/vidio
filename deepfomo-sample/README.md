@@ -10,7 +10,8 @@
 |---|---|---|
 | `anim3.html` / `render3.py` | 52s | 初版流式：输出用 stock-deep-dive 脱敏精简锚样板（exemplars/deep-dive-huicheng-20260630.md） |
 | `anim4.html` / `render4.py` | 71s | 换用金融仓 95 分模板原文 `docs/learning/stock-deep-dive-95-huicheng-template.md`，含三张表格（收入结构/证据硬度/生命周期四问），流式提速到 75 字/秒 |
-| `anim5.html` / `render5.py` | 75s | **最终版**：措辞改成 LLM 录屏风格——思考区 R1 式第一人称推理（"用户想让我深挖…先验鲜…等等，这个反差需要重点解释"）、输出加开场承接句、六个分节小标题、结尾追问（"需要的话我可以继续做同链对比"） |
+| `anim5.html` / `render5.py` | 75s | 措辞改成 LLM 录屏风格——思考区 R1 式第一人称推理（"用户想让我深挖…先验鲜…等等，这个反差需要重点解释"）、输出加开场承接句、六个分节小标题、结尾追问（"需要的话我可以继续做同链对比"） |
+| `anim6.html` / `render6.py` | 75s | **最终版**：封面 UI 改成 ChatGPT 风——顶栏（≡ / logo / 模型徽标 / 头像）、居中问候语、建议问题 chips、圆角胶囊输入框（＋ / 麦克风 / 圆形发送键，输入后发送键点亮） |
 
 `frames-preview/` 是 anim5 关键时间点截帧（思考中 / 输出开始 / 表格 / 结论 / 结尾 CTA）。
 
@@ -35,7 +36,7 @@
 
 ```
 pip install playwright && playwright install chromium
-python3 render5.py        # 输出 frames/f%05d.png（约 2250 帧，~4 分钟）
+python3 render6.py        # 输出 frames/f%05d.png（约 2250 帧，~4 分钟）
 # 再按上面两条 ffmpeg 命令编码
 ```
 
