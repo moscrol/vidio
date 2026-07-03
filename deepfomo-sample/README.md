@@ -50,3 +50,7 @@ python3 render6.py        # 输出 frames/f%05d.png（约 2250 帧，~4 分钟�
 > 已抽成可复用组件库：见 `../deepfomo-kit/`，给一份 content.md 原文即可一键生成同风格视频。
 
 | `anim7.html` / `render7.py` | 30s | 抖音优化版：3s 结论钩子开场 + 快剪思考 + 精简正文 + 关键数字大字弹出 + 音底 |
+
+### 真人情绪开场版（deepfomo_douyin_face_30s.mp4）
+
+前 3.4s 用免费素材（Mixkit #51396，夜间刷手机情绪特写，License: Mixkit Free）替换大字钩子，叠加文案「又是深夜盯盘 / 越看越慌？/ Deep Fomo 先把研究跑完 ↓」+ 心跳音底，硬切进产品问答正片（anim7 去掉自带 hook 段）。拼接命令见 `render7.py` 同目录说明：素材 crop 608x1080→1080x1920，drawtext 逐行淡入，ffmpeg concat 后混音。
