@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Noto Sans CJK SC"; src: local("Noto Sans CJK SC"); }
+      @font-face { font-family: "WenQuanYi Zen Hei"; src: local("WenQuanYi Zen Hei"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: 1080px; height: 1920px; overflow: hidden;
+        background: #0b1220;
+      }
+      body { font-family: "Noto Sans CJK SC", "WenQuanYi Zen Hei", sans-serif; color: #f5f7fa; }
+      .scene {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: radial-gradient(120% 80% at 50% 0%, #14213d 0%, #0b1220 60%);
+        padding: 90px 70px 220px;
+      }
+      .kicker {
+        font-size: 40px; letter-spacing: 10px; color: #ff6b35; font-weight: 700;
+        margin-bottom: 36px;
+      }
+      .headline {
+        font-size: 104px; font-weight: 900; line-height: 1.28; text-align: center;
+        white-space: pre-line;
+      }
+      .headline .hl { color: #ff6b35; }
+      .shot-wrap { width: 960px; margin-top: 70px; }
+      .shot-card {
+        width: 100%; border-radius: 28px; overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+      }
+      .shot-card img { width: 100%; display: block; }
+      .scene .headline.small { font-size: 84px; }
+      .chips { display: flex; gap: 22px; margin-top: 54px; flex-wrap: wrap; justify-content: center; }
+      .chip {
+        font-size: 42px; font-weight: 700; padding: 18px 40px; border-radius: 999px;
+        background: rgba(255, 107, 53, 0.14); border: 2px solid rgba(255, 107, 53, 0.5);
+        color: #ffb38a;
+      }
+      .logo-row { display: flex; align-items: center; gap: 28px; margin-bottom: 48px; }
+      .logo-row img { width: 132px; height: 132px; border-radius: 30px; }
+      .logo-row span { font-size: 88px; font-weight: 900; letter-spacing: 2px; }
+      .sub {
+        position: absolute; left: 60px; right: 60px; bottom: 150px;
+        text-align: center; font-size: 52px; font-weight: 700; line-height: 1.4;
+        color: #ffffff; text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);
+        background: rgba(8, 12, 24, 0.62); border-radius: 22px; padding: 26px 34px;
+      }
+      .disclaimer {
+        position: absolute; top: 54px; right: 54px; font-size: 30px; color: rgba(255, 255, 255, 0.55);
+        letter-spacing: 2px;
+      }
+      .cta-btn {
+        margin-top: 64px; font-size: 56px; font-weight: 900; color: #0b1220;
+        background: linear-gradient(90deg, #ff6b35, #ffb347); padding: 30px 76px; border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="46.2"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- voiceover -->
+      <audio id="vo-hook" class="clip" data-start="0.4" data-duration="4.7" data-track-index="0" src="assets/vo_hook.mp3"></audio>
+      <audio id="vo-aggregate" class="clip" data-start="5.9" data-duration="12.31" data-track-index="0" src="assets/vo_aggregate.mp3"></audio>
+      <audio id="vo-evidence" class="clip" data-start="19.3" data-duration="10.97" data-track-index="0" src="assets/vo_evidence.mp3"></audio>
+      <audio id="vo-local" class="clip" data-start="31.3" data-duration="7.3" data-track-index="0" src="assets/vo_local.mp3"></audio>
+      <audio id="vo-cta" class="clip" data-start="39.5" data-duration="5.78" data-track-index="0" src="assets/vo_cta.mp3"></audio>
+
+      <!-- scene 1: hook 0-5.6 -->
+      <div id="s1" class="clip scene" data-start="0" data-duration="5.6" data-track-index="1">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div id="s1-h" class="headline">你刷金融消息
+要开 <span class="hl">几个 App</span>？</div>
+        <div id="s1-h2" class="headline small" style="margin-top:70px">我只开<span class="hl">这一个</span>。</div>
+      </div>
+
+      <!-- scene 2: aggregate 5.6-19.0 -->
+      <div id="s2" class="clip scene" data-start="5.6" data-duration="13.4" data-track-index="1" style="justify-content:flex-start; padding-top:170px">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div class="kicker">FINHOT · 多源聚合</div>
+        <div id="s2-h" class="headline small">一条信息流
+看全金融市场</div>
+        <div id="s2-shot" class="shot-wrap"><div class="shot-card"><img src="assets/timeline.png" alt="FinHot timeline" /></div></div>
+        <div id="s2-chips" class="chips">
+          <div class="chip">RSS</div><div class="chip">微博</div><div class="chip">雪球</div><div class="chip">微信</div><div class="chip">X</div>
+        </div>
+      </div>
+      <div id="sub-1" class="clip sub" data-start="5.9" data-duration="6.4" data-track-index="2">这是 FinHot：RSS、微博、雪球、微信、X<br />全部聚合成一条信息流</div>
+      <div id="sub-2" class="clip sub" data-start="12.3" data-duration="6.4" data-track-index="2">每条自动摘要、打分<br />高信号的自己浮上来</div>
+
+      <!-- scene 3: evidence 19.0-31.0 -->
+      <div id="s3" class="clip scene" data-start="19" data-duration="12" data-track-index="1" style="justify-content:flex-start; padding-top:170px">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div class="kicker">官方披露查新</div>
+        <div id="s3-h" class="headline small">先看<span class="hl">源头证据</span>
+再看热闹</div>
+        <div id="s3-shot" class="shot-wrap"><div class="shot-card"><img src="assets/entry-detail.png" alt="FinHot entry detail" /></div></div>
+        <div id="s3-chips" class="chips">
+          <div class="chip">公告</div><div class="chip">互动易</div><div class="chip">问询函</div><div class="chip">P0-P3 分级</div>
+        </div>
+      </div>
+      <div id="sub-3" class="clip sub" data-start="19.3" data-duration="5.5" data-track-index="2">看到一个题材想确认真假？<br />直接查官方披露</div>
+      <div id="sub-4" class="clip sub" data-start="24.8" data-duration="5.5" data-track-index="2">公告、互动易、问询函，按重要度分级<br />先看源头，再看热闹</div>
+
+      <!-- scene 4: local 31.0-39.2 -->
+      <div id="s4" class="clip scene" data-start="31" data-duration="8.2" data-track-index="1">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div class="kicker">本地优先 · BYOK</div>
+        <div id="s4-h" class="headline">你的阅读数据
+<span class="hl">只属于你</span></div>
+        <div id="s4-chips" class="chips">
+          <div class="chip">本地 SQLite</div><div class="chip">桌面应用</div><div class="chip">自带 AI Key</div>
+        </div>
+      </div>
+      <div id="sub-5" class="clip sub" data-start="31.3" data-duration="7.3" data-track-index="2">所有数据存在本地，桌面应用<br />AI 用自己的 key</div>
+
+      <!-- scene 5: cta 39.2-46.2 -->
+      <div id="s5" class="clip scene" data-start="39.2" data-duration="7" data-track-index="1">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div class="logo-row"><img src="assets/logo.png" alt="FinHot logo" /><span>FinHot</span></div>
+        <div id="s5-h" class="headline small">我给自己做的
+金融阅读器</div>
+        <div id="s5-cta" class="cta-btn">关注 · 更新陆续发</div>
+      </div>
+      <div id="sub-6" class="clip sub" data-start="39.5" data-duration="5.8" data-track-index="2">后续更新会陆续发<br />关注不迷路</div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // scene 1
+      tl.from("#s1-h", { opacity: 0, y: 80, duration: 0.7, ease: "power3.out" }, 0.1);
+      tl.from("#s1-h2", { opacity: 0, y: 60, duration: 0.6, ease: "power3.out" }, 2.6);
+
+      // scene 2
+      tl.from("#s2-h", { opacity: 0, y: 60, duration: 0.6, ease: "power3.out" }, 5.8);
+      tl.from("#s2-shot", { opacity: 0, y: 120, scale: 0.92, duration: 0.8, ease: "power3.out" }, 6.3);
+      tl.fromTo("#s2-shot", { scale: 1 }, { scale: 1.04, duration: 11, ease: "none" }, 7.2);
+      tl.from("#s2-chips .chip", { opacity: 0, y: 40, stagger: 0.12, duration: 0.4, ease: "power2.out" }, 6.8);
+
+      // scene 3
+      tl.from("#s3-h", { opacity: 0, y: 60, duration: 0.6, ease: "power3.out" }, 19.2);
+      tl.from("#s3-shot", { opacity: 0, y: 120, scale: 0.92, duration: 0.8, ease: "power3.out" }, 19.7);
+      tl.fromTo("#s3-shot", { scale: 1 }, { scale: 1.04, duration: 10, ease: "none" }, 20.6);
+      tl.from("#s3-chips .chip", { opacity: 0, y: 40, stagger: 0.12, duration: 0.4, ease: "power2.out" }, 20.2);
+
+      // scene 4
+      tl.from("#s4-h", { opacity: 0, y: 80, duration: 0.7, ease: "power3.out" }, 31.2);
+      tl.from("#s4-chips .chip", { opacity: 0, y: 40, stagger: 0.15, duration: 0.4, ease: "power2.out" }, 32.0);
+
+      // scene 5
+      tl.from("#s5 .logo-row", { opacity: 0, scale: 0.7, duration: 0.7, ease: "back.out(1.6)" }, 39.4);
+      tl.from("#s5-h", { opacity: 0, y: 60, duration: 0.6, ease: "power3.out" }, 40.0);
+      tl.from("#s5-cta", { opacity: 0, y: 50, scale: 0.9, duration: 0.6, ease: "back.out(1.6)" }, 41.0);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
