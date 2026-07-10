@@ -7,7 +7,7 @@ async def frames():
     async with async_playwright() as pw:
         b=await pw.chromium.launch()
         p=await b.new_page(viewport={'width':1080,'height':1920})
-        await p.goto('file:///home/ubuntu/deepfomo-video/anim7.html')
+        await p.goto('file://' + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'anim7.html'))
         await p.wait_for_timeout(400)
         t=await p.evaluate('window.TIMING')
         n=int(t['total']*FPS)

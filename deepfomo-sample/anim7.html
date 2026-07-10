@@ -218,7 +218,7 @@
 <script>
 window.CONTENT = {
  question: "深挖汇成股份",
- rate: 85,
+ rate: 110,
  greeting: ["Deep Fomo · A 股深度研究 Agent","盘面 × 证据 × 生命周期，一次问答跑完一份研究报告"],
  chips: ["个股深度研究","题材深度探索","行情前瞻研判"],
  ending: ["让研究先于情绪","Deep Fomo · A 股深度研究 Agent"],
@@ -231,16 +231,16 @@ window.CONTENT = {
   [{t:"但 6/30 板块大涨它反跌 0.8%，"},{t:"强板块弱个股",hl:1},{t:"，重判为"},{t:"高位分歧观察",hl:1},{t:"。"}]
  ],
  answer: [
-  {segs:[{t:"直接给结论："},{t:"市场付过钱、证据没跟上、替代者已出现",b:1},{t:"——现在的问题不是它有没有逻辑，而是二次定价之后还能不能升级。"}]},
+  {rate:42, segs:[{t:"直接给结论："},{t:"市场付过钱、证据没跟上、替代者已出现",b:1},{t:"——现在的问题不是它有没有逻辑，而是二次定价之后还能不能升级。"}]},
   {cls:"h", segs:[{t:"一、市场已经定价了什么"}]},
-  {segs:[{t:"6 月 9 日 23.96 元到 6 月 25 日 41.30 元，峰值涨幅约 "},{t:"72.37%",b:1},{t:"；6 月 30 日仍收 39.70 元，收益保留率约 "},{t:"90.77%",b:1},{t:"。市场已经为先进封装弹性选过它一轮，这不是脉冲。"}]},
+  {rate:70, segs:[{t:"6 月 9 日 23.96 元到 6 月 25 日 41.30 元，峰值涨幅约 "},{t:"72.37%",b:1},{t:"；6 月 30 日仍收 39.70 元，收益保留率约 "},{t:"90.77%",b:1},{t:"。市场已经为先进封装弹性选过它一轮，这不是脉冲。"}]},
   {cls:"h", segs:[{t:"二、证据跟上了吗"}]},
-  {segs:[{t:"硬证据只有 DDIC 封测基本盘和扩产；长鑫链是权益法不并表、鑫丰还在亏损；互动问答明确"},{t:"“暂无涉足玻璃基板封装计划”",b:1},{t:"。"}]},
+  {rate:150, segs:[{t:"硬证据只有 DDIC 封测基本盘和扩产；长鑫链是权益法不并表、鑫丰还在亏损；互动问答明确"},{t:"“暂无涉足玻璃基板封装计划”",b:1},{t:"。"}]},
   {table:{head:["证据点","硬度"],rows:[["DDIC 封测收入与销量增长","硬证据"],["鑫丰 / 长鑫链（权益法）","中"],["先进封装 / 2.5D/3D","中低"],["玻璃基板封装","反证"]]}},
   {cls:"h", segs:[{t:"三、替代者已出现"}]},
-  {segs:[{t:"6 月 30 日半导体集体大涨，它反而跌 0.8%："},{t:"不是板块不行，而是资金在同链里买了更强的前排",b:1},{t:"（颀中、甬矽、深科技…）。"}]},
+  {rate:60, segs:[{t:"6 月 30 日半导体集体大涨，它反而跌 0.8%："},{t:"不是板块不行，而是资金在同链里买了更强的前排",b:1},{t:"（颀中、甬矽、深科技…）。"}]},
   {cls:"h", segs:[{t:"结论"}]},
-  {segs:[{t:"从主线弹性挖掘，切到"},{t:"高位分歧后的再验证",b:1},{t:"：重新新高 + L3 级新证据，才有资格升级。（非投资建议）"}]}
+  {rate:45, segs:[{t:"从主线弹性挖掘，切到"},{t:"高位分歧后的再验证",b:1},{t:"：重新新高 + L3 级新证据，才有资格升级。（非投资建议）"}]}
  ]
 };
 </script>
@@ -300,7 +300,7 @@ const TABLE_LEN = 90; // virtual chars for a table (≈1.2s)
 let _acc = ANS_START;
 const ANS_SCHED = ANSWER.map(p=>{
   const L = p.table ? TABLE_LEN : segLen(p.segs);
-  const s = {start:_acc, len:L, end:_acc + L/ANS_RATE};
+  const s = {start:_acc, len:L, end:_acc + L/(p.rate || ANS_RATE)};
   _acc = s.end + ANS_GAP;
   return s;
 });
@@ -336,17 +336,17 @@ function typeB(segs, n){
   return out;
 }
 
-const END_T = ANS_DONE + 1.4;
-const TOTAL = END_T + 7.0;
+const END_T = ANS_DONE + 1.2;
+const TOTAL = END_T + 4.2;
 window.TOTAL = TOTAL;
 window.TIMING = {type_span:[0.9,2.5], submit:3.5, think:THINK_T, ans:ANS_SCHED.map(s=>[s.start,s.end]), end_t:END_T, total:TOTAL};
 const DM = [
-  {id:'dm0', t0:END_T+0.6, y:1300, dur:5.2},
-  {id:'dm1', t0:END_T+1.8, y:1420, dur:5.4},
-  {id:'dm2', t0:END_T+3.0, y:1540, dur:5.2},
+  {id:'dm0', t0:END_T+0.4, y:1300, dur:3.2},
+  {id:'dm1', t0:END_T+1.1, y:1420, dur:3.3},
+  {id:'dm2', t0:END_T+1.8, y:1540, dur:3.2},
 ];
 
-const HOOK_D = 3.4;
+const HOOK_D = 2.8;
 const POPS = [
   {el:'bp0', t0: ANS_SCHED[2].start + 0.5, dur: 1.4},
   {el:'bp1', t0: ANS_SCHED[2].start + 2.0, dur: 1.4},
@@ -358,7 +358,7 @@ window.seek = function(tt){
   if(tt < HOOK_D + 0.4){
     hk.style.display='flex';
     hk.style.opacity = tt > HOOK_D ? String(1-ease((tt-HOOK_D)/0.4)) : '1';
-    const ts = [0.15, 0.75, 1.35, 2.2];
+    const ts = [0.05, 0.55, 1.05, 1.75];
     ['hk0','hk1','hk2','hk3'].forEach((id,i)=>{
       const p = ease((tt-ts[i])/0.35);
       const e = $(id);
@@ -382,7 +382,7 @@ const seekInner = function(t){
   const ip = $('inputScene');
   const ibTxt = $('ibTxt');
   const ib1 = $('ib1');
-  $('header').style.opacity = t<4.0 ? '0' : String(ease((t-4.0)/0.4));
+  let headerOpacity = t<4.0 ? 0 : ease((t-4.0)/0.4);
   if(t < 4.2){
     ip.style.display='block';
     ip.style.opacity = t>3.7 ? String(1-ease((t-3.7)/0.5)) : '1';
@@ -453,7 +453,9 @@ const seekInner = function(t){
     const bottom = rect.top + rect.height;
     const overflow = Math.max(0, bottom - 1760);
     chat.style.transform = 'translateY('+(-overflow)+'px)';
+    headerOpacity = Math.min(headerOpacity, clamp(1 - overflow/140, 0, 1));
   }
+  $('header').style.opacity = String(headerOpacity);
 
   /* ---------- Phase 4: ending ---------- */
   const dim = ease((t-END_T)/0.8);
