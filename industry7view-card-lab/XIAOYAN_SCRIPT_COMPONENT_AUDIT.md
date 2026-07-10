@@ -17,7 +17,7 @@
 | 半导体设备 | `短视频演讲稿/半导体设备/半导体设备_Remotion卡片规划.md` | 验证链是否能由 BusinessLoop 兜底 | 已证明需要手绘验证链 renderer |
 | 商业航天 | `短视频演讲稿/商业航天/商业航天_AI口播稿.md` | 发射、组网、终端、下游收费的产业闭环 | 优先匹配 `XiaoyanIndustryScroll` 或 `XiaoyanProfitPipe` 变体 |
 | 商业航天 | `短视频演讲稿/商业航天/商业航天不是发火箭_分镜执行表.md` | 五段闭环、三点跟踪、金句收束 | 暂不作为 ValidationChain 证据 |
-| 人形机器人 | `抖音/人形机器人第一条_分镜执行表.md` | Demo 到产品、量产成本、工厂验证 | 中强匹配 `XiaoyanValidationChain` |
+| 人形机器人 | `短视频演讲稿/人形机器人/人形机器人第一条_分镜执行表.md` | Demo 到产品、量产成本、工厂验证 | 中强匹配 `XiaoyanValidationChain` |
 | 人形机器人 | `archive/completed-storyboards/机器人不是来跳舞的_分镜执行表.md` | 实验室样品到工厂产品，中间死亡谷 | 可作为 ValidationChain 第二压测主题 |
 
 ## 2. 组件判断规则

@@ -12,7 +12,7 @@
 | Pattern | B-roll Prompt Pack | 已文档化 | `BROLL_PROMPT_PACK.md` 已沉淀行业 B-roll 素材方向和 AI 生成提示词。 |
 | Pattern | Motion Recipe Pack | 已文档化 | `MOTION_RECIPE_PACK.md` 已定义卡片入场、数字弹入、节点点亮和 Remotion 映射。 |
 | Pattern | Remotion PNG Sequencer | 已工程化 v0.4 | 复用导出的 PNG、口播视频和 SRT 字幕，可通过 `timeline-rules.json` 生成卡片出现时间。 |
-| Workflow | Shot Script | 已有工作流 | `短视频分镜工作流.md` 定义了分镜执行表结构。 |
+| Workflow | Shot Script | 已有工作流 | `docs/system/短视频分镜工作流.md` 定义了分镜执行表结构。 |
 | Workflow | CapCut Assembly Template | 已文档化 | `CAPCUT_ASSEMBLY_TEMPLATE.md` 已从商业航天粗剪清单抽象为七卡通用装配模板。 |
 | Skill | Visual Assembly Skill | 待沉淀 | 重复 3 次以上后可沉淀为专用 Skill。 |
 
