@@ -7,6 +7,7 @@
 ```
 ops/
 ├── README.md                 # 本文件
+├── knowledge/                # 可复用知识资产（钩子 / 算法 / skill 目录）
 ├── shared/                   # 跨平台通用原则（定位、合规、内容公式）
 └── douyin/                   # 抖音
     ├── strategy.md           # 账号定位与起号策略
@@ -15,6 +16,8 @@ ops/
     ├── reviews/              # 发布后数据复盘
     └── assets/               # 封面文案、资料区文案等轻资产
 ```
+
+知识入口：[`knowledge/README.md`](./knowledge/README.md)
 
 ## 协作方式（顾问模式）
 
