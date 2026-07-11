@@ -147,12 +147,23 @@ AI 说：
 参考：ops/douyin/production-style.md + scripts/001-…（口播需按案例优先改写）。
 ```
 
+### 001 已交付（baoyu-design · 2026-07-11）
+
+| 产物 | 路径 |
+|------|------|
+| 竖屏 HTML deck（1080×1920 · 6 页 · data-anim） | `designs/ep001-anti-hallucination/index.html` |
+| 可编辑 PPTX（含 16 个入场动画 + 口播备注） | `designs/ep001-anti-hallucination/ep001-anti-hallucination.pptx` |
+| 剪映用 PNG（@2x · 2160×3840） | `designs/ep001-anti-hallucination/slides/slide-01…06.png` |
+| 本地预览 | `python3 -m http.server 4311 --directory designs` → `http://localhost:4311/ep001-anti-hallucination/index.html` |
+| 口播脚本 | `ops/douyin/scripts/001-五层防幻觉-生成不是真相.md` |
+
+**成片下一步：** 口播录音 / TTS 对齐时间轴 → 剪映叠 PNG 或 PPT 录屏翻页 → 角标「架构演示 · 非投资建议」全程保留。
+
 ---
 
-## 8. 下一步（本顾问）
+## 8. 下一步
 
-1. 按本节重写 `001` 口播与分镜（案例优先版）  
-2. 可选：用 `pptx` skill 出一版 6 页竖屏讲解稿  
-3. 成片仍交给视频 agent / 你本地渲染  
-
-你点头后我改 001 脚本并做 PPT 页。
+1. ~~001 口播/分镜案例优先版~~ ✅  
+2. ~~baoyu-design 6 页竖屏 deck + PPTX + PNG~~ ✅  
+3. 口播/配音 + 剪映时间轴（视频 agent 或本地）  
+4. 可选：HyperFrames/deepfomo 做「气泡吐句→打标」过程动画增强

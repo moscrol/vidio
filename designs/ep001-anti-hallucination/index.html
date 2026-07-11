@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>001 · 数字对了，也不能一起升级</title>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap");
+
+  :root {
+    --bg: #0b1220;
+    --bg2: #121c32;
+    --card: #17233c;
+    --text: #f3f6fb;
+    --muted: #9aabc4;
+    --gold: #e8b54d;
+    --gold-dim: rgba(232, 181, 77, 0.15);
+    --green: #3ecf8e;
+    --green-bg: rgba(62, 207, 142, 0.14);
+    --amber: #e8b54d;
+    --amber-bg: rgba(232, 181, 77, 0.14);
+    --red: #f07178;
+    --red-bg: rgba(240, 113, 120, 0.14);
+    --line: rgba(255, 255, 255, 0.08);
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #05080f;
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--text);
+  }
+
+  section[data-label] > *:not(img):not(picture):not(video):not(svg):not(canvas) {
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .slide {
+    position: relative;
+    width: 100%;
+    padding: 72px 64px 80px;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -10%, #1e335c 0%, transparent 55%),
+      linear-gradient(165deg, var(--bg) 0%, var(--bg2) 100%);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border: 1px solid rgba(232, 181, 77, 0.35);
+    border-radius: 999px;
+    padding: 10px 22px;
+    margin-bottom: 36px;
+  }
+
+  .warn {
+    position: absolute;
+    top: 56px;
+    right: 56px;
+    font-size: 18px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    margin: 0 0 28px;
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+  }
+
+  h1 .gold { color: var(--gold); }
+
+  .lead {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.55;
+    color: var(--muted);
+    font-weight: 500;
+    max-width: 920px;
+  }
+
+  .bubble {
+    margin-top: 48px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 40px 40px 36px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  }
+
+  .bubble .who {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 18px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .bubble .quote {
+    font-size: 34px;
+    line-height: 1.55;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .rows {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 28px;
+  }
+
+  .row .txt {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .tag {
+    font-size: 22px;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  .tag.ok { color: var(--green); background: var(--green-bg); }
+  .tag.maybe { color: var(--amber); background: var(--amber-bg); }
+  .tag.no { color: var(--red); background: var(--red-bg); }
+
+  .quote-big {
+    margin: 0;
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+
+  .quote-big .line2 {
+    color: var(--gold);
+    display: block;
+    margin-top: 12px;
+  }
+
+  .subline {
+    margin-top: 36px;
+    font-size: 28px;
+    color: var(--muted);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .layers {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .layer {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 22px;
+  }
+
+  .layer .n {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--gold);
+    text-align: center;
+  }
+
+  .layer .t {
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .layer .d {
+    font-size: 20px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .auth {
+    margin-top: 16px;
+    border: 2px solid rgba(232, 181, 77, 0.45);
+    border-radius: 18px;
+    padding: 22px 24px;
+    background: var(--gold-dim);
+  }
+
+  .auth .t {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--gold);
+  }
+
+  .auth .d {
+    font-size: 22px;
+    color: #d8e0ee;
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .chips {
+    margin-top: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .chip {
+    font-size: 26px;
+    font-weight: 600;
+    padding: 16px 28px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line);
+  }
+
+  .q {
+    margin-top: auto;
+    padding-top: 48px;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--gold);
+  }
+
+  .foot {
+    position: absolute;
+    bottom: 40px;
+    left: 64px;
+    right: 64px;
+    font-size: 18px;
+    color: #5d6d88;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .center-stack {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-height: 0;
+    padding-bottom: 48px;
+  }
+</style>
+</head>
+<body>
+
+<deck-stage width="1080" height="1920">
+
+  <!-- 1 案例钩子 -->
+  <section data-label="案例">
+    <div class="slide">
+      <div class="badge">01 · 案例</div>
+      <div class="warn">架构演示 · 非投资建议</div>
+      <h1>开发研究 Agent 时<br/><span class="gold">我见过这种回复</span></h1>
+      <p class="lead">乍一看很专业。拆开才知道问题在哪。</p>
+      <div class="bubble" data-anim="fade-in" data-anim-delay="200">
+        <div class="who">AI 输出 · 示意</div>
+        <div class="quote">「储能成交额增加 20%，属于健康分歧，明天会回流，A 是最强标的。」</div>
+      </div>
+      <div class="foot"><span>001 · 五层防幻觉</span><span>1 / 6</span></div>
+    </div>
+  </section>
+
+  <!-- 2 拆句 -->
+  <section data-label="拆解">
+    <div class="slide">
+      <div class="badge">02 · 拆开看</div>
+      <div class="warn">架构演示 · 非投资建议</div>
+      <h1>同一句话里<br/>有<span class="gold">四种地位</span></h1>
+      <div class="rows">
+        <div class="row" data-anim="fly-in" data-anim-dir="bottom" data-anim-delay="0">
+          <div class="txt">成交额增加 20%</div>
+          <div class="tag ok">可核验事实</div>
+        </div>
+        <div class="row" data-anim="fly-in" data-anim-dir="bottom" data-anim-delay="120">
+          <div class="txt">属于健康分歧</div>
+          <div class="tag maybe">仍是解释</div>
+        </div>
+        <div class="row" data-anim="fly-in" data-anim-dir="bottom" data-anim-delay="240">
+          <div class="txt">明天会回流</div>
+          <div class="tag no">预测</div>
+        </div>
+        <div class="row" data-anim="fly-in" data-anim-dir="bottom" data-anim-delay="360">
+          <div class="txt">A 是最强标的</div>
+          <div class="tag no">选择 / 建议</div>
+        </div>
+      </div>
+      <div class="foot"><span>001 · 五层防幻觉</span><span>2 / 6</span></div>
+    </div>
+  </section>
+
+  <!-- 3 金句 -->
+  <section data-label="金句">
+    <div class="slide">
+      <div class="badge">03 · 金句</div>
+      <div class="center-stack">
+        <div class="quote-big" data-anim="zoom-in" data-anim-duration="700">
+          数字对了
+          <span class="line2">也不能一起升级</span>
+        </div>
+        <p class="subline">
+          大模型在预测下一个词。<br/>
+          流畅 ≠ 真实 · 意见 ≠ 决策权
+        </p>
+      </div>
+      <div class="foot"><span>001 · 五层防幻觉</span><span>3 / 6</span></div>
+    </div>
+  </section>
+
+  <!-- 4 五层 -->
+  <section data-label="五层">
+    <div class="slide">
+      <div class="badge">04 · 通式</div>
+      <h1 style="font-size:52px;margin-bottom:12px;">所以我按<span class="gold">五层</span>挡</h1>
+      <p class="lead" style="margin-bottom:8px;font-size:24px;">生成只写候选，再逐级升级</p>
+      <div class="layers">
+        <div class="layer" data-anim="fade-in" data-anim-delay="0">
+          <div class="n">1</div>
+          <div><div class="t">生成器</div><div class="d">写候选，不宣布终审</div></div>
+        </div>
+        <div class="layer" data-anim="fade-in" data-anim-delay="80">
+          <div class="n">2</div>
+          <div><div class="t">数据证据</div><div class="d">对齐外部可追溯记录</div></div>
+        </div>
+        <div class="layer" data-anim="fade-in" data-anim-delay="160">
+          <div class="n">3</div>
+          <div><div class="t">确定性校验</div><div class="d">同输入 → 同检查结果</div></div>
+        </div>
+        <div class="layer" data-anim="fade-in" data-anim-delay="240">
+          <div class="n">4</div>
+          <div><div class="t">历史重放</div><div class="d">禁止偷看当时不可知信息</div></div>
+        </div>
+        <div class="layer" data-anim="fade-in" data-anim-delay="320">
+          <div class="n">5</div>
+          <div><div class="t">人工金标准</div><div class="d">模糊边界与争议样本</div></div>
+        </div>
+      </div>
+      <div class="auth" data-anim="fade-in" data-anim-delay="420">
+        <div class="t">+ 权限 authority</div>
+        <div class="d">没验收的分数，不能自动写库、不能当硬闸门</div>
+      </div>
+      <div class="foot"><span>001 · 五层防幻觉</span><span>4 / 6</span></div>
+    </div>
+  </section>
+
+  <!-- 5 可复用 -->
+  <section data-label="可复用">
+    <div class="slide">
+      <div class="badge">05 · 可复用</div>
+      <h1>同一套问题</h1>
+      <p class="lead">先问它是事实、解释，还是动作。</p>
+      <div class="chips">
+        <span class="chip" data-anim="fade-in" data-anim-delay="0">客服 Agent</span>
+        <span class="chip" data-anim="fade-in" data-anim-delay="80">企业知识库</span>
+        <span class="chip" data-anim="fade-in" data-anim-delay="160">代码助手</span>
+        <span class="chip" data-anim="fade-in" data-anim-delay="240">研究 Agent</span>
+      </div>
+      <p class="subline" style="margin-top:56px;">
+        生成不是真相 —— 错误要很难一路升到决策权。
+      </p>
+      <div class="foot"><span>001 · 五层防幻觉</span><span>5 / 6</span></div>
+    </div>
+  </section>
+
+  <!-- 6 结尾 -->
+  <section data-label="结尾">
+    <div class="slide">
+      <div class="badge">06 · 讨论</div>
+      <div class="center-stack">
+        <div class="quote-big">
+          你最近被 AI
+          <span class="line2">哪一句「像真的」带偏过？</span>
+        </div>
+        <p class="subline">评论区聊聊 · 不求关注 · 非投资建议</p>
+      </div>
+      <div class="foot"><span>001 · 五层防幻觉</span><span>6 / 6</span></div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script type="application/json" id="speaker-notes">
+[
+  "开发研究 Agent 时，我见过这种回复——「成交额加了 20%，属于健康分歧，明天会回流，A 是最强。」乍一看很专业。",
+  "拆开看：加了 20%，也许库里对得上，这是事实；健康分歧，已经是解释；明天回流，是预测；A 最强，是在替你做选择。",
+  "大模型在预测下一个词，流畅不等于真实。数字对了，也不能把后面整段一起升级成「可以下单的结论」。",
+  "所以我按五层挡：生成只写候选，外面要证据、代码校验、历史重放、人工金标准；再加一道权限——没验收的分数，不能自动写库。",
+  "客服、知识库、代码助手，同一套：先问它是事实、解释，还是动作。生成不是真相——错误要很难一路升到决策权。",
+  "你最近被 AI 哪一句「像真的」带偏过？评论区聊聊。架构演示，非投资建议。"
+]
+</script>
+<script src="deck-stage.js"></script>
+</body>
+</html>
