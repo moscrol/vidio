@@ -71,7 +71,7 @@ status: **主叙事口径**（用户确认方向）
 - **大白话**开场：类比 + 开发现场痛点（可读）  
 - **第一性**收束：3～6 条事实推出「所以要有某机制」（专业）  
 - **技术映射**点到项目：字段/流水线 10 秒（隐含产品）  
-- 细则：`agent-memory/70_tutor/_WRITING_DISCIPLINE.md`
+- 细则：`agent-memory/30_conventions/tutor-writing-discipline.md`
 
 ## 和「获客 / 证据 / AI HOT」的关系
 
