@@ -12,6 +12,7 @@
 | [skills-catalog.md](./skills-catalog.md) | 已有 skill / 待引入 skill / MCP 工具地图 |
 | [content-pipeline-ai.md](./content-pipeline-ai.md) | AI 辅助日更流水线（脚本→成片→复盘） |
 | [sources.md](./sources.md) | 来源列表与可信度标注 |
+| [evidence-standard.md](./evidence-standard.md) | **顾问证据等级 L0–L5**；AI HOT 适用范围；标题如何才算「验证」 |
 | [obsidian-decision.md](./obsidian-decision.md) | 要不要单独开 Obsidian 的决策 |
 
 ## 维护约定

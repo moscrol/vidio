@@ -19,6 +19,7 @@ as-of: 2026-07-10
 | 来源 | 可信度 | 用到哪里 |
 |------|--------|----------|
 | 本仓 skills + agent-memory 设计 | 🟢 | skills-catalog A |
+| **AI HOT**（aihot.virxact.com skill） | 🟢 行业事实 | tutor 选题/热点钩子；**不用于**抖音标题公式 |
 | GitHub douyin-mcp / trending skill | 🟡 | skills-catalog C（待验证） |
 | 巨量算数等官方趋势 | 🟢 | 选题辅助 |
 | 刷粉/代投诉类 X 帖 | 🔴 | 不收录 |
@@ -28,3 +29,5 @@ as-of: 2026-07-10
 1. 外部数字（「完播必须 ≥65%」等）**不当作合同 KPI**，只作方向。
 2. 我们自己的 `reviews/` 数据优先级高于一切网文。
 3. 新增来源：在本表加一行 → 再改 playbook。
+4. 建议标注证据等级：见 **[evidence-standard.md](./evidence-standard.md)**（L0–L5）。
+5. 标题必须多候选 + 等级；禁止未实验就写「统计学证明」。
