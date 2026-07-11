@@ -108,10 +108,9 @@ AI 说：
 |-------|------|------|
 | **pptx**（Grok） | `~/.grok/skills/pptx/` | 读/写/改 `.pptx`，PptxGenJS 管线 |
 | **Presentations**（Codex） | `~/.codex/plugins/cache/openai-primary-runtime/presentations/…/skills/presentations/` | 叙事规则硬要求 + 渲染 slide PNG + 模板库 |
-| **baoyu-design**（宝玉） | X 上推荐；本机**未搜到已安装目录** | HTML PPT → 动画 → 可导出 PPTX；适合「讲解流」 |
+| **baoyu-design**（宝玉） | **已装** `~/.agents/skills/baoyu-design`（软链 Claude/Grok） | HTML 设计/PPT 讲解流、动画、export-as-video / export-as-pptx；`make-a-deck`、`animated-video` 等子技能 |
 
-宝玉自己说：用 baoyu-design 做 PPT/动画视频效果好，且可配图。  
-若要用宝玉那套：需再装一次（其帖内 skill 链接）；本机当前可直接用的是 **pptx + Codex presentations**。
+宝玉套：优先用 **baoyu-design** 做案例讲解 deck / 动画；配图可用其 `generate-images` 或本机 imagine。
 
 **PPT 流适合我们的用法：**
 
