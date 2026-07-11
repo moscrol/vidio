@@ -21,6 +21,7 @@ as-of: 2026-07-10
 | web-access | `~/.claude/skills/web-access` | 浏览器 CDP（对标调研、创作者中心只读） |
 | imagine | grok skills | 封面 / 概念图 |
 | a-stock-data | claude skills | 金融数据（Agent 演示素材，**勿直接荐股**） |
+| **aihot** | `~/.claude/skills/aihot` + `~/.grok/skills/aihot` | AI HOT 中文资讯 API：日报/精选/热点；**技巧类** `category=tip`；装于 2026-07-11 v0.3.4 |
 
 ---
 
