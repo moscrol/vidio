@@ -1,0 +1,49 @@
+<!-- 发布会合影收场（来源 finhot-film v12 S6，Q8 全家福结构） -->
+<style>
+  .stagelight {
+    position: absolute; left: 50%; top: 46%; width: 1500px; height: 1500px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(232,89,12,0.16) 0%, transparent 58%);
+    z-index: 1;
+  }
+  .word {
+    position: absolute; left: 0; right: 0; top: 866px; text-align: center;
+    font-size: 172px; font-weight: 900; letter-spacing: 4px; z-index: 20;
+  }
+  .memberwrap { position: absolute; inset: 0; z-index: 10; }
+  .member {
+    position: absolute; border-radius: 18px;
+    border: 8px solid rgba(255,251,242,0.55);
+    box-shadow: 0 26px 64px rgba(84,62,35,0.30), inset 0 0 0 1px rgba(255,255,255,0.7);
+    background: #fff;
+  }
+  .member img { display: block; width: 100%; border-radius: 10px; }
+  #flash { position: absolute; inset: 0; z-index: 90; pointer-events: none; background: #F2F0EB; opacity: 0; }
+</style>
+
+<div class="stagelight" data-layout-ignore></div>
+<div class="memberwrap" data-layout-allow-overflow>
+  <div class="member" id="m1" style="left: 84px; top: 420px; width: 380px;"><img src="…截图1.png" /></div>
+  <div class="member" id="m2" style="right: 84px; top: 330px; width: 280px;"><img src="…截图2.png" /></div>
+  <!-- 功能芯片成员：套 .glass 药丸 -->
+</div>
+<div class="word" id="wm">品牌字标</div>
+<div id="flash" data-layout-ignore></div>
+
+<script>
+/* 字标柔立 → 成员四方飘入（焦外→入焦，后排留浅焦，落定微倾）→ 收束拍白闪：
+tl.fromTo("#wm", { scale: 1.28, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.85, ease: "power2.out" }, T);
+const members = [
+  ["#m1", T+0.7, -760, -240, -1.6], ["#m2", T+1.0, 760, -240, 1.8],
+  // [id, 入场时刻, x起点, y起点, 落定角度]
+];
+members.forEach(([id, t, x0, y0, rEnd]) => {
+  const restBlur = 后排 ? 1.6 : 0;
+  tl.fromTo(id, { x: x0, y: y0, opacity: 0, rotation: rEnd * 5, filter: "blur(12px)" },
+    { x: 0, y: 0, opacity: 1, rotation: rEnd, filter: `blur(${restBlur}px)`, duration: 0.78, ease: "power2.out" }, t);
+});
+tl.to("#wm", { scale: 1.05, duration: 1.7, ease: "sine.inOut" }, T_收束 - 1.9);
+tl.set("#flash", { opacity: 0.65 }, T_收束);
+tl.to("#flash", { opacity: 0, duration: 0.18, ease: "sine.out" }, T_收束 + 0.033);
+声音：riser 铺满整镜（对齐终点 = T_收束），impact 峰值钉 T_收束（全片最响），sparkle 在 chip/字标余韵。*/
+</script>

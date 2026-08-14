@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>05b · Order Validation Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== Order Validation-specific ============== */
+    .order-validation-card::after { display: none; }
+    .validation-title {
+      color: var(--navy);
+      font-size: 28px;
+      font-weight: 900;
+      left: 32px;
+      letter-spacing: -0.06em;
+      line-height: 1.18;
+      position: absolute;
+      right: 28px;
+      top: 100px;
+      z-index: 2;
+    }
+    .validation-title::after {
+      background: var(--gold);
+      content: "";
+      display: block;
+      height: 3px;
+      margin-top: 12px;
+      width: 36px;
+    }
+    .stages-list {
+      display: grid;
+      gap: 8px;
+      left: 32px;
+      position: absolute;
+      right: 28px;
+      top: 174px;
+      z-index: 2;
+    }
+    .stage-item {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(15, 39, 71, 0.16);
+      border-left: 3px solid rgba(184, 131, 45, 0.55);
+      border-radius: 0;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 24px 1fr 56px;
+      min-height: 50px;
+      padding: 9px 14px;
+    }
+    .stage-item.status-done {
+      background-color: #f3f4f6;
+      border-color: #d1d5db;
+      opacity: 0.65;
+    }
+    .stage-item.status-current {
+      background-color: var(--navy);
+      border-color: var(--gold);
+      border-left-color: var(--gold);
+      color: #fff;
+    }
+    .stage-item.status-current .stage-no { color: var(--gold); }
+    .stage-item.status-next {
+      border-style: dashed;
+      border-left-style: solid;
+      border-left-color: rgba(15, 39, 71, 0.18);
+      background-color: transparent;
+      color: var(--muted);
+    }
+    .stage-item.status-risk {
+      background-color: var(--risk);
+      border-color: var(--risk);
+      border-left-color: #fff;
+      color: #fff;
+    }
+    .stage-item.status-risk .stage-no { color: #fff; }
+    .stage-no {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .stage-item.status-done .stage-no,
+    .stage-item.status-next .stage-no { color: var(--muted); }
+    .stage-label-text {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .stage-desc-text {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+    .stage-status-text {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-align: right;
+      letter-spacing: 0.05em;
+    }
+    .stage-item.status-done .stage-status-text,
+    .stage-item.status-next .stage-status-text { color: var(--muted); }
+    .stage-item.status-current .stage-status-text { color: var(--gold); }
+    .stage-item.status-risk .stage-status-text { color: #fff; }
+
+    .verdict-box {
+      left: 32px;
+      position: absolute;
+      right: 28px;
+      bottom: 70px;
+      border-top: 1px solid var(--gold);
+      padding-top: 10px;
+      z-index: 2;
+    }
+    .verdict-text {
+      color: var(--navy);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>05b · Order Validation Card</h1>
+    <p>验证链条卡（多阶段进度，含 done / current / next / risk）。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card order-validation-card">
+    <div class="brand-row">
+      <span class="tag">验证链条</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <h2 class="validation-title">从样机到订单要过几关</h2>
+    <div class="stages-list">
+      <div class="stage-item status-done">
+        <span class="stage-no">01</span>
+        <div><div class="stage-label-text">样机作出来</div></div>
+        <span class="stage-status-text">✓ done</span>
+      </div>
+      <div class="stage-item status-done">
+        <span class="stage-no">02</span>
+        <div><div class="stage-label-text">送客户验证</div></div>
+        <span class="stage-status-text">✓ done</span>
+      </div>
+      <div class="stage-item status-current">
+        <span class="stage-no">03</span>
+        <div>
+          <div class="stage-label-text">小批量导入</div>
+          <div class="stage-desc-text">正在导入头部产线</div>
+        </div>
+        <span class="stage-status-text">active</span>
+      </div>
+      <div class="stage-item status-next">
+        <span class="stage-no">04</span>
+        <div><div class="stage-label-text">稳定跑产</div></div>
+        <span class="stage-status-text">next</span>
+      </div>
+      <div class="stage-item status-next">
+        <span class="stage-no">05</span>
+        <div><div class="stage-label-text">批量订单</div></div>
+        <span class="stage-status-text">next</span>
+      </div>
+    </div>
+    <div class="verdict-box">
+      <div class="verdict-text">核心是从技术可用走向客户敢用</div>
+    </div>
+    <div class="bottom-note">不看故事，看订单兑现链条</div>
+  </article>
+</body>
+</html>

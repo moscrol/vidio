@@ -1,0 +1,15 @@
+{
+  "name": "电影摄影层",
+  "category": "镜头",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/finhot-film",
+  "specs": { "width": 1080, "height": 1920, "fps": 30, "duration_s": "全片" },
+  "params": {
+    "cam": "每镜内容包 .cam 层整体缓移（推近/拉远方向交替），HUD 固定如取景器",
+    "dof": "开镜对焦 blur 18→0；落字拉焦：字幕入焦同拍 B-roll 退 2.4px 浅焦；底纹字恒 blur 9px",
+    "bokeh": "前景两枚虚焦光斑 blur(34px) 全片慢漂",
+    "lightband": "screen 混合斜扫光，全片 2 趟",
+    "sweeper": "虚焦纸片扫过镜头的转场遮挡卡（与主转场错开节奏，全片 ≤4 次）"
+  },
+  "reuse": "复制 工程/snippet.html：CSS 层 + GSAP 段各一块。治「解说视频感」的三板斧——镜头永不静止、有焦点账、字变成画面；配合任意底色系统（改 sweeper/lightband 颜色即可）。"
+}

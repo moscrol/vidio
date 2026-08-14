@@ -1,0 +1,9 @@
+{
+  "name": "打字机命令行",
+  "category": "组件",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo (v01/v02/v03/v04 四种皮肤)",
+  "specs": { "width": 0, "height": 0, "fps": 30, "duration_s": 2 },
+  "params": { "steps": "= 字符数，SteppedEase", "width": "按文字实际宽度定", "caret": "steps(1) 有限次闪烁" },
+  "reuse": "复制 工程/snippet.html。要点：外层 overflow:hidden 白名单宽度 tween + steps(N) ease；光标单独元素闪烁；文字 white-space:nowrap。"
+}

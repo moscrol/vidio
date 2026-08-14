@@ -1,0 +1,479 @@
+{
+  "version": 1,
+  "skills": {
+    "AI剪口播": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ai-jian-koubo/SKILL.md",
+      "computedHash": "f1093851a8a08a6fbd79bd86c9d5f93c9c695edcaf6347d7396a846d3ecf283f"
+    },
+    "animation-vocabulary": {
+      "source": "moumen-soliman/uitripled",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/animation-vocabulary/SKILL.md",
+      "computedHash": "39319fc9a33c15be08666b3685f58666f042ff36bb902b7814c0834a5ba99df4"
+    },
+    "animejs": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/animejs/SKILL.md",
+      "computedHash": "314c655fbc0df7eacc6f3853435ff8b03c2a771fad7435a58e2c4489a780d1b7"
+    },
+    "chengfeng-videocut-skills:剪口播": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/chengfeng-videocut-skills/剪口播/SKILL.md",
+      "computedHash": "0b425d10ddb2288a483850bbbb01164ac1773fa7e0f18728b842ee5892cdeced"
+    },
+    "chengfeng-videocut-skills:口播成片": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/chengfeng-videocut-skills/口播成片/SKILL.md",
+      "computedHash": "da1f1f84b1b67af1f6f9355c1f537edca4a31ca4fb7c690492d2892ebb303b7c"
+    },
+    "chengfeng-videocut-skills:自进化": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/chengfeng-videocut-skills/自进化/SKILL.md",
+      "computedHash": "b82e258ae13d377edb632dc21fce4c9f854fd23bc5cdeecce404c2bfaf95bba3"
+    },
+    "contribute-catalog": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/contribute-catalog/SKILL.md",
+      "computedHash": "31733d362afeb07d5716e267cf94ae487740c3e52f5e60ad714e085c95a03b73"
+    },
+    "css-animations": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/css-animations/SKILL.md",
+      "computedHash": "df468749b06a8ec7369cfea69bf71bf65e46cfc376e837e439e26f4230852c6b"
+    },
+    "dbs": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs/SKILL.md",
+      "computedHash": "75f7922b24761eb0e2c07af655ee7c2d65bd23309c6ee73dcdfc7c7851b0580e"
+    },
+    "dbs-action": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-action/SKILL.md",
+      "computedHash": "2b6dbf97d45cd6894552f4872aaea27d865af46e16e1397262fcea01c5c850b1"
+    },
+    "dbs-agent-migration": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-agent-migration/SKILL.md",
+      "computedHash": "360830627542c9ccc60d20f882ba0c490b2aa0fca83f3823aaa09f957b0e0312"
+    },
+    "dbs-ai-check": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-ai-check/SKILL.md",
+      "computedHash": "011645933d810261303bc64f2c10a5e6de745106ca3817421f8e4c2664a11d2a"
+    },
+    "dbs-benchmark": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-benchmark/SKILL.md",
+      "computedHash": "81585d22f265b5eab63f3b9ead7f06960a8772d583dcb6139f16edd82dc13853"
+    },
+    "dbs-chatroom": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-chatroom/SKILL.md",
+      "computedHash": "8ccd47f468f53b16a19c9e4990cc4a85d80a08b358b17798f9e7d5e9400090a4"
+    },
+    "dbs-chatroom-austrian": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-chatroom-austrian/SKILL.md",
+      "computedHash": "88f79b2d05b7aeb056d84834b3a082be9e87fe320374044dc824cc1ba111a3bc"
+    },
+    "dbs-content": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-content/SKILL.md",
+      "computedHash": "b7d05232f9d3e1445fe5bc193dd38963442784b6587da551ec8b2c5698e0d2ca"
+    },
+    "dbs-content-system": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-content-system/SKILL.md",
+      "computedHash": "16c93f9a330c9f3f42d3d905f48f9cd7533d26a784b01aa4d7e334c0495f3442"
+    },
+    "dbs-decision": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-decision/SKILL.md",
+      "computedHash": "bddf56996ad6a923f6c9b74d9eb6b71466dc28cb325be79944d61eaf927723f1"
+    },
+    "dbs-deconstruct": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-deconstruct/SKILL.md",
+      "computedHash": "cd213d8748243d6ff931d851d07d5f5fe80dddbaaa37b6dc5ee8df0b13d7b22b"
+    },
+    "dbs-diagnosis": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-diagnosis/SKILL.md",
+      "computedHash": "e5c9f135e7608dead6b697a5697b46a5df66fb75e01b0427011b9b34709a5c4b"
+    },
+    "dbs-goal": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-goal/SKILL.md",
+      "computedHash": "39f3d0ae90f79a18398d47c844a83d97b413d18a9dd383ccf8cfe06725b8f68f"
+    },
+    "dbs-good-question": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-good-question/SKILL.md",
+      "computedHash": "3119b16de7911bae396e0849edf74333e1f3201de9b8935228337d1180246fad"
+    },
+    "dbs-hook": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-hook/SKILL.md",
+      "computedHash": "aceb8f865145320f0a156dd5ea9d5a4492a1237c7c423066e70f855bd1e380fc"
+    },
+    "dbs-learning": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-learning/SKILL.md",
+      "computedHash": "3b9f1b70747e2dfd2c2eeb0aa129a07b2006037cba3c24e7c280b506d94be48f"
+    },
+    "dbs-report": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-report/SKILL.md",
+      "computedHash": "91b8c0aec597c675e780e47aefffd52780d7b22e6342bb6215972da2b998884e"
+    },
+    "dbs-resonate": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-resonate/SKILL.md",
+      "computedHash": "918f3058ddf30509893dd2b94a308979d1d1eb243fa2a1e17a129c0b0aececc6"
+    },
+    "dbs-restore": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-restore/SKILL.md",
+      "computedHash": "da2606a73fe5f4578b3194681832970b8b051d37fcaa70e9e1d6d8c833d6dc23"
+    },
+    "dbs-save": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-save/SKILL.md",
+      "computedHash": "5cc14fe30e9be4d606830a3f587c56b000e6ae1009a75515f271fc5b27a70ca5"
+    },
+    "dbs-slowisfast": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-slowisfast/SKILL.md",
+      "computedHash": "3886142b9a1e69b1fff1a246aff7ad96e98fba46ded1b764f93fe19398f44730"
+    },
+    "dbs-spread": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-spread/SKILL.md",
+      "computedHash": "3974008cab235b2fe5d65f71f6eed7049e4a69b5b7f2304afab830b13c02a8d7"
+    },
+    "dbs-xhs-title": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/dbs-xhs-title/SKILL.md",
+      "computedHash": "2e6dcafb44d4ebfec1b5bc45601d54bce6be1a8efb44a1da4d1530b027b0bba8"
+    },
+    "editorial-collage-motion": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/editorial-collage-motion/SKILL.md",
+      "computedHash": "a511d1355beaab4b9cd1f4c0e4bf863871d48a3486609dcf0dc8718f420dca1b"
+    },
+    "editorial-dot-cover": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/editorial-dot-cover/SKILL.md",
+      "computedHash": "adbe71fccc58e377510a2f9856e0ba4f92edfa66a46e29ef9f190856109cefe9"
+    },
+    "emil-design-eng": {
+      "source": "moumen-soliman/uitripled",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/emil-design-eng/SKILL.md",
+      "computedHash": "8bdf9e4e6de7a4969147bf4828a4ad2c5aacd9fba4b690b250a85e0467ca387d"
+    },
+    "gsap": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/gsap/SKILL.md",
+      "computedHash": "ef2658b3705d3fd5c8e38d197b31521553a0bee3b40bda2ab70bf22bd6b88854"
+    },
+    "heygen-digital-avatar": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/heygen-digital-avatar/SKILL.md",
+      "computedHash": "1c41f42b6a61127fcb62b1efe9e85edddc9d7bcead8c1e12d3a4ecdbcb7d7924"
+    },
+    "hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes/SKILL.md",
+      "computedHash": "f726a7478c7a3133e763c9af5f8ade12bc65dbdf32f09a854696ebabc68433a5"
+    },
+    "hyperframes-cli": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-cli/SKILL.md",
+      "computedHash": "59dcf8d01b5e21a101d6c1225411b487316436221170e7e1dc9b00bf5c27d359"
+    },
+    "hyperframes-media": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-media/SKILL.md",
+      "computedHash": "4dbba9f98b1d354f8b788c290cfab34f1e000d803cca40808da1a69973231dde"
+    },
+    "hyperframes-registry": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-registry/SKILL.md",
+      "computedHash": "cd10f258cea41d3dcfe914cb1c93fc999cd9361c64a517ffe9389d42bbf89b62"
+    },
+    "ian-xiaohei-illustrations": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ian-xiaohei-illustrations/SKILL.md",
+      "computedHash": "db90e8707135fe2ea3acf0fe8c4710c51c63baf1f39c54d0c485740c5987da39"
+    },
+    "lottie": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/lottie/SKILL.md",
+      "computedHash": "42174a1de29225618166626ed113bfd311a6b53083ddd514ab50991816f77b19"
+    },
+    "make-interfaces-feel-better": {
+      "source": "moumen-soliman/uitripled",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/make-interfaces-feel-better/SKILL.md",
+      "computedHash": "54b6e221bbe4e2d1a8461c3f9ecabe69daf891f964e9ee5e699c323daa018f2e"
+    },
+    "ra-audio-to-subtitles": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-audio-to-subtitles/SKILL.md",
+      "computedHash": "75f9f55ead7c84ae852807bdf87de9affc919b4c560bb092a031229dcb6533ec"
+    },
+    "ra-hook": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-hook/SKILL.md",
+      "computedHash": "bfac899c5074f6281496ca397634fbb20c54cc93472d8336b4c19a12353eec49"
+    },
+    "ra-local-talking-head-cut": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-local-talking-head-cut/SKILL.md",
+      "computedHash": "aa97e1d3c5ecb9d8af7faa6419fb8b5185362fdef330df0f6ee64358a9fb8834"
+    },
+    "ra-video-download": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-video-download/SKILL.md",
+      "computedHash": "69e1b747f616c61bfa82e0500ef70711c51bb02d4bed93b817b319d7258da2b3"
+    },
+    "ra-video-production-director": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-video-production-director/SKILL.md",
+      "computedHash": "afb7a9eaf7539e25de512eb423fe9b3c0f13c676853cc2a678d8e82431b44904"
+    },
+    "ra-video-title": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-video-title/SKILL.md",
+      "computedHash": "62e2feebb4611d4d2ca8d53e0a00d83de7adce44b8b99c8018056f3569bb88ba"
+    },
+    "ra-video-wash-pipeline": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-video-wash-pipeline/SKILL.md",
+      "computedHash": "0c91bb80c53d813067a234d8bfe654943ed4691c670a116af7400e6aacd322d4"
+    },
+    "ra-人话": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-人话/SKILL.md",
+      "computedHash": "1cd1e635b33ea1a88abb31ff1eba5b10656461e3621b43c92d2c05641dedb8ec"
+    },
+    "ra-公众号提取": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-公众号提取/SKILL.md",
+      "computedHash": "458351c21dff37841d0a54340c770dcef4a2de88b09c879fb372770385a7b298"
+    },
+    "ra-复盘": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-复盘/SKILL.md",
+      "computedHash": "3a199902fff03740e6edc20c356c0a5406e40de1ad00954077c6af7489cdf3aa"
+    },
+    "ra-实操策划": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-实操策划/SKILL.md",
+      "computedHash": "ce24c6b03e42bd9d612ba1ae464bfb39a19fda7b2c813e3dd76b8a0ddec43949"
+    },
+    "ra-洗稿": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-洗稿/SKILL.md",
+      "computedHash": "028186538755e367adc6b8c8c7f2ffed186a8386bb5ebbdc6bf6bed3737e8ead"
+    },
+    "ra-选题": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-选题/SKILL.md",
+      "computedHash": "5d9981439854b74b48c16b7787cfeee00e77f20659a1a96c21ee1a4b70402d68"
+    },
+    "ra-逐字稿提取skill": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/ra-逐字稿提取skill/SKILL.md",
+      "computedHash": "79ea19b35277ecc73189e3871f5b07521c4330c6faeaee04efa5e990d67bdffe"
+    },
+    "rachel-digital-human-production": {
+      "source": "Jingyi-Wu-Richael/rachel-digital-human-production",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "9e17372723be5964e1092a5fe978a0789f1ee892136cdd1c25320226ccb47e5d"
+    },
+    "remotion-to-hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-to-hyperframes/SKILL.md",
+      "computedHash": "ee04c5eca6113d5a3a8aeee9e78792451da57f06450bd034486950142ee05766"
+    },
+    "rn-bw-text-opener": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/rn-bw-text-opener/SKILL.md",
+      "computedHash": "4fff78ea90c89633be55360b67c7ecc7243d16ac3fee0a29dc033470b0be3e9a"
+    },
+    "rn-cover-skill": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/rn-cover-skill/SKILL.md",
+      "computedHash": "71323e56c975cb69bba8daa726281cba6189f98b3ffe327c200ab151fc7a3603"
+    },
+    "rn-dark-saas-video": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/rn-dark-saas-video/SKILL.md",
+      "computedHash": "52bb2b29df896cfcdea6b53d520cb36724f82ddcc6c3b0652d747f1e84d07681"
+    },
+    "rn-motion-director": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/rn-motion-director/SKILL.md",
+      "computedHash": "6c91233c178211df9e01792e3b6395181afd4398ba3cb88f34e93f676b83a87a"
+    },
+    "rn-motion-replica": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/rn-motion-replica/SKILL.md",
+      "computedHash": "3cb306ae690bacb58fba115c64e8132648dc846404c74934580b3c613dbc9839"
+    },
+    "rn-replica-qc": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/rn-replica-qc/SKILL.md",
+      "computedHash": "7c051308bd376b19efafc986949c4189c0a4aef7901b69ce42037517b27cabeb"
+    },
+    "seedance-20": {
+      "source": "Emily2040/seedance-2.0",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "545e84ae7057c0e10b79c9f9c53262bc01408b4dfa0dc0fb30a087d99ad5771e"
+    },
+    "skill-captions": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/skill-captions/SKILL.md",
+      "computedHash": "5f807a91465df6190f237df2e29e1607cf40ebaacbad0e141eae4524fb0b1922"
+    },
+    "skill-cover": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/skill-cover/SKILL.md",
+      "computedHash": "4d3cdc54ebe9b28216634686547cb93f9c8f71c2981c572dcbc9f88da18c8158"
+    },
+    "tailwind": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind/SKILL.md",
+      "computedHash": "97bf0007f24e6275dcabc084c4d42f434ba48a84cec5a5b060036220239d6ddc"
+    },
+    "three": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/three/SKILL.md",
+      "computedHash": "d40f783d8687f93b19657c193811c78304f84dd276ad344c38045e57b03de187"
+    },
+    "transitions-dev": {
+      "source": "jakubantalik/transitions.dev",
+      "sourceType": "github",
+      "skillPath": "skills/transitions-dev/SKILL.md",
+      "computedHash": "14794b59f59570d60f3b5cc598c582ebc2e36fb940ebda1e58778e4e7ff0f3da"
+    },
+    "transitions-polish": {
+      "source": "jakubantalik/transitions.dev",
+      "sourceType": "github",
+      "skillPath": "skills/transitions-polish/SKILL.md",
+      "computedHash": "95aec18ac2c9fb2c545c2bf2e7419a8001b8e7f1fb640cdb89db0a543548d27f"
+    },
+    "tts-skill": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/tts-skill/SKILL.md",
+      "computedHash": "cc47e388d033c0c2e10e678d292487df94432e13ba788cf6bafac63201cf074f"
+    },
+    "typegpu": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/typegpu/SKILL.md",
+      "computedHash": "768a9b983ac79fc283307cdd39f262ab4da5deeb3726ec65252fb7b4bc04f779"
+    },
+    "video-shotcraft": {
+      "source": "Vincentwei1021/video-shotcraft",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "618daa6cab2436ac600127cff19d205bece9c42a53644214a8bc21c4141ad108"
+    },
+    "video-use": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/video-use/SKILL.md",
+      "computedHash": "451045f97925957ec59fbaacf411659f921578884a46336bae2c0817fa4005af"
+    },
+    "waapi": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/waapi/SKILL.md",
+      "computedHash": "a497e9e3f2ffc5a4c38cbfdd86ff60a23a872173cff0df9489ffa10c3d256744"
+    },
+    "website-to-hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/website-to-hyperframes/SKILL.md",
+      "computedHash": "4d6f7ea7c0fabd0e7572d26f85fcf83974ac75b19ec1e49529a4e01115302ab4"
+    },
+    "xhs-article-to-images": {
+      "source": "Pluviobyte/rnskill",
+      "sourceType": "github",
+      "skillPath": "skills/xhs-article-to-images/SKILL.md",
+      "computedHash": "ad5743c9f4795bb12481409fe22fbe42e42b5902042dfec085deb126285a0a84"
+    }
+  }
+}

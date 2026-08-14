@@ -1,0 +1,44 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "resetTransformSelector": "deck-stage",
+  "googleFontImports": ["Noto Sans SC"],
+  "fontSwaps": [
+    { "from": "Noto Sans SC", "to": "Noto Sans SC" },
+    { "from": "PingFang SC", "to": "Noto Sans SC" },
+    { "from": "Microsoft YaHei", "to": "Noto Sans SC" }
+  ],
+  "filename": "ep001-anti-hallucination",
+  "slides": [
+    {
+      "showJs": "document.querySelector('deck-stage').goTo(0)",
+      "selector": "deck-stage > [data-deck-active]",
+      "delay": 700
+    },
+    {
+      "showJs": "document.querySelector('deck-stage').goTo(1)",
+      "selector": "deck-stage > [data-deck-active]",
+      "delay": 700
+    },
+    {
+      "showJs": "document.querySelector('deck-stage').goTo(2)",
+      "selector": "deck-stage > [data-deck-active]",
+      "delay": 700
+    },
+    {
+      "showJs": "document.querySelector('deck-stage').goTo(3)",
+      "selector": "deck-stage > [data-deck-active]",
+      "delay": 700
+    },
+    {
+      "showJs": "document.querySelector('deck-stage').goTo(4)",
+      "selector": "deck-stage > [data-deck-active]",
+      "delay": 700
+    },
+    {
+      "showJs": "document.querySelector('deck-stage').goTo(5)",
+      "selector": "deck-stage > [data-deck-active]",
+      "delay": 700
+    }
+  ]
+}

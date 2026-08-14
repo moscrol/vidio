@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Serif SC"; font-weight: 900; font-style: normal;
+        src: url("shared/fonts/noto-serif-sc-chinese-simplified-900-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0D0D0C; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #F2F0EB; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0D0D0C; }
+      #b2,#b3,#b4,#b5,#b6,#b7,#b8 { opacity: 0; }
+
+      .noise {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.14;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+        background-size: 240px 240px;
+      }
+      .regmark { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 20px; color: rgba(242,240,235,0.4); letter-spacing: 3px; }
+      .rm-tl { top: 44px; left: 44px; } .rm-tr { top: 44px; right: 44px; }
+      .rm-bl { bottom: 120px; left: 44px; } .rm-br { bottom: 120px; right: 44px; }
+      .ghost-num {
+        position: absolute; right: -30px; top: 90px;
+        font-family: "JetBrains Mono", monospace; font-weight: 700;
+        font-size: 300px; color: transparent;
+        -webkit-text-stroke: 2px rgba(242,240,235,0.14);
+      }
+      .marquee {
+        position: absolute; bottom: 40px; left: 0; width: 2400px;
+        font-family: "JetBrains Mono", monospace; font-size: 24px;
+        color: rgba(242,240,235,0.5); letter-spacing: 4px; white-space: nowrap;
+      }
+
+      .big {
+        font-weight: 700; line-height: 1.06; letter-spacing: 2px;
+      }
+      .huge { font-size: 176px; }
+      .mid  { font-size: 96px; }
+      .yel  { color: #FFD60A; }
+      .yel-block { background: #FFD60A; color: #0D0D0C; padding: 6px 28px; display: inline-block; }
+      .strike { position: relative; display: inline-block; }
+      .strike .bar-x {
+        position: absolute; left: -4%; top: 52%; width: 108%; height: 14px;
+        background: #FFD60A; transform: scaleX(0); transform-origin: left center;
+      }
+
+      /* B1/B4/B8 打字机 */
+      .type-wrap { display: flex; align-items: center; }
+      .type-clip { overflow: hidden; white-space: nowrap; width: 0; }
+      .type-caret { width: 10px; height: 76px; background: #F2F0EB; margin-left: 10px; }
+
+      /* B1 */
+      #b1 .stack { position: absolute; left: 80px; top: 560px; display: flex; flex-direction: column; gap: 60px; }
+      #b1 .t1 { font-size: 88px; font-weight: 400; }
+      /* B2 */
+      #b2 .stack { position: absolute; left: 80px; top: 520px; display: flex; flex-direction: column; gap: 54px; }
+      /* B3 词墙 */
+      #b3 .wall { position: absolute; left: 60px; right: 60px; top: 300px; display: flex; flex-wrap: wrap; gap: 26px 30px; }
+      #b3 .w { font-size: 62px; font-weight: 700; color: rgba(242,240,235,0.85); white-space: nowrap; }
+      #b3 .w.dim { color: rgba(242,240,235,0.4); font-weight: 400; }
+      #b3 .stack { position: absolute; left: 80px; bottom: 380px; }
+      /* B4 */
+      #b4 .brand { position: absolute; left: 80px; top: 480px; }
+      #b4 .cmdbar {
+        position: absolute; left: 80px; right: 80px; top: 900px;
+        border: 3px solid #F2F0EB; padding: 30px 28px; display: flex; align-items: center;
+      }
+      #b4 .cmd-text { font-size: 40px; }
+      #b4 .underline { position: absolute; left: 80px; top: 840px; width: 620px; height: 16px; background: #FFD60A; transform-origin: left center; }
+      /* B5 清单 */
+      #b5 .list { position: absolute; left: 80px; top: 460px; display: flex; flex-direction: column; gap: 52px; }
+      #b5 .item { font-size: 72px; font-weight: 700; display: flex; gap: 30px; align-items: center; }
+      #b5 .ck { color: #FFD60A; font-family: "JetBrains Mono", monospace; }
+      #b5 .cnt { position: absolute; right: 80px; bottom: 420px; font-family: "JetBrains Mono", monospace; font-size: 130px; font-weight: 700; color: #FFD60A; }
+      /* B6 盖章 */
+      #b6 .stack { position: absolute; left: 80px; top: 500px; display: flex; flex-direction: column; gap: 50px; }
+      #b6 .stamps { position: absolute; left: 80px; top: 1050px; display: flex; gap: 40px; }
+      #b6 .stamp {
+        border: 5px solid #FFD60A; color: #FFD60A; font-size: 52px; font-weight: 700;
+        padding: 14px 34px; letter-spacing: 8px;
+      }
+      /* B7 对比 */
+      #b7 .q  { position: absolute; left: 80px; top: 560px; }
+      #b7 .a  { position: absolute; left: 80px; top: 900px; }
+      /* B8 CTA */
+      #b8 .stack { position: absolute; left: 80px; top: 620px; display: flex; flex-direction: column; gap: 56px; }
+      #b8 .brandchip { border: 3px solid #F2F0EB; display: inline-block; padding: 18px 40px; font-size: 34px; letter-spacing: 4px; width: fit-content; }
+      #b8 .disc { position: absolute; bottom: 130px; left: 80px; font-size: 22px; color: rgba(242,240,235,0.55); letter-spacing: 2px; }
+
+      /* 转场滑块 */
+      .wipe { position: absolute; inset: 0; z-index: 80; transform: scaleX(0); pointer-events: none; }
+      #wipe-y { background: #FFD60A; }
+      #wipe-w { background: #F2F0EB; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+
+      <div id="b1" class="scene">
+        <div class="ghost-num mono">01</div>
+        <div class="stack">
+          <div class="type-wrap"><div class="type-clip" id="tc1"><span class="t1">盯盘一整天。</span></div><div class="type-caret" id="cr1"></div></div>
+          <div class="big huge" id="b1-slam">研报<br />看不完</div>
+        </div>
+        <div class="regmark rm-tl">FINHOT / PROMO</div>
+        <div class="regmark rm-tr">V02 · B/W</div>
+        <div class="marquee mono" id="mq1">研报 · 快讯 · 公告 · 行情 · 异动 · 减持 · 风险提示 · 研报 · 快讯 · 公告 · 行情 · 异动 · 减持 · 风险提示 · 研报 · 快讯 · 公告 · 行情</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b2" class="scene">
+        <div class="ghost-num mono">02</div>
+        <div class="stack">
+          <div class="big mid">下单那一刻</div>
+          <div class="big huge"><span class="yel-block" id="b2-slam">靠感觉</span></div>
+          <div class="big mid" style="color: rgba(242,240,235,0.5);" id="b2-sub">——你也是吗？</div>
+        </div>
+        <div class="regmark rm-bl mono">00:03 / GUT FEELING</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b3" class="scene">
+        <div class="wall" id="wall">
+          <span class="w">快讯</span><span class="w dim">目标价上调</span><span class="w">公告</span>
+          <span class="w dim">股东减持</span><span class="w">异动 +3.2%</span><span class="w dim">北向转负</span>
+          <span class="w">研报</span><span class="w dim">风险提示更新</span><span class="w">评论区吵翻</span>
+          <span class="w dim">竞品发布会</span><span class="w">政策窗口</span><span class="w dim">产能调整</span>
+          <span class="w">利好落地?</span><span class="w dim">未读 99+</span>
+        </div>
+        <div class="stack">
+          <div class="big huge">超过<span class="strike"><span class="yel">极限</span><span class="bar-x" id="xbar"></span></span></div>
+        </div>
+        <div class="regmark rm-tr mono">INFO OVERLOAD</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b4" class="scene">
+        <div class="ghost-num mono">04</div>
+        <div class="brand">
+          <div class="big huge">Fin<span class="yel">Hot</span></div>
+        </div>
+        <div class="underline" id="b4-ul"></div>
+        <div class="cmdbar">
+          <span class="mono" style="color:#FFD60A; font-size:40px; margin-right:18px;">&gt;</span>
+          <div class="type-clip" id="tc4"><span class="cmd-text mono">把 21 个信源聚成一条流</span></div>
+          <div class="type-caret" id="cr4" style="height:48px;"></div>
+        </div>
+        <div class="regmark rm-bl mono">ONE COMMAND</div>
+        <div class="regmark rm-br mono">DEMO 占位界面</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b5" class="scene">
+        <div class="ghost-num mono">05</div>
+        <div class="list">
+          <div class="item" id="l1"><span class="ck">[✓]</span>检索公告快讯</div>
+          <div class="item" id="l2"><span class="ck">[✓]</span>拉取板块行情</div>
+          <div class="item" id="l3"><span class="ck">[✓]</span>交叉对比研报</div>
+          <div class="item" id="l4"><span class="ck">[✓]</span>生成结论清单</div>
+        </div>
+        <div class="cnt" id="cnt">4/4</div>
+        <div class="regmark rm-tl mono">AUTOPILOT</div>
+        <div class="regmark rm-br mono">DEMO 数据为占位示例</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b6" class="scene">
+        <div class="ghost-num mono">06</div>
+        <div class="stack">
+          <div class="big mid">一页结论</div>
+          <div class="big huge">判断<span class="yel">有来源</span></div>
+        </div>
+        <div class="stamps">
+          <span class="stamp" id="st1">公告</span>
+          <span class="stamp" id="st2">行情</span>
+          <span class="stamp" id="st3">研报</span>
+        </div>
+        <div class="regmark rm-bl mono">TRACEABLE</div>
+        <div class="regmark rm-br mono">DEMO 数据为占位示例</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b7" class="scene">
+        <div class="q big huge" id="b7-q"><span class="strike">追问？<span class="bar-x" id="qbar"></span></span></div>
+        <div class="a big huge" id="b7-a"><span class="yel-block">干完。</span></div>
+        <div class="regmark rm-tr mono">NO BACK-AND-FORTH</div>
+        <div class="marquee mono" id="mq7">它不等你追问 · 自己把活干完 · 它不等你追问 · 自己把活干完 · 它不等你追问 · 自己把活干完</div>
+        <div class="noise"></div>
+      </div>
+
+      <div id="b8" class="scene">
+        <div class="stack">
+          <div class="type-wrap"><div class="type-clip" id="tc8"><span class="big mid">你最想让它盯什么？</span></div><div class="type-caret" id="cr8"></div></div>
+          <div style="font-size:40px; color: rgba(242,240,235,0.7);" id="b8-sub">评论区告诉我，拿真实数据跑给你看</div>
+          <div class="brandchip" id="b8-chip">FinHot · 金融信息流</div>
+        </div>
+        <div class="disc" id="b8-disc">演示画面 · 数据为占位示例 · 不构成投资建议</div>
+        <div class="noise"></div>
+      </div>
+
+      <div class="wipe" id="wipe-y"></div>
+      <div class="wipe" id="wipe-w"></div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/tonight-hiphop.mp3" data-volume="0.4"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 黄色/白色滑块转场：盖住 → 换场景 → 滑出
+      function wipe(color, tOut, oldId, newId) {
+        const w = color === "y" ? "#wipe-y" : "#wipe-w";
+        tl.set(w, { transformOrigin: "left center" }, tOut);
+        tl.to(w, { scaleX: 1, duration: 0.22, ease: "power4.in" }, tOut);
+        tl.set(oldId, { opacity: 0 }, tOut + 0.22);
+        tl.set(newId, { opacity: 1 }, tOut + 0.22);
+        tl.set(w, { transformOrigin: "right center" }, tOut + 0.24);
+        tl.to(w, { scaleX: 0, duration: 0.22, ease: "power4.out" }, tOut + 0.24);
+      }
+
+      /* B1 0–3.4 打字 + slam */
+      tl.fromTo("#tc1", { width: 0 }, { width: 560, duration: 1.1, ease: "steps(6)" }, 0.25);
+      tl.fromTo("#cr1", { opacity: 1 }, { opacity: 0, duration: 0.35, ease: "steps(1)", repeat: 7, yoyo: true }, 0.2);
+      tl.fromTo("#b1-slam", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.38, ease: "power4.out" }, 1.7);
+      tl.fromTo("#mq1", { x: 0 }, { x: -900, duration: 3.2, ease: "none" }, 0.2);
+      wipe("w", 3.4, "#b1", "#b2");
+
+      /* B2 3.6–6.4 */
+      tl.fromTo("#b2 .mid", { x: -70, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "expo.out" }, 3.75);
+      tl.fromTo("#b2-slam", { scale: 2.0, opacity: 0, rotation: -4 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.34, ease: "power4.out" }, 4.15);
+      tl.fromTo("#b2", { x: 0 }, { x: 10, duration: 0.05, ease: "none", repeat: 5, yoyo: true }, 4.49);
+      tl.fromTo("#b2-sub", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 5.1);
+      wipe("y", 6.4, "#b2", "#b3");
+
+      /* B3 6.6–10.0 词墙 */
+      (function () {
+        const words = gsap.utils.toArray("#wall .w");
+        words.forEach((w, i) => {
+          const dirs = [[-60,0],[60,0],[0,50],[0,-50]];
+          const d = dirs[i % 4];
+          tl.fromTo(w, { x: d[0], y: d[1], opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.28, ease: "power3.out" }, 6.7 + i * 0.09);
+        });
+      })();
+      tl.fromTo("#b3 .huge", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power4.out" }, 8.2);
+      tl.fromTo("#xbar", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power4.inOut" }, 8.9);
+      wipe("w", 10.0, "#b3", "#b4");
+
+      /* B4 10.2–15.0 品牌 + 命令行 */
+      tl.fromTo("#b4 .brand", { y: 90, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "expo.out" }, 10.35);
+      tl.fromTo("#b4-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power4.out" }, 10.8);
+      tl.fromTo("#b4 .cmdbar", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "sine.out" }, 11.3);
+      tl.fromTo("#tc4", { width: 0 }, { width: 640, duration: 1.9, ease: "steps(15)" }, 11.6);
+      tl.fromTo("#cr4", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", repeat: 7, yoyo: true }, 11.4);
+      wipe("y", 15.0, "#b4", "#b5");
+
+      /* B5 15.2–19.4 清单 slam */
+      const li = ["#l1", "#l2", "#l3", "#l4"];
+      li.forEach((id, i) => {
+        tl.fromTo(id, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.32, ease: "power4.out" }, 15.5 + i * 0.75);
+      });
+      tl.fromTo("#cnt", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2.4)" }, 18.6);
+      wipe("w", 19.4, "#b5", "#b6");
+
+      /* B6 19.6–23.4 盖章 */
+      tl.fromTo("#b6 .mid", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, 19.75);
+      tl.fromTo("#b6 .huge", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 20.05);
+      const stamps = ["#st1", "#st2", "#st3"];
+      stamps.forEach((id, i) => {
+        tl.fromTo(id, { scale: 2.2, opacity: 0, rotation: -10 }, { scale: 1, opacity: 1, rotation: i === 1 ? 3 : -4, duration: 0.3, ease: "power4.out" }, 20.9 + i * 0.5);
+      });
+      wipe("y", 23.4, "#b6", "#b7");
+
+      /* B7 23.6–26.8 对比 */
+      tl.fromTo("#b7-q", { x: -90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "expo.out" }, 23.75);
+      tl.fromTo("#qbar", { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: "power4.inOut" }, 24.4);
+      tl.fromTo("#b7-a", { scale: 1.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.36, ease: "power4.out" }, 24.9);
+      tl.fromTo("#mq7", { x: 0 }, { x: -760, duration: 3.0, ease: "none" }, 23.7);
+      wipe("w", 26.8, "#b7", "#b8");
+
+      /* B8 27.0–30 CTA + 淡出 */
+      tl.fromTo("#tc8", { width: 0 }, { width: 880, duration: 1.2, ease: "steps(9)" }, 27.2);
+      tl.fromTo("#cr8", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", repeat: 5, yoyo: true }, 27.1);
+      tl.fromTo("#b8-disc", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 27.3);
+      tl.fromTo("#b8-sub", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }, 28.35);
+      tl.fromTo("#b8-chip", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "sine.out" }, 28.7);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

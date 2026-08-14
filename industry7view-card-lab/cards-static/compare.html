@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>04 · Compare Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== Compare-specific ============== */
+    .compare-card::after { display: none; }
+    .compare-stage {
+      bottom: 158px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+      left: 30px;
+      position: absolute;
+      right: 30px;
+      top: 120px;
+      z-index: 2;
+    }
+    .compare-box {
+      align-items: center;
+      border: 2px solid rgba(15, 39, 71, 0.20);
+      box-shadow: 0 1px 0 rgba(15, 39, 71, 0.04);
+      display: flex;
+      justify-content: center;
+      min-height: 110px;
+      padding: 24px 26px;
+      text-align: center;
+    }
+    .compare-box.old {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(15, 39, 71, 0.22);
+      color: var(--muted);
+    }
+    .compare-box.new {
+      background: var(--navy);
+      border-color: var(--gold);
+      color: #fff;
+    }
+    .compare-box strong {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      line-height: 1.1;
+    }
+    .compare-box.new strong { color: var(--gold); }
+    .neq {
+      align-self: center;
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+    }
+    .explain {
+      bottom: 72px;
+      color: var(--navy);
+      font-size: 17px;
+      font-weight: 850;
+      left: 30px;
+      line-height: 1.45;
+      position: absolute;
+      right: 30px;
+      text-align: center;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>04 · Compare Card</h1>
+    <p>不是 A 是 B 卡（核心区分），用于澄清概念混淆。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card compare-card">
+    <div class="brand-row">
+      <span class="tag">核心区分</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <div class="compare-stage">
+      <div class="compare-box old"><strong>实验室样机</strong></div>
+      <div class="neq">≠</div>
+      <div class="compare-box new"><strong>晶圆厂验证</strong></div>
+    </div>
+    <div class="explain">半导体设备的商业化，不是看样机，而是看产线信任。</div>
+    <div class="bottom-note">能跑通 ≠ 敢上产线</div>
+  </article>
+</body>
+</html>

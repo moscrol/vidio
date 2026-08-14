@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Noto Sans CJK SC"; src: local("Noto Sans CJK SC"); }
+      @font-face { font-family: "WenQuanYi Zen Hei"; src: local("WenQuanYi Zen Hei"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0d0618; }
+      body { font-family: "Noto Sans CJK SC", "WenQuanYi Zen Hei", sans-serif; color: #ffffff; }
+
+      /* ---------- stage (persistent background) ---------- */
+      .stage {
+        position: absolute; inset: 0;
+        background: radial-gradient(140% 90% at 50% 30%, #1c0f33 0%, #120825 55%, #0d0618 100%);
+      }
+      .rings { position: absolute; left: 50%; top: 44%; width: 1600px; height: 1600px; transform: translate(-50%, -50%); }
+      .ring { position: absolute; inset: 0; border: 1px solid rgba(139, 92, 246, 0.14); border-radius: 50%; }
+      .ring.r2 { inset: 190px; border-color: rgba(139, 92, 246, 0.11); }
+      .ring.r3 { inset: 380px; border-color: rgba(139, 92, 246, 0.09); }
+      .ring.r4 { inset: 570px; border-color: rgba(139, 92, 246, 0.07); }
+      .glow { position: absolute; width: 900px; height: 900px; border-radius: 50%; filter: blur(60px); }
+      .glow.tl { left: -420px; top: -380px; background: radial-gradient(circle, rgba(124, 58, 237, 0.30), transparent 65%); }
+      .glow.br { right: -430px; bottom: -360px; background: radial-gradient(circle, rgba(255, 107, 53, 0.16), transparent 65%); }
+      .ticks { position: absolute; top: 0; left: 0; right: 0; height: 26px; display: flex; }
+      .ticks i { flex: 1; border-left: 1px solid rgba(255, 255, 255, 0.16); height: 12px; margin-top: 6px; }
+      .ticks i:nth-child(5n+1) { height: 22px; border-left-color: rgba(255, 255, 255, 0.30); }
+      .grain {
+        position: absolute; inset: 0; opacity: 0.05; pointer-events: none;
+        background-image: repeating-conic-gradient(rgba(255,255,255,0.5) 0% 0.0001%, transparent 0.0002% 0.0004%);
+        background-size: 7px 7px;
+      }
+
+      /* ---------- shared components ---------- */
+      .scene { position: absolute; inset: 0; }
+      .crumbs { position: absolute; top: 58px; left: 54px; display: flex; gap: 16px; }
+      .crumb {
+        font-size: 36px; font-weight: 800; padding: 14px 38px; border-radius: 999px; letter-spacing: 2px;
+      }
+      .crumb.violet { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; box-shadow: 0 8px 30px rgba(124, 58, 237, 0.5); }
+      .crumb.white { background: #f4f1fa; color: #17102b; }
+      .disclaimer { position: absolute; top: 70px; right: 54px; font-size: 28px; color: rgba(255, 255, 255, 0.42); letter-spacing: 2px; }
+
+      .headline { font-size: 100px; font-weight: 900; line-height: 1.3; text-align: center; white-space: pre-line; }
+      .headline .hl { color: #ff8a4d; }
+      .selbox { position: relative; display: inline-block; padding: 26px 48px; }
+      .selbox::before {
+        content: ""; position: absolute; inset: 0;
+        border: 2px solid rgba(255, 255, 255, 0.55);
+      }
+      .selbox .hdl { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid #7c3aed; }
+      .selbox .h1 { left: -8px; top: -8px; } .selbox .h2 { right: -8px; top: -8px; }
+      .selbox .h3 { left: -8px; bottom: -8px; } .selbox .h4 { right: -8px; bottom: -8px; }
+
+      .pill3d {
+        position: absolute; border-radius: 26px; font-size: 40px; font-weight: 800; color: #fff;
+        display: flex; align-items: center; justify-content: center; letter-spacing: 2px;
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55), inset 0 2px 4px rgba(255, 255, 255, 0.45), inset 0 -8px 18px rgba(0, 0, 0, 0.28);
+      }
+      .p-orange { background: linear-gradient(160deg, #ffc06b 0%, #ff9a3c 45%, #f0722a 100%); }
+      .p-magenta { background: linear-gradient(160deg, #f08cff 0%, #e14fff 45%, #a92be0 100%); }
+      .p-cyan { background: linear-gradient(160deg, #a4ffe8 0%, #4ff0c8 45%, #1fbd97 100%); color: #073b2e; }
+      .p-blue { background: linear-gradient(160deg, #7fa4ff 0%, #3b6cff 45%, #2447c9 100%); }
+      .p-violet { background: linear-gradient(160deg, #c4a6ff 0%, #8b5cf6 45%, #6127d8 100%); }
+      .wave { display: flex; align-items: center; gap: 5px; }
+      .wave i { width: 4px; background: rgba(255, 255, 255, 0.85); border-radius: 2px; }
+
+      .shot-card {
+        border-radius: 22px; overflow: hidden; background: #17102b;
+        border: 2px solid #8b5cf6;
+        box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.35), 0 0 70px rgba(124, 58, 237, 0.45), 0 45px 90px rgba(0, 0, 0, 0.6);
+      }
+      .shot-card img { width: 100%; display: block; }
+
+      .sub {
+        position: absolute; left: 40px; right: 40px; bottom: 170px;
+        text-align: center; font-size: 54px; font-weight: 800; line-height: 1.45; color: #ffffff;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 8px 30px rgba(0, 0, 0, 0.7);
+      }
+
+      /* ---------- scene 1 ---------- */
+      #s1 .headline { font-size: 108px; }
+      #s1-noise .pill3d { font-size: 38px; }
+      #s1-one {
+        margin-top: 80px; font-size: 92px; font-weight: 900; text-align: center;
+      }
+      #s1-one .bar {
+        display: inline-block; margin-top: 30px; height: 18px; width: 460px; border-radius: 9px;
+        background: linear-gradient(90deg, #ff6b35, #ffb347); box-shadow: 0 6px 28px rgba(255, 107, 53, 0.6);
+      }
+      #s1-center { position: absolute; left: 0; right: 0; top: 620px; display: flex; flex-direction: column; align-items: center; }
+
+      /* ---------- scene 2 ---------- */
+      #s2-head { position: absolute; left: 0; right: 0; top: 210px; text-align: center; }
+      #s2-head .headline { font-size: 88px; }
+      #s2-card { position: absolute; left: 70px; width: 940px; top: 560px; }
+      #s2-sources { position: absolute; left: 0; right: 0; top: 1230px; height: 260px; }
+      #s2-sources .pill3d { width: 190px; height: 86px; }
+
+      /* ---------- scene 3 ---------- */
+      #s3-head { position: absolute; left: 0; right: 0; top: 210px; text-align: center; }
+      #s3-head .headline { font-size: 88px; }
+      #s3-card { position: absolute; left: 70px; width: 940px; top: 560px; }
+      #s3-grade { position: absolute; left: 90px; right: 90px; top: 1250px; display: flex; gap: 18px; }
+      #s3-grade .seg {
+        flex: 1; height: 96px; border-radius: 20px; display: flex; align-items: center; justify-content: center;
+        font-size: 42px; font-weight: 900; color: #fff;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.4);
+      }
+      #s3-grade .g0 { background: linear-gradient(160deg, #ff8b7a, #e6392b); }
+      #s3-grade .g1 { background: linear-gradient(160deg, #ffc06b, #f0722a); }
+      #s3-grade .g2 { background: linear-gradient(160deg, #7fa4ff, #3b6cff); }
+      #s3-grade .g3 { background: linear-gradient(160deg, #9a94b8, #5c5478); }
+      #s3-tags { position: absolute; left: 0; right: 0; top: 1390px; display: flex; justify-content: center; gap: 24px; }
+      #s3-tags .tag {
+        font-size: 40px; font-weight: 800; padding: 16px 42px; border-radius: 999px;
+        background: #f4f1fa; color: #17102b; box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+      }
+
+      /* ---------- scene 4 ---------- */
+      #s4-head { position: absolute; left: 0; right: 0; top: 460px; text-align: center; }
+      #s4-base {
+        position: absolute; left: 150px; right: 150px; top: 1220px; height: 130px; border-radius: 28px;
+        background: linear-gradient(160deg, #2a1b4d, #1a0f33); border: 2px solid rgba(139, 92, 246, 0.6);
+        box-shadow: 0 0 50px rgba(124, 58, 237, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.12);
+        display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; letter-spacing: 4px;
+      }
+      #s4-pills .pill3d { width: 300px; height: 96px; font-size: 38px; }
+
+      /* ---------- scene 5 ---------- */
+      #s5-lockup { position: absolute; left: 0; right: 0; top: 520px; display: flex; flex-direction: column; align-items: center; }
+      #s5-lockup img { width: 168px; height: 168px; border-radius: 40px; box-shadow: 0 0 70px rgba(255, 107, 53, 0.5), 0 30px 60px rgba(0, 0, 0, 0.6); }
+      #s5-lockup .word { margin-top: 40px; font-size: 110px; font-weight: 900; letter-spacing: 4px; }
+      #s5-lockup .tag { margin-top: 26px; font-size: 52px; font-weight: 700; color: rgba(255, 255, 255, 0.85); }
+      #s5-cta-row { position: absolute; left: 0; right: 0; top: 1240px; display: flex; justify-content: center; }
+      #s5-cta {
+        white-space: nowrap;
+        font-size: 56px; font-weight: 900; color: #0d0618; padding: 32px 84px; border-radius: 999px;
+        background: linear-gradient(90deg, #ff6b35, #ffb347);
+        box-shadow: 0 0 60px rgba(255, 107, 53, 0.55), 0 20px 44px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+      }
+      #s5-recap { position: absolute; left: 0; right: 0; top: 1450px; display: flex; justify-content: center; gap: 22px; }
+      #s5-recap .pill3d { position: static; width: 260px; height: 84px; font-size: 34px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="46.2" data-width="1080" data-height="1920">
+      <!-- persistent stage -->
+      <div id="stage" class="clip stage" data-start="0" data-duration="46.2" data-track-index="1">
+        <div class="glow tl"></div>
+        <div class="glow br"></div>
+        <div id="rings" class="rings">
+          <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div><div class="ring r4"></div>
+        </div>
+        <div class="ticks">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="grain"></div>
+      </div>
+
+      <!-- voiceover -->
+      <audio id="vo-hook" class="clip" data-start="0.4" data-duration="4.7" data-track-index="0" src="assets/vo_hook.mp3"></audio>
+      <audio id="vo-aggregate" class="clip" data-start="5.9" data-duration="12.31" data-track-index="0" src="assets/vo_aggregate.mp3"></audio>
+      <audio id="vo-evidence" class="clip" data-start="19.3" data-duration="10.97" data-track-index="0" src="assets/vo_evidence.mp3"></audio>
+      <audio id="vo-local" class="clip" data-start="31.3" data-duration="7.3" data-track-index="0" src="assets/vo_local.mp3"></audio>
+      <audio id="vo-cta" class="clip" data-start="39.5" data-duration="5.78" data-track-index="0" src="assets/vo_cta.mp3"></audio>
+
+      <!-- scene 1: hook -->
+      <div id="s1" class="clip scene" data-start="0" data-duration="5.6" data-track-index="2">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div id="s1-noise">
+          <div class="pill3d p-blue"   style="left:-40px;  top:300px;  width:250px; height:92px;">微博</div>
+          <div class="pill3d p-magenta" style="right:-30px; top:380px;  width:250px; height:92px;">雪球</div>
+          <div class="pill3d p-cyan"   style="left:60px;   top:1500px; width:250px; height:92px;">微信</div>
+          <div class="pill3d p-orange" style="right:70px;  top:1440px; width:220px; height:92px;">X</div>
+          <div class="pill3d p-violet" style="left:-20px;  top:1120px; width:250px; height:92px;">RSS</div>
+          <div class="pill3d p-blue"   style="right:-50px; top:1080px; width:270px; height:92px;">
+            <span class="wave"><i style="height:20px"></i><i style="height:38px"></i><i style="height:26px"></i><i style="height:44px"></i><i style="height:18px"></i><i style="height:34px"></i><i style="height:24px"></i></span>
+          </div>
+          <div class="pill3d p-magenta" style="left:190px; top:190px; width:180px; height:78px; font-size:32px;">推送</div>
+          <div class="pill3d p-orange"  style="right:200px; top:150px; width:180px; height:78px; font-size:32px;">快讯</div>
+        </div>
+        <div id="s1-center">
+          <div id="s1-h" class="selbox">
+            <span class="hdl h1"></span><span class="hdl h2"></span><span class="hdl h3"></span><span class="hdl h4"></span>
+            <div class="headline">你刷金融消息
+要开 <span class="hl">几个 App</span>？</div>
+          </div>
+          <div id="s1-one">我只开这一个。<br /><span class="bar"></span></div>
+        </div>
+      </div>
+
+      <!-- scene 2: aggregate -->
+      <div id="s2" class="clip scene" data-start="5.6" data-duration="13.4" data-track-index="2">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div id="s2-crumbs" class="crumbs">
+          <div class="crumb violet">FinHot</div>
+          <div class="crumb white">多源聚合</div>
+        </div>
+        <div id="s2-head">
+          <div class="selbox">
+            <span class="hdl h1"></span><span class="hdl h2"></span><span class="hdl h3"></span><span class="hdl h4"></span>
+            <div class="headline">一条信息流
+看全金融市场</div>
+          </div>
+        </div>
+        <div id="s2-card" class="shot-card"><img src="assets/timeline.png" alt="FinHot timeline" /></div>
+        <div id="s2-sources">
+          <div class="pill3d p-blue"    style="left:40px;  top:20px;">RSS</div>
+          <div class="pill3d p-magenta" style="left:250px; top:120px;">微博</div>
+          <div class="pill3d p-orange"  style="left:460px; top:20px;">雪球</div>
+          <div class="pill3d p-cyan"    style="left:670px; top:120px;">微信</div>
+          <div class="pill3d p-violet"  style="left:855px; top:20px;">X</div>
+        </div>
+      </div>
+      <div id="sub-1" class="clip sub" data-start="5.9" data-duration="6.4" data-track-index="3">这是 FinHot：RSS、微博、雪球<br />微信、X，全部聚合成一条信息流</div>
+      <div id="sub-2" class="clip sub" data-start="12.3" data-duration="6.4" data-track-index="3">每条自动摘要、打分<br />高信号的自己浮上来</div>
+
+      <!-- scene 3: evidence -->
+      <div id="s3" class="clip scene" data-start="19" data-duration="12" data-track-index="2">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div id="s3-crumbs" class="crumbs">
+          <div class="crumb violet">FinHot</div>
+          <div class="crumb white">官方披露查新</div>
+        </div>
+        <div id="s3-head">
+          <div class="selbox">
+            <span class="hdl h1"></span><span class="hdl h2"></span><span class="hdl h3"></span><span class="hdl h4"></span>
+            <div class="headline">先看<span class="hl">源头证据</span>
+再看热闹</div>
+          </div>
+        </div>
+        <div id="s3-card" class="shot-card"><img src="assets/entry-detail.png" alt="FinHot entry detail" /></div>
+        <div id="s3-grade">
+          <div class="seg g0">P0</div><div class="seg g1">P1</div><div class="seg g2">P2</div><div class="seg g3">P3</div>
+        </div>
+        <div id="s3-tags">
+          <div class="tag">公告</div><div class="tag">互动易</div><div class="tag">问询函</div>
+        </div>
+      </div>
+      <div id="sub-3" class="clip sub" data-start="19.3" data-duration="5.5" data-track-index="3">看到一个题材想确认真假？<br />直接查官方披露</div>
+      <div id="sub-4" class="clip sub" data-start="24.8" data-duration="5.5" data-track-index="3">公告、互动易、问询函，按重要度分级<br />先看源头，再看热闹</div>
+
+      <!-- scene 4: local -->
+      <div id="s4" class="clip scene" data-start="31" data-duration="8.2" data-track-index="2">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div id="s4-crumbs" class="crumbs">
+          <div class="crumb violet">FinHot</div>
+          <div class="crumb white">本地优先</div>
+        </div>
+        <div id="s4-head">
+          <div class="selbox">
+            <span class="hdl h1"></span><span class="hdl h2"></span><span class="hdl h3"></span><span class="hdl h4"></span>
+            <div class="headline">你的阅读数据
+<span class="hl">只属于你</span></div>
+          </div>
+        </div>
+        <div id="s4-pills">
+          <div class="pill3d p-cyan"   style="left:90px;  top:960px;">本地 SQLite</div>
+          <div class="pill3d p-orange" style="left:400px; top:900px;">桌面应用</div>
+          <div class="pill3d p-violet" style="left:700px; top:960px;">自带 AI Key</div>
+        </div>
+        <div id="s4-base">全部落在你自己的电脑上</div>
+      </div>
+      <div id="sub-5" class="clip sub" data-start="31.3" data-duration="7.3" data-track-index="3">所有数据存在本地，桌面应用<br />AI 用自己的 key</div>
+
+      <!-- scene 5: cta -->
+      <div id="s5" class="clip scene" data-start="39.2" data-duration="7" data-track-index="2">
+        <div class="disclaimer">仅产品演示 · 不构成投资建议</div>
+        <div id="s5-lockup">
+          <img src="assets/logo.png" alt="FinHot logo" />
+          <div class="word">FinHot</div>
+          <div class="tag">我给自己做的金融阅读器</div>
+        </div>
+        <div id="s5-cta-row"><div id="s5-cta">关注 · 更新陆续发</div></div>
+        <div id="s5-recap">
+          <div class="pill3d p-blue">多源聚合</div>
+          <div class="pill3d p-orange">披露查新</div>
+          <div class="pill3d p-cyan">本地优先</div>
+        </div>
+      </div>
+      <div id="sub-6" class="clip sub" data-start="39.5" data-duration="5.8" data-track-index="3">后续更新会陆续发<br />关注不迷路</div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ambient: rings slow rotate + breathe across whole video
+      tl.fromTo("#rings", { rotation: 0, scale: 1 }, { rotation: 14, scale: 1.06, duration: 46.2, ease: "none" }, 0);
+
+      // ---- scene 1 ----
+      tl.from("#s1-noise .pill3d", {
+        opacity: 0, scale: 0.4, y: (i) => (i % 2 === 0 ? -160 : 160), rotation: (i) => (i % 2 === 0 ? -18 : 18),
+        duration: 0.7, ease: "back.out(1.5)", stagger: 0.09,
+      }, 0.1);
+      // ambient drift on noise pills
+      tl.to("#s1-noise .pill3d", { y: "+=26", rotation: "+=3", duration: 4.4, ease: "sine.inOut", stagger: 0.05 }, 1.0);
+      tl.from("#s1-h", { opacity: 0, y: 90, duration: 0.7, ease: "power3.out" }, 0.5);
+      tl.from("#s1-h .hdl", { scale: 0, duration: 0.3, ease: "back.out(2)", stagger: 0.06 }, 1.1);
+      tl.from("#s1-one", { opacity: 0, y: 70, duration: 0.6, ease: "power3.out" }, 2.6);
+      tl.fromTo("#s1-one .bar", { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 3.1);
+      // noise pills flee when the answer lands
+      tl.to("#s1-noise .pill3d", { opacity: 0.25, scale: 0.85, duration: 0.6, ease: "power2.inOut", stagger: 0.04 }, 3.0);
+
+      // ---- scene 2 ----
+      tl.from("#s2-crumbs .crumb", { opacity: 0, x: -70, duration: 0.5, ease: "power3.out", stagger: 0.12 }, 5.8);
+      tl.from("#s2-head", { opacity: 0, y: 70, duration: 0.6, ease: "power3.out" }, 6.0);
+      tl.from("#s2-card", { opacity: 0, y: 140, scale: 0.9, rotationX: 8, duration: 0.9, ease: "power3.out" }, 6.5);
+      tl.fromTo("#s2-card", { scale: 1 }, { scale: 1.05, duration: 11.3, ease: "none", immediateRender: false }, 7.6);
+      // source pills converge upward toward the card
+      tl.from("#s2-sources .pill3d", { opacity: 0, y: 180, scale: 0.5, duration: 0.7, ease: "back.out(1.6)", stagger: 0.11 }, 7.2);
+      tl.to("#s2-sources .pill3d", { y: "-=20", duration: 3.5, ease: "sine.inOut", stagger: 0.08 }, 9.0);
+
+      // ---- scene 3 ----
+      tl.from("#s3-crumbs .crumb", { opacity: 0, x: -70, duration: 0.5, ease: "power3.out", stagger: 0.12 }, 19.2);
+      tl.from("#s3-head", { opacity: 0, y: 70, duration: 0.6, ease: "power3.out" }, 19.4);
+      tl.from("#s3-card", { opacity: 0, y: 140, scale: 0.9, rotationX: 8, duration: 0.9, ease: "power3.out" }, 19.9);
+      tl.fromTo("#s3-card", { scale: 1 }, { scale: 1.05, duration: 9.8, ease: "none", immediateRender: false }, 21.0);
+      // grade bar lights up P0 -> P3
+      tl.from("#s3-grade .seg", { opacity: 0, scaleY: 0.3, transformOrigin: "bottom center", duration: 0.5, ease: "back.out(1.8)", stagger: 0.16 }, 24.9);
+      // official tags stamp in
+      tl.from("#s3-tags .tag", { opacity: 0, scale: 1.7, duration: 0.45, ease: "power4.out", stagger: 0.18 }, 25.6);
+
+      // ---- scene 4 ----
+      tl.from("#s4-crumbs .crumb", { opacity: 0, x: -70, duration: 0.5, ease: "power3.out", stagger: 0.12 }, 31.2);
+      tl.from("#s4-head", { opacity: 0, y: 70, duration: 0.6, ease: "power3.out" }, 31.4);
+      // pills fall from the "cloud" into the local base
+      tl.from("#s4-pills .pill3d", { opacity: 0, y: -420, rotation: -8, duration: 0.9, ease: "bounce.out", stagger: 0.22 }, 32.4);
+      tl.from("#s4-base", { opacity: 0, scaleX: 0.5, duration: 0.7, ease: "power3.out" }, 32.0);
+      tl.to("#s4-pills .pill3d", { y: "+=14", duration: 2.6, ease: "sine.inOut", stagger: 0.1 }, 34.4);
+
+      // ---- scene 5 ----
+      tl.from("#s5-lockup img", { opacity: 0, scale: 0.5, rotation: -12, duration: 0.8, ease: "back.out(1.7)" }, 39.4);
+      tl.from("#s5-lockup .word", { opacity: 0, y: 60, duration: 0.6, ease: "power3.out" }, 39.9);
+      tl.from("#s5-lockup .tag", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, 40.4);
+      tl.from("#s5-cta", { opacity: 0, y: 60, scale: 0.85, duration: 0.6, ease: "back.out(1.7)" }, 41.2);
+      tl.to("#s5-cta", { scale: 1.05, duration: 0.5, ease: "sine.inOut", repeat: 6, yoyo: true }, 42.0);
+      tl.from("#s5-recap .pill3d", { opacity: 0, y: 90, scale: 0.6, duration: 0.6, ease: "back.out(1.6)", stagger: 0.14 }, 42.0);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

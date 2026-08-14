@@ -1,0 +1,1466 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Industry 7View Card Lab</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700&display=swap");
+
+      :root {
+        --bg: #f4f6f9;
+        --surface: #ffffff;
+        --text: #111827;
+        --muted: #5f6b7a;
+        --line: #e5e7eb;
+        --navy: #0f2747;
+        --blue: #174ea6;
+        --blue-deep: #103a82;
+        --gold: #b8832d;
+        --soft-blue: #eef4ff;
+        --data-bg: #fff7e6;
+        --data-border: #f0c46c;
+        --risk: #e53935;
+        --paper: #fbfaf7;
+        --ink-soft: rgba(15, 39, 71, 0.06);
+        --shadow: 0 28px 80px rgba(15, 39, 71, 0.10);
+        --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+        --font-sans: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        --font-serif: "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+        --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 20% 0%, rgba(184, 131, 45, 0.10), transparent 34%),
+          linear-gradient(180deg, #eef2f7 0%, #dfe6ef 100%);
+        color: var(--text);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .page-header {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 24px 20px;
+      }
+
+      .page-header h1 {
+        color: var(--navy);
+        font-size: 34px;
+        line-height: 1.2;
+        margin: 0 0 10px;
+      }
+
+      .page-header p {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.8;
+        margin: 0;
+      }
+
+      .toolbar {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .pill {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--navy);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 14px;
+      }
+
+      .lab {
+        display: grid;
+        gap: 36px;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 24px 24px 80px;
+      }
+
+      .card-wrap {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .card-name {
+        color: var(--navy);
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .video-card {
+        background: var(--paper);
+        border: 1px solid rgba(15, 39, 71, 0.12);
+        border-radius: 0;
+        box-shadow: var(--shadow);
+        height: 640px;
+        overflow: hidden;
+        position: relative;
+        transform-origin: top center;
+        width: 360px;
+      }
+
+      .video-card::before {
+        background-image:
+          linear-gradient(rgba(15, 39, 71, 0.052) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 39, 71, 0.052) 1px, transparent 1px);
+        background-size: 36px 36px;
+        content: "";
+        inset: 0;
+        opacity: 0.78;
+        pointer-events: none;
+        position: absolute;
+      }
+
+      .video-card::after {
+        background: linear-gradient(180deg, var(--gold), rgba(184, 131, 45, 0.08));
+        bottom: 78px;
+        content: "";
+        left: 28px;
+        position: absolute;
+        top: 92px;
+        width: 2px;
+        z-index: 1;
+      }
+
+      .safe {
+        inset: 32px 26px;
+        position: absolute;
+        z-index: 1;
+      }
+
+      .brand-row {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        left: 28px;
+        position: absolute;
+        right: 28px;
+        top: 26px;
+        z-index: 3;
+      }
+
+      .tag {
+        align-items: center;
+        background: var(--navy);
+        border: 1px solid var(--navy);
+        border-radius: 0;
+        color: #fff;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        padding: 8px 11px;
+      }
+
+      .brand {
+        color: var(--navy);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(15, 39, 71, 0.13);
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .bottom-note {
+        bottom: 26px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        left: 26px;
+        line-height: 1.45;
+        position: absolute;
+        right: 26px;
+        border-top: 1px solid rgba(15, 39, 71, 0.14);
+        padding-top: 12px;
+        z-index: 3;
+      }
+
+      .cover-card {
+        background:
+          radial-gradient(circle at 80% 20%, rgba(184, 131, 45, 0.12), transparent 28%),
+          radial-gradient(circle at 12% 72%, rgba(255, 255, 255, 0.055), transparent 34%),
+          linear-gradient(180deg, #102744 0%, #0a1e38 100%);
+        color: #fff;
+      }
+
+      .cover-card::before {
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.034) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.034) 1px, transparent 1px);
+      }
+
+      .cover-card::after {
+        display: none;
+      }
+
+      .cover-card .brand {
+        color: rgba(255, 255, 255, 0.54);
+      }
+
+      .cover-card .tag {
+        background: transparent;
+        border-color: rgba(184, 131, 45, 0.40);
+        color: rgba(255, 255, 255, 0.74);
+      }
+
+      .cover-main {
+        left: 30px;
+        position: absolute;
+        right: 30px;
+        top: 96px;
+        z-index: 2;
+      }
+
+      .cover-main::before {
+        background: var(--gold);
+        content: "";
+        display: block;
+        height: 3px;
+        margin-bottom: 18px;
+        width: 44px;
+      }
+
+      .cover-kicker {
+        color: rgba(184, 131, 45, 0.92);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+      }
+
+      .cover-title {
+        color: #fff;
+        font-size: 50px;
+        font-weight: 950;
+        letter-spacing: -0.075em;
+        line-height: 0.98;
+        margin: 14px 0 0;
+      }
+
+      .cover-title .gold {
+        color: var(--gold);
+      }
+
+      .cover-subtitle {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 19px;
+        font-weight: 850;
+        line-height: 1.32;
+        margin-top: 16px;
+      }
+
+      .cover-badge {
+        bottom: 56px;
+        border: 1px solid rgba(184, 131, 45, 0.42);
+        color: rgba(243, 210, 143, 0.92);
+        display: inline-flex;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 900;
+        left: 30px;
+        letter-spacing: 0.12em;
+        padding: 8px 12px;
+        position: absolute;
+        z-index: 3;
+      }
+
+      .cover-footer {
+        bottom: 28px;
+        color: rgba(255, 255, 255, 0.48);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 800;
+        left: 34px;
+        letter-spacing: -0.02em;
+        position: absolute;
+        right: 34px;
+        z-index: 3;
+      }
+
+      .hook-main {
+        bottom: 110px;
+        left: 26px;
+        padding: 34px 28px;
+        position: absolute;
+        right: 26px;
+        top: 118px;
+        z-index: 2;
+      }
+
+      .hook-title {
+        color: var(--navy);
+        font-size: 56px;
+        font-weight: 900;
+        letter-spacing: -0.07em;
+        line-height: 1.03;
+        margin: 20px 0 0;
+      }
+
+      .hook-title .gold {
+        color: var(--gold);
+        font-family: var(--font-mono);
+        letter-spacing: -0.04em;
+      }
+
+      .hook-title .risk {
+        color: var(--risk);
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.42;
+        margin-top: 26px;
+      }
+
+      .small-label {
+        color: var(--gold);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+      }
+
+      .logistics-card .diagram {
+        bottom: 132px;
+        left: 38px;
+        position: absolute;
+        right: 38px;
+        top: 132px;
+        z-index: 2;
+      }
+
+      .big-card {
+        padding: 34px 28px;
+      }
+
+      .card-title {
+        color: var(--navy);
+        font-size: 46px;
+        font-weight: 900;
+        letter-spacing: -0.065em;
+        line-height: 1.08;
+        margin: 0;
+      }
+
+      .card-title .gold {
+        color: var(--gold);
+      }
+
+      .card-sub {
+        color: var(--muted);
+        font-size: 22px;
+        font-weight: 750;
+        line-height: 1.45;
+        margin-top: 22px;
+      }
+
+      .orbit-line {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        margin-top: 34px;
+      }
+
+      .data-hero-main {
+        bottom: 118px;
+        left: 30px;
+        padding: 36px 28px 30px;
+        position: absolute;
+        right: 30px;
+        top: 122px;
+        z-index: 2;
+      }
+
+      .data-number-row {
+        align-items: flex-end;
+        display: flex;
+        gap: 10px;
+        margin-top: 26px;
+      }
+
+      .data-number {
+        color: var(--gold);
+        font-family: var(--font-mono);
+        font-size: 64px;
+        font-weight: 900;
+        letter-spacing: -0.1em;
+        line-height: 0.92;
+      }
+
+      .data-unit {
+        color: var(--navy);
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        padding-bottom: 7px;
+        white-space: nowrap;
+      }
+
+      .data-label {
+        color: var(--navy);
+        font-size: 23px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        line-height: 1.25;
+        margin-top: 24px;
+      }
+
+      .data-compare {
+        background: var(--data-bg);
+        border: 1px solid var(--data-border);
+        color: var(--gold);
+        display: inline-flex;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 900;
+        margin-top: 20px;
+        padding: 9px 11px;
+      }
+
+      .data-insight {
+        background: var(--navy);
+        color: #fff;
+        font-size: 19px;
+        font-weight: 900;
+        line-height: 1.35;
+        margin-top: 22px;
+        padding: 16px 18px;
+      }
+
+      .evidence-card .evidence-main {
+        bottom: 112px;
+        left: 30px;
+        padding: 30px 26px;
+        position: absolute;
+        right: 30px;
+        top: 118px;
+        z-index: 2;
+      }
+
+      .evidence-title {
+        color: var(--navy);
+        font-size: 42px;
+        font-weight: 950;
+        letter-spacing: -0.07em;
+        line-height: 1.08;
+        margin: 18px 0 0;
+      }
+
+      .evidence-title .gold {
+        color: var(--gold);
+      }
+
+      .evidence-subtitle {
+        color: var(--muted);
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.4;
+        margin-top: 18px;
+      }
+
+      .evidence-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: 26px;
+      }
+
+      .evidence-item {
+        background: rgba(15, 39, 71, 0.045);
+        border: 1px solid rgba(15, 39, 71, 0.14);
+        min-height: 82px;
+        padding: 14px 12px;
+      }
+
+      .evidence-label {
+        color: var(--gold);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        line-height: 1.2;
+      }
+
+      .evidence-value {
+        color: var(--navy);
+        font-size: 20px;
+        font-weight: 950;
+        letter-spacing: -0.05em;
+        line-height: 1.12;
+        margin-top: 10px;
+      }
+
+      .dot {
+        background: var(--gold);
+        border-radius: 999px;
+        height: 12px;
+        width: 12px;
+      }
+
+      .line {
+        background: linear-gradient(90deg, var(--gold), var(--blue));
+        border-radius: 999px;
+        flex: 1;
+        height: 4px;
+      }
+
+      .compare-card::after { display: none; }
+
+      .compare-stage {
+        bottom: 158px;
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr;
+        left: 30px;
+        position: absolute;
+        right: 30px;
+        top: 120px;
+        z-index: 2;
+      }
+
+      .compare-box {
+        align-items: center;
+        border: 2px solid rgba(15, 39, 71, 0.20);
+        box-shadow: 0 1px 0 rgba(15, 39, 71, 0.04);
+        display: flex;
+        justify-content: center;
+        min-height: 110px;
+        padding: 24px 26px;
+        text-align: center;
+      }
+
+      .compare-box.old {
+        background: rgba(255, 255, 255, 0.96);
+        border-color: rgba(15, 39, 71, 0.22);
+        color: var(--muted);
+      }
+
+      .compare-box.new {
+        background: var(--navy);
+        border-color: var(--gold);
+        color: #fff;
+      }
+
+      .compare-box strong {
+        font-size: 32px;
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        line-height: 1.1;
+      }
+
+      .compare-box.new strong {
+        color: var(--gold);
+      }
+
+      .neq {
+        align-self: center;
+        color: var(--gold);
+        font-family: var(--font-mono);
+        font-size: 44px;
+        font-weight: 900;
+        line-height: 1;
+        text-align: center;
+      }
+
+      .explain {
+        bottom: 72px;
+        color: var(--navy);
+        font-size: 17px;
+        font-weight: 850;
+        left: 30px;
+        line-height: 1.45;
+        position: absolute;
+        right: 30px;
+        text-align: center;
+        z-index: 3;
+      }
+
+      .loop-card::after { display: none; }
+
+      .loop-title {
+        color: var(--navy);
+        font-size: 28px;
+        font-weight: 900;
+        left: 32px;
+        letter-spacing: -0.05em;
+        line-height: 1.18;
+        position: absolute;
+        right: 32px;
+        top: 86px;
+        z-index: 2;
+      }
+
+      .loop-title::after {
+        background: var(--gold);
+        content: "";
+        display: block;
+        height: 3px;
+        margin-top: 12px;
+        width: 32px;
+      }
+
+      .loop-list {
+        display: grid;
+        gap: 8px;
+        left: 32px;
+        position: absolute;
+        right: 32px;
+        top: 180px;
+        z-index: 2;
+      }
+
+      .step {
+        align-items: center;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(15, 39, 71, 0.16);
+        border-left: 3px solid rgba(184, 131, 45, 0.6);
+        border-radius: 0;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 40px 1fr;
+        min-height: 52px;
+        padding: 10px 14px;
+      }
+
+      .step-no {
+        color: var(--gold);
+        font-family: var(--font-mono);
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .step-text {
+        color: var(--navy);
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+      }
+
+      .step.final {
+        background: var(--data-bg);
+        border-color: var(--data-border);
+      }
+
+      .checklist-card::after {
+        display: none;
+      }
+
+      .check-title {
+        color: var(--navy);
+        font-size: 38px;
+        font-weight: 900;
+        left: 32px;
+        letter-spacing: -0.06em;
+        line-height: 1.08;
+        position: absolute;
+        right: 28px;
+        top: 76px;
+        z-index: 2;
+      }
+
+      .check-title::after {
+        background: var(--gold);
+        content: "";
+        display: block;
+        height: 3px;
+        margin-top: 14px;
+        width: 38px;
+      }
+
+      .check-list {
+        display: grid;
+        gap: 14px;
+        left: 32px;
+        position: absolute;
+        right: 28px;
+        top: 200px;
+        z-index: 2;
+      }
+
+      .check-item {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(15, 39, 71, 0.14);
+        border-left: 3px solid var(--gold);
+        border-radius: 0;
+        padding: 18px 20px 17px;
+      }
+
+      .check-no {
+        color: var(--gold);
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+      }
+
+      .check-name {
+        color: var(--navy);
+        font-size: 24px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.12;
+      }
+
+      .check-desc {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 750;
+        line-height: 1.42;
+        margin-top: 7px;
+      }
+
+      .quote-card {
+        background:
+          radial-gradient(circle at 80% 18%, rgba(184, 131, 45, 0.20), transparent 24%),
+          var(--navy);
+        color: #fff;
+      }
+
+      .quote-card::before {
+        background-image: linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+      }
+
+      .quote-card .brand,
+      .quote-card .bottom-note {
+        color: rgba(255, 255, 255, 0.65);
+      }
+
+      .quote-card .tag {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.16);
+        color: #fff;
+      }
+
+      .quote-main {
+        bottom: 130px;
+        left: 34px;
+        position: absolute;
+        right: 34px;
+        top: 142px;
+        z-index: 2;
+      }
+
+      .quote-title {
+        color: #fff;
+        font-size: 55px;
+        font-weight: 950;
+        letter-spacing: -0.08em;
+        line-height: 1.08;
+        margin: 0;
+      }
+
+      .quote-title .gold {
+        color: var(--gold);
+      }
+
+      .quote-sub {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.5;
+        margin-top: 34px;
+      }
+
+      .url-pill {
+        background: rgba(184, 131, 45, 0.18);
+        border: 1px solid rgba(184, 131, 45, 0.42);
+        border-radius: 999px;
+        color: #f3d28f;
+        display: inline-flex;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 900;
+        margin-top: 32px;
+        padding: 9px 12px;
+      }
+
+      .hook-main {
+        bottom: 126px;
+        top: 132px;
+      }
+
+      .logistics-card .diagram {
+        bottom: 148px;
+        top: 148px;
+      }
+
+      .data-hero-main {
+        bottom: 146px;
+        top: 142px;
+      }
+
+      .data-number {
+        font-size: 72px;
+      }
+
+      .cover-title {
+        font-size: 64px;
+      }
+
+      .data-label {
+        font-size: 25px;
+      }
+
+      .compare-stage {
+        bottom: 148px;
+        top: 132px;
+      }
+
+      .loop-title {
+        font-size: 30px;
+        line-height: 1.18;
+        top: 118px;
+      }
+
+      .loop-list {
+        gap: 12px;
+        top: 238px;
+      }
+
+      .step {
+        min-height: 49px;
+        padding: 9px 13px;
+      }
+
+      .step-text {
+        font-size: 17px;
+      }
+
+      .check-title {
+        font-size: 39px;
+        line-height: 1.13;
+        top: 120px;
+      }
+
+      .check-list {
+        gap: 17px;
+        top: 278px;
+      }
+
+      .check-item {
+        padding: 14px 18px 13px;
+      }
+
+      .check-name {
+        font-size: 20px;
+      }
+
+      .check-desc {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .loop-card .bottom-note,
+      .checklist-card .bottom-note {
+        bottom: 24px;
+        font-size: 10px;
+        line-height: 1.35;
+        padding-top: 10px;
+      }
+
+      /* Order Validation Styles */
+      .order-validation-card::after { display: none; }
+
+      .validation-title {
+        color: var(--navy);
+        font-size: 28px;
+        font-weight: 900;
+        left: 32px;
+        letter-spacing: -0.06em;
+        line-height: 1.18;
+        position: absolute;
+        right: 28px;
+        top: 100px;
+        z-index: 2;
+      }
+
+      .validation-title::after {
+        background: var(--gold);
+        content: "";
+        display: block;
+        height: 3px;
+        margin-top: 12px;
+        width: 36px;
+      }
+
+      .stages-list {
+        display: grid;
+        gap: 8px;
+        left: 32px;
+        position: absolute;
+        right: 28px;
+        top: 174px;
+        z-index: 2;
+      }
+
+      .stage-item {
+        align-items: center;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(15, 39, 71, 0.16);
+        border-left: 3px solid rgba(184, 131, 45, 0.55);
+        border-radius: 0;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 24px 1fr 56px;
+        min-height: 50px;
+        padding: 9px 14px;
+      }
+
+      .stage-item.status-done {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+        opacity: 0.65;
+      }
+
+      .stage-item.status-current {
+        background-color: var(--navy);
+        border-color: var(--gold);
+        border-left-color: var(--gold);
+        color: #ffffff;
+      }
+
+      .stage-item.status-current .stage-no {
+        color: var(--gold);
+      }
+
+      .stage-item.status-next {
+        border-style: dashed;
+        border-left-style: solid;
+        border-left-color: rgba(15, 39, 71, 0.18);
+        background-color: transparent;
+        color: var(--muted);
+      }
+
+      .stage-item.status-risk {
+        background-color: var(--risk);
+        border-color: var(--risk);
+        border-left-color: #ffffff;
+        color: #ffffff;
+      }
+
+      .stage-item.status-risk .stage-no {
+        color: #ffffff;
+      }
+
+      .stage-no {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 900;
+        color: var(--gold);
+      }
+
+      .stage-item.status-done .stage-no {
+        color: var(--muted);
+      }
+
+      .stage-item.status-next .stage-no {
+        color: var(--muted);
+      }
+
+      .stage-label-text {
+        font-size: 16px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+      }
+
+      .stage-desc-text {
+        font-size: 11px;
+        font-weight: 700;
+        opacity: 0.85;
+        margin-top: 2px;
+      }
+
+      .stage-status-text {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-align: right;
+        letter-spacing: 0.05em;
+      }
+
+      .stage-item.status-done .stage-status-text {
+        color: var(--muted);
+      }
+
+      .stage-item.status-current .stage-status-text {
+        color: var(--gold);
+      }
+
+      .stage-item.status-next .stage-status-text {
+        color: var(--muted);
+      }
+
+      .stage-item.status-risk .stage-status-text {
+        color: #ffffff;
+      }
+
+      .verdict-box {
+        left: 32px;
+        position: absolute;
+        right: 28px;
+        bottom: 70px;
+        border-top: 1px solid var(--gold);
+        padding-top: 10px;
+        z-index: 2;
+      }
+
+      .verdict-text {
+        color: var(--navy);
+        font-size: 16px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        text-align: center;
+      }
+
+      /* Supply Chain Shift Styles */
+      .supply-chain-shift-card::after { display: none; }
+
+      .shift-title {
+        color: var(--navy);
+        font-size: 24px;
+        font-weight: 900;
+        left: 32px;
+        letter-spacing: -0.05em;
+        line-height: 1.18;
+        position: absolute;
+        right: 28px;
+        top: 100px;
+        z-index: 2;
+      }
+
+      .shift-title::after {
+        background: var(--gold);
+        content: "";
+        display: block;
+        height: 3px;
+        margin-top: 12px;
+        width: 32px;
+      }
+
+      .shift-flow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        left: 32px;
+        position: absolute;
+        right: 32px;
+        top: 174px;
+        z-index: 2;
+      }
+
+      .shift-side {
+        flex: 1;
+        padding: 14px 14px;
+        border: 2px solid rgba(15, 39, 71, 0.18);
+        min-height: 78px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .shift-side.from {
+        background-color: #f9fafb;
+        color: var(--muted);
+      }
+
+      .shift-side.to {
+        background-color: var(--navy);
+        color: #ffffff;
+        border-color: var(--gold);
+      }
+
+      .shift-side-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.6;
+        margin-bottom: 4px;
+      }
+
+      .shift-side-value {
+        font-size: 20px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+      }
+
+      .shift-arrow {
+        font-size: 28px;
+        color: var(--gold);
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .shift-drivers-box {
+        left: 32px;
+        position: absolute;
+        right: 32px;
+        top: 282px;
+        z-index: 2;
+      }
+
+      .shift-drivers-title {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--navy);
+        opacity: 0.6;
+        border-bottom: 1px solid rgba(15, 39, 71, 0.14);
+        padding-bottom: 4px;
+        margin-bottom: 10px;
+      }
+
+      .shift-drivers-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .shift-driver-item {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--navy);
+        display: flex;
+        gap: 8px;
+        line-height: 1.35;
+      }
+
+      .shift-driver-item::before {
+        content: "•";
+        color: var(--gold);
+        font-weight: 900;
+      }
+
+      .shift-result-box {
+        left: 32px;
+        position: absolute;
+        right: 32px;
+        bottom: 90px;
+        background-color: var(--soft-blue);
+        border-left: 3px solid var(--gold);
+        padding: 12px 14px;
+        z-index: 2;
+      }
+
+      .shift-result-text {
+        color: var(--navy);
+        font-size: 15px;
+        font-weight: 850;
+        line-height: 1.4;
+      }
+
+      @media (min-width: 900px) {
+        .video-card {
+          height: 768px;
+          width: 432px;
+        }
+
+        .lab {
+          grid-template-columns: repeat(auto-fit, minmax(432px, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="page-header">
+      <h1 id="page-title">Industry 7View Card Lab</h1>
+      <p>这是一版 HTML 静态样板，用来验证 1 张封面 + 7 张可复用短视频图文卡的视觉方向。V1.2 采用更接近主站的深蓝/金色体系，并吸收归藏瑞士风的网格、极细线和元数据排版。</p>
+      <div class="toolbar">
+        <span class="pill">1080×1920 设计比例</span>
+        <span class="pill">浅灰 / 白卡 / 深蓝 / 金色</span>
+        <span class="pill">industry7view 版 Swiss</span>
+      </div>
+    </header>
+
+    <main class="lab" id="card-lab"></main>
+    <script src="./cards.js"></script>
+    <script>
+      const data = window.INDUSTRY7VIEW_CARDS;
+      const lab = document.getElementById('card-lab');
+      document.getElementById('page-title').textContent = `Industry 7View Card Lab：${data.project}`;
+
+      const pad2 = (index) => String(index + 1).padStart(2, '0');
+      const footer = (card) => card.footer.startsWith('本文') ? card.footer : `${data.brand.replace('INDUSTRY 7VIEW', 'Industry 7View')} · ${card.footer}`;
+
+      const brandRow = (card) => `
+        <div class="brand-row">
+          <span class="tag">${card.tag}</span>
+          <span class="brand">${data.brand}</span>
+        </div>
+      `;
+
+      const renderCover = (card) => `
+        <section class="card-wrap">
+          <div class="card-name">${card.id}</div>
+          <article class="video-card cover-card" data-card-id="${card.id}">
+            ${brandRow(card)}
+            <div class="cover-main">
+              <div class="cover-kicker">${card.kicker}</div>
+              <h2 class="cover-title">${card.titleHtml}</h2>
+              <div class="cover-subtitle">${card.subtitle}</div>
+            </div>
+            <div class="cover-badge">${card.badge}</div>
+            <div class="cover-footer">${card.footer}</div>
+          </article>
+        </section>
+      `;
+
+      const renderCard = (card, index) => {
+        if (card.type === 'hook') {
+          return `
+            <article class="video-card hook-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <div class="hook-main panel">
+                <div class="small-label">${card.meta}</div>
+                <h2 class="hook-title">${card.titleHtml}</h2>
+                <div class="subtitle">${card.subtitle}</div>
+              </div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'logistics') {
+          return `
+            <article class="video-card logistics-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <div class="diagram panel big-card">
+                <div class="small-label">${card.meta}</div>
+                <h2 class="card-title">${card.titleHtml}</h2>
+                <div class="card-sub">${card.subtitle}</div>
+                <div class="orbit-line">
+                  <span class="dot"></span>
+                  <span class="line"></span>
+                  <span class="dot"></span>
+                </div>
+              </div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'dataHero') {
+          return `
+            <article class="video-card data-hero-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <div class="data-hero-main panel">
+                <div class="small-label">${card.meta}</div>
+                <div class="data-number-row">
+                  <div class="data-number">${card.number}</div>
+                  <div class="data-unit">${card.unit}</div>
+                </div>
+                <div class="data-label">${card.label}</div>
+                ${card.compareText ? `<div class="data-compare">${card.compareText}</div>` : ''}
+                <div class="data-insight">${card.insight}</div>
+              </div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'compare') {
+          return `
+            <article class="video-card compare-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <div class="compare-stage">
+                <div class="compare-box old panel"><strong>${card.oldText}</strong></div>
+                <div class="neq">≠</div>
+                <div class="compare-box new panel"><strong>${card.newText}</strong></div>
+              </div>
+              <div class="explain">${card.explain}</div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'loop') {
+          const steps = card.steps.map((step, stepIndex) => `
+            <div class="step ${stepIndex === card.steps.length - 1 ? 'final' : ''}">
+              <span class="step-no">${pad2(stepIndex)}</span>
+              <span class="step-text">${step}</span>
+            </div>
+          `).join('');
+
+          return `
+            <article class="video-card loop-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <h2 class="loop-title">${card.title}</h2>
+              <div class="loop-list">${steps}</div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'checklist') {
+          const items = card.items.map((item, itemIndex) => `
+            <div class="check-item">
+              <div class="check-no">${pad2(itemIndex)}</div>
+              <div class="check-name">${item.title}</div>
+              <div class="check-desc">${item.desc}</div>
+            </div>
+          `).join('');
+
+          return `
+            <article class="video-card checklist-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <h2 class="check-title">${card.titleHtml}</h2>
+              <div class="check-list">${items}</div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'quote') {
+          return `
+            <article class="video-card quote-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <div class="quote-main">
+                <div class="small-label">${card.meta}</div>
+                <h2 class="quote-title">${card.titleHtml}</h2>
+                <div class="quote-sub">${card.subtitle}</div>
+                <div class="url-pill">${card.url}</div>
+              </div>
+              <div class="bottom-note">${card.footer}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'orderValidation') {
+          const stages = card.stages.map((stage, stageIndex) => `
+            <div class="stage-item status-${stage.status}">
+              <span class="stage-no">${pad2(stageIndex)}</span>
+              <div class="stage-content">
+                <div class="stage-label-text">${stage.label}</div>
+                ${stage.desc ? `<div class="stage-desc-text">${stage.desc}</div>` : ''}
+              </div>
+              <span class="stage-status-text">${stage.status === 'done' ? '✓ done' : stage.status === 'current' ? 'active' : stage.status === 'risk' ? 'risk' : 'next'}</span>
+            </div>
+          `).join('');
+
+          return `
+            <article class="video-card order-validation-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <h2 class="validation-title">${card.title}</h2>
+              <div class="stages-list">${stages}</div>
+              ${card.verdict ? `
+                <div class="verdict-box">
+                  <div class="verdict-text">${card.verdict}</div>
+                </div>
+              ` : ''}
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'supplyChainShift') {
+          const drivers = (card.drivers ?? []).map((driver) => `
+            <div class="shift-driver-item">${driver}</div>
+          `).join('');
+
+          return `
+            <article class="video-card supply-chain-shift-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <h2 class="shift-title">${card.title}</h2>
+              <div class="shift-flow">
+                <div class="shift-side from">
+                  <div class="shift-side-label">FROM</div>
+                  <div class="shift-side-value">${card.from}</div>
+                </div>
+                <div class="shift-arrow">→</div>
+                <div class="shift-side to">
+                  <div class="shift-side-label">TO</div>
+                  <div class="shift-side-value">${card.to}</div>
+                </div>
+              </div>
+              ${card.drivers ? `
+                <div class="shift-drivers-box">
+                  <div class="shift-drivers-title">SHIFT DRIVERS</div>
+                  <div class="shift-drivers-list">${drivers}</div>
+                </div>
+              ` : ''}
+              ${card.result ? `
+                <div class="shift-result-box">
+                  <div class="shift-result-text">${card.result}</div>
+                </div>
+              ` : ''}
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        if (card.type === 'evidenceGrid') {
+          const evidences = card.evidences.map((item) => `
+            <div class="evidence-item">
+              <div class="evidence-label">${item.label}</div>
+              <div class="evidence-value">${item.value}</div>
+            </div>
+          `).join('');
+
+          return `
+            <article class="video-card evidence-card" data-card-id="${card.id}">
+              ${brandRow(card)}
+              <div class="evidence-main panel">
+                <div class="small-label">${card.meta}</div>
+                <h2 class="evidence-title">${card.titleHtml}</h2>
+                <div class="evidence-subtitle">${card.subtitle}</div>
+                <div class="evidence-grid">${evidences}</div>
+              </div>
+              <div class="bottom-note">${footer(card)}</div>
+            </article>
+          `;
+        }
+
+        return '';
+      };
+
+      lab.innerHTML = [
+        data.cover ? renderCover(data.cover) : '',
+        ...data.cards.map((card, index) => `
+        <section class="card-wrap">
+          <div class="card-name">${card.id}</div>
+          ${renderCard(card, index)}
+        </section>
+      `),
+        ...(data.extras ?? []).map((card, index) => `
+        <section class="card-wrap">
+          <div class="card-name">${card.id}</div>
+          ${renderCard(card, index)}
+        </section>
+      `),
+      ].join('');
+    </script>
+  </body>
+</html>

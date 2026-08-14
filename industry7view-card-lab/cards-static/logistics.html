@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>03 · Logistics Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== Logistics-specific ============== */
+    .logistics-card .diagram {
+      bottom: 132px;
+      left: 38px;
+      position: absolute;
+      right: 38px;
+      top: 132px;
+      z-index: 2;
+    }
+    .big-card { padding: 34px 28px; }
+    .card-title {
+      color: var(--navy);
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: -0.065em;
+      line-height: 1.08;
+      margin: 0;
+    }
+    .card-title .gold { color: var(--gold); }
+    .card-title .risk { color: var(--risk); }
+    .card-sub {
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 750;
+      line-height: 1.45;
+      margin-top: 22px;
+    }
+    .orbit-line {
+      align-items: center;
+      display: flex;
+      gap: 12px;
+      margin-top: 34px;
+    }
+    .dot {
+      background: var(--gold);
+      border-radius: 999px;
+      height: 12px;
+      width: 12px;
+    }
+    .line {
+      background: linear-gradient(90deg, var(--gold), var(--blue));
+      border-radius: 999px;
+      flex: 1;
+      height: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>03 · Logistics Card</h1>
+    <p>真实环境/客观挑战卡，强调外部约束。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card logistics-card">
+    <div class="brand-row">
+      <span class="tag">真实应用</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <div class="diagram panel big-card">
+      <div class="small-label">FACTORY / 挑战</div>
+      <h2 class="card-title">芯片制造<br/><span class="risk">极其严苛</span></h2>
+      <div class="card-sub">一台设备不稳定，就会影响良率、污染整条产线。</div>
+      <div class="orbit-line">
+        <div class="dot"></div>
+        <div class="line"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="bottom-note">失败代价极高，客户极其谨慎。</div>
+  </article>
+</body>
+</html>

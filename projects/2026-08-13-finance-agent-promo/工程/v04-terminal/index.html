@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #04080A; }
+      body {
+        font-family: "JetBrains Mono", "Noto Sans SC", monospace;
+        color: #33FF66;
+      }
+
+      #screen {
+        position: absolute; inset: 0; padding: 150px 70px 170px;
+        display: flex; flex-direction: column; gap: 14px;
+      }
+      .ln { font-size: 30px; line-height: 1.5; white-space: nowrap; opacity: 0; }
+      .ln .p { color: #1F9C50; }
+      .ln.dim { color: #1F8A46; }
+      .ln.warn { color: #FFB000; }
+      .ln.err { color: #FF5A5F; font-weight: 700; }
+      .ln.zh { font-size: 44px; font-weight: 700; color: #D7FFE3; }
+      .ln.zh .hl { color: #33FF66; }
+      .ln.cmt { color: #2E7D4F; }
+      .box {
+        border: 2px solid #33FF66; padding: 26px 30px; margin: 10px 0;
+        display: flex; flex-direction: column; gap: 16px; opacity: 0;
+        box-shadow: 0 0 30px rgba(51,255,102,0.15), inset 0 0 24px rgba(51,255,102,0.05);
+      }
+      .box .bl { font-size: 30px; line-height: 1.5; }
+      .box .bl .src { color: #FFB000; }
+      .alert {
+        border: 3px solid #FF5A5F; color: #FF5A5F; padding: 24px 30px;
+        font-size: 52px; font-weight: 700; letter-spacing: 6px;
+        margin: 14px 0; align-self: flex-start; opacity: 0;
+        box-shadow: 0 0 40px rgba(255,90,95,0.25);
+      }
+      .caret-inline { display: inline-block; width: 18px; height: 34px; background: #33FF66; vertical-align: -4px; }
+      .type-clip { display: inline-block; overflow: hidden; white-space: nowrap; width: 0; vertical-align: bottom; }
+
+      .statusbar {
+        position: absolute; top: 60px; left: 70px; right: 70px;
+        display: flex; justify-content: space-between; font-size: 24px; color: #1F8A46; letter-spacing: 2px;
+      }
+      .bottombar {
+        position: absolute; bottom: 60px; left: 70px; right: 70px;
+        display: flex; justify-content: space-between; font-size: 20px; color: #1F8A46; letter-spacing: 2px;
+      }
+      .scanlines {
+        position: absolute; inset: 0; pointer-events: none; z-index: 40;
+        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.32) 0px, rgba(0,0,0,0.32) 2px, transparent 2px, transparent 6px);
+      }
+      .crt-glow {
+        position: absolute; inset: 0; pointer-events: none; z-index: 41;
+        background: radial-gradient(ellipse 120% 100% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
+      }
+      .flicker { position: absolute; inset: 0; background: rgba(51,255,102,0.05); opacity: 0; pointer-events: none; z-index: 42; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+      <div class="statusbar"><span>wenpan tty01</span><span id="clockchip">SESSION · DEMO</span></div>
+
+      <div id="screen">
+        <div class="ln" id="n01"><span class="p">$</span> <span class="type-clip" id="tc1"><span>watch market --all --realtime</span></span><span class="caret-inline" id="cr1"></span></div>
+        <div class="ln dim" id="n02">[stream] 快讯 128 条/小时 · 公告 64 · 研报 96 页待读</div>
+        <div class="ln dim" id="n03">[feed] 目标价上调 · 股东减持 · 北向转负 · 竞品发布会</div>
+        <div class="ln dim" id="n04">[feed] 异动 +3.2% · 政策窗口 · 产能调整 · 风险提示更新</div>
+        <div class="ln dim" id="n05">[feed] 评论区: "利好落地就是利空?" · 未读 99+</div>
+        <div class="ln err" id="n06">[WARN] buffer overflow: 信息量超过人工处理速度</div>
+        <div class="alert" id="alert1">HUMAN LIMIT EXCEEDED</div>
+        <div class="ln zh" id="n07"># 盯盘一整天，下单还是<span class="hl">靠感觉</span></div>
+
+        <div class="ln" id="n08" style="margin-top: 30px;"><span class="p">$</span> <span class="type-clip" id="tc2"><span>wenpan run "查一下今天新能源板块异动的原因"</span></span><span class="caret-inline" id="cr2"></span></div>
+        <div class="ln" id="n09"><span class="dim">[1/4]</span> 检索今日公告与快讯 <span id="ok1">... [OK]</span></div>
+        <div class="ln" id="n10"><span class="dim">[2/4]</span> 拉取板块与个股行情 <span id="ok2">... [OK]</span></div>
+        <div class="ln" id="n11"><span class="dim">[3/4]</span> 交叉对比三份研报观点 <span id="ok3">... [OK]</span></div>
+        <div class="ln" id="n12"><span class="dim">[4/4]</span> 生成结论与来源清单 <span id="ok4">... [OK]</span></div>
+
+        <div class="box" id="report">
+          <div class="bl">┌ REPORT · 异动归因（DEMO 占位数据）</div>
+          <div class="bl" id="r1">01 拉升与产能调整公告时间吻合 <span class="src">[来源:公告]</span></div>
+          <div class="bl" id="r2">02 领涨的是上游材料，不是整车 <span class="src">[来源:行情]</span></div>
+          <div class="bl" id="r3">03 两份研报上周已提示该主线 <span class="src">[来源:研报]</span></div>
+          <div class="bl dim" id="r4">└ done in 1m42s · 全部判断可溯源</div>
+        </div>
+        <div class="ln zh" id="n13">一句话，<span class="hl">它自己把活干完</span></div>
+
+        <div class="ln cmt" id="n14" style="margin-top: 26px;"># chatbot: 还在等你第 5 次追问…</div>
+        <div class="ln" id="n15"><span class="p">$</span> wenpan status → <span style="color:#D7FFE3;">idle · 结论已交付</span></div>
+
+        <div class="ln zh" id="n16" style="margin-top: 30px;">你最想让它<span class="hl">盯什么？</span></div>
+        <div class="ln dim" id="n17">$ 评论区留言 → 拿真实数据跑给你看 <span class="caret-inline" id="cr3"></span></div>
+      </div>
+
+      <div class="bottombar"><span>V04 · TERMINAL</span><span>演示画面 · 数据为占位示例 · 不构成投资建议</span></div>
+      <div class="scanlines"></div>
+      <div class="crt-glow"></div>
+      <div class="flicker" id="flicker"></div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/bgm-tech-house.mp3" data-volume="0.32"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function line(id, t, dur) {
+        tl.fromTo(id, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: dur || 0.16, ease: "power1.out" }, t);
+      }
+
+      /* 第一段：监控洪流 0–8.6 */
+      line("#n01", 0.3);
+      tl.fromTo("#tc1", { width: 0 }, { width: 560, duration: 1.3, ease: "steps(29)" }, 0.5);
+      tl.fromTo("#cr1", { opacity: 1 }, { opacity: 0, duration: 0.38, ease: "steps(1)", repeat: 9, yoyo: true }, 0.4);
+      line("#n02", 2.1); line("#n03", 2.5); line("#n04", 2.9); line("#n05", 3.3);
+      line("#n06", 4.0, 0.2);
+      tl.fromTo("#alert1", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.28, ease: "power4.out" }, 4.6);
+      tl.fromTo("#screen", { x: 0 }, { x: 8, duration: 0.05, ease: "none", repeat: 5, yoyo: true }, 4.88);
+      line("#n07", 5.6, 0.4);
+      // 闪屏两次
+      tl.fromTo("#flicker", { opacity: 0 }, { opacity: 1, duration: 0.06, ease: "none", repeat: 3, yoyo: true }, 4.6);
+
+      /* 第二段：agent 接管 8.6–16 */
+      line("#n08", 8.6);
+      tl.fromTo("#tc2", { width: 0 }, { width: 760, duration: 2.2, ease: "steps(24)" }, 8.9);
+      tl.fromTo("#cr2", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", repeat: 11, yoyo: true }, 8.7);
+      const steps = [["#n09", "#ok1", 11.6], ["#n10", "#ok2", 12.5], ["#n11", "#ok3", 13.4], ["#n12", "#ok4", 14.3]];
+      steps.forEach(([ln1, ok, t]) => {
+        line(ln1, t);
+        tl.fromTo(ok, { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, t + 0.55);
+      });
+
+      /* 第三段：报告 16–22 */
+      tl.fromTo("#report", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 16.0);
+      line("#r1", 16.6, 0.3); line("#r2", 17.3, 0.3); line("#r3", 18.0, 0.3); line("#r4", 18.7, 0.3);
+      line("#n13", 19.6, 0.4);
+
+      /* 第四段：对比 + CTA 22–30 */
+      line("#n14", 22.2, 0.3);
+      line("#n15", 23.2, 0.3);
+      line("#n16", 25.0, 0.4);
+      line("#n17", 26.4, 0.3);
+      tl.fromTo("#cr3", { opacity: 1 }, { opacity: 0, duration: 0.42, ease: "steps(1)", repeat: 7, yoyo: true }, 26.6);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

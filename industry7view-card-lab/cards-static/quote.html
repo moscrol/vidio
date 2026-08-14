@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>07 · Quote Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== Quote-specific ============== */
+    .quote-card {
+      background:
+        radial-gradient(circle at 80% 18%, rgba(184, 131, 45, 0.20), transparent 24%),
+        var(--navy);
+      color: #fff;
+    }
+    .quote-card::before {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    }
+    .quote-card .brand,
+    .quote-card .bottom-note { color: rgba(255, 255, 255, 0.65); }
+    .quote-card .tag {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+    .quote-main {
+      bottom: 130px;
+      left: 34px;
+      position: absolute;
+      right: 34px;
+      top: 142px;
+      z-index: 2;
+    }
+    .quote-title {
+      color: #fff;
+      font-size: 55px;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+      line-height: 1.08;
+      margin: 0;
+    }
+    .quote-title .gold { color: var(--gold); }
+    .quote-sub {
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.5;
+      margin-top: 34px;
+    }
+    .url-pill {
+      background: rgba(184, 131, 45, 0.18);
+      border: 1px solid rgba(184, 131, 45, 0.42);
+      border-radius: 999px;
+      color: #f3d28f;
+      display: inline-flex;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 900;
+      margin-top: 32px;
+      padding: 9px 12px;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>07 · Quote Card</h1>
+    <p>金句结尾 / 行动卡（深色版式）。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card quote-card">
+    <div class="brand-row">
+      <span class="tag">看公司</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <div class="quote-main">
+      <div class="small-label">VERDICT / 行动</div>
+      <h2 class="quote-title">看 <span class="gold">订单</span><br/>不看 <span class="gold">故事</span></h2>
+      <div class="quote-sub">深度研究欢迎访问主站，看完整产业链分析。</div>
+      <span class="url-pill">industry7view.com</span>
+    </div>
+    <div class="bottom-note">深度报告 · 跟踪信号</div>
+  </article>
+</body>
+</html>

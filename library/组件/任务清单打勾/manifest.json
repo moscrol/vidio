@@ -1,0 +1,9 @@
+{
+  "name": "任务清单打勾",
+  "category": "组件",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo (v01 转圈→打勾 / v03 方框填充 / v04 [OK] / v06 LED)",
+  "specs": { "width": 0, "height": 0, "fps": 30, "duration_s": 4 },
+  "params": { "间隔": "0.6-0.9s/项", "皮肤": "spinner+tick | checkbox | 终端OK | LED" },
+  "reuse": "复制 工程/snippet.html。节奏契约：条目先入场（x/opacity），延迟后状态翻转；四种皮肤同一时间轴结构可互换。"
+}

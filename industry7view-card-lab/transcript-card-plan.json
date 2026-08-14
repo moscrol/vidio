@@ -1,0 +1,204 @@
+{
+  "project": "人形机器人第一条",
+  "srtPath": "/0510-2(1).srt",
+  "cueCount": 28,
+  "generatedAt": "2026-05-20T13:03:14.975Z",
+  "selected": [
+    {
+      "cardId": "00-cover-card",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "机器人不是来跳舞"
+      ],
+      "matchedKeywords": [
+        "机器人不是来跳舞"
+      ],
+      "score": 18,
+      "start": 0,
+      "end": 2.866,
+      "cueIndexes": [
+        1
+      ],
+      "transcript": "机器人不是来跳舞的，是来干活的。..",
+      "duration": 2,
+      "recipe": "cover.titleFadeUp"
+    },
+    {
+      "cardId": "01-hook-card",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "你看过的机器人",
+        "Demo"
+      ],
+      "matchedKeywords": [
+        "你看过的机器人",
+        "Demo"
+      ],
+      "score": 31,
+      "start": 2.933,
+      "end": 13.3,
+      "cueIndexes": [
+        2,
+        3,
+        4
+      ],
+      "transcript": "你看过的机器人视频是什么？ 翻跟头、打太极、端咖啡、跳舞，很酷对吧？.. 但告诉你一个反直觉的事实：那些全是 Demo。",
+      "duration": 3,
+      "recipe": "hook.staggerTitleReveal"
+    },
+    {
+      "cardId": "04-not-a-is-b",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "Demo 和产品"
+      ],
+      "matchedKeywords": [
+        "Demo 和产品"
+      ],
+      "score": 17,
+      "start": 13.3,
+      "end": 16.533,
+      "cueIndexes": [
+        5
+      ],
+      "transcript": "Demo 和产品之间，隔着十万八千里。..",
+      "duration": 3.5,
+      "recipe": "compare.oldNewReveal"
+    },
+    {
+      "cardId": "03-logistics-card",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "进工厂",
+        "搬箱子",
+        "拧螺丝"
+      ],
+      "matchedKeywords": [
+        "进工厂",
+        "搬箱子",
+        "拧螺丝"
+      ],
+      "score": 39,
+      "start": 19.8,
+      "end": 23.566,
+      "cueIndexes": [
+        7,
+        8
+      ],
+      "transcript": "而是它能不能进工厂、 搬箱子、拧螺丝，",
+      "duration": 3.5,
+      "recipe": "logistics.metaphorReveal"
+    },
+    {
+      "cardId": "02-data-hero-card",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "2 到 3 万美元"
+      ],
+      "matchedKeywords": [
+        "2 到 3 万美元"
+      ],
+      "score": 16,
+      "start": 37.533,
+      "end": 41.566,
+      "cueIndexes": [
+        15
+      ],
+      "transcript": "特斯拉 Optimus 的量产目标价是 2 到 3 万美元。",
+      "duration": 4,
+      "recipe": "dataHero.numberEmphasis"
+    },
+    {
+      "cardId": "05-business-loop",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "百万台级别"
+      ],
+      "matchedKeywords": [
+        "百万台级别"
+      ],
+      "score": 15,
+      "start": 45.566,
+      "end": 47.466,
+      "cueIndexes": [
+        18
+      ],
+      "transcript": "百万台级别的成本。",
+      "duration": 5,
+      "recipe": "loop.sequentialStepHighlight"
+    },
+    {
+      "cardId": "06-tracking-checklist",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "记住一个区分"
+      ],
+      "matchedKeywords": [
+        "记住一个区分"
+      ],
+      "score": 16,
+      "start": 52.266,
+      "end": 56.133,
+      "cueIndexes": [
+        21
+      ],
+      "transcript": "所以记住一个区分：会跳舞的是实验室样品，",
+      "duration": 4.5,
+      "recipe": "checklist.staggerReveal"
+    },
+    {
+      "cardId": "07-closing-quote",
+      "enabled": true,
+      "knownCard": true,
+      "keywords": [
+        "产品时代刚开始",
+        "死亡谷"
+      ],
+      "matchedKeywords": [
+        "产品时代刚开始",
+        "死亡谷"
+      ],
+      "score": 30,
+      "start": 62.5,
+      "end": 66.533,
+      "cueIndexes": [
+        25,
+        26
+      ],
+      "transcript": "产品时代刚开始。 中间这段路，叫死亡谷。..",
+      "duration": 5,
+      "recipe": "quote.fadeUp"
+    }
+  ],
+  "disabled": [
+    {
+      "cardId": "08-evidence-grid-card",
+      "enabled": false,
+      "knownCard": true,
+      "keywords": [
+        "成本可能远高于这个数"
+      ],
+      "matchedKeywords": [
+        "成本可能远高于这个数"
+      ],
+      "score": 20,
+      "start": 49.966,
+      "end": 52.266,
+      "cueIndexes": [
+        20
+      ],
+      "transcript": "成本可能远高于这个数。..",
+      "duration": 5,
+      "recipe": "evidenceGrid.gridStaggerReveal",
+      "reason": "disabled in timeline-rules.json"
+    }
+  ],
+  "needsReview": []
+}

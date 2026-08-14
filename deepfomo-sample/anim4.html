@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1080px; height:1920px; overflow:hidden; }
+  body {
+    background:#F5F7FA;
+    font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+    color:#12294B;
+    position:relative;
+  }
+  #stage { position:absolute; inset:0; padding:0 64px; }
+
+  #header { padding-top:56px; display:flex; align-items:center; gap:20px; }
+  #header img { height:110px; }
+
+  #chat { margin-top:40px; display:flex; flex-direction:column; }
+
+  #userBubble {
+    align-self:flex-end;
+    background:#12294B; color:#fff;
+    font-size:46px; font-weight:600;
+    padding:28px 44px; border-radius:36px 36px 8px 36px;
+    opacity:0; box-shadow:0 8px 24px rgba(18,41,75,.18);
+  }
+
+  #inputScene { position:absolute; left:64px; right:64px; top:640px; }
+  #inputScene .hint { font-size:40px; color:#8A97A8; margin-bottom:36px; text-align:center; letter-spacing:2px;}
+  .inputBox {
+    background:#fff; border:3px solid #D8DFE8; border-radius:32px;
+    padding:44px 48px; display:flex; align-items:center;
+    box-shadow:0 12px 40px rgba(18,41,75,.08);
+  }
+  .inputBox.focused { border-color:#C08A2D; box-shadow:0 12px 40px rgba(192,138,45,.18); }
+  .inputBox .txt { font-size:52px; min-height:70px; flex:1; white-space:nowrap; }
+  .inputBox .txt .ph { color:#B6C0CC; }
+  .caret {
+    display:inline-block; width:5px; height:60px; background:#12294B;
+    vertical-align:-8px; margin-left:4px;
+  }
+  #submitBtn {
+    margin-left:32px; background:#12294B; color:#fff; font-size:40px; font-weight:600;
+    padding:24px 52px; border-radius:24px; flex-shrink:0;
+  }
+  #submitBtn.pressed { background:#C08A2D; transform:scale(.94); }
+
+  #thinkPanel {
+    margin-top:44px;
+    background:#fff; border-radius:28px; border-left:10px solid #C08A2D;
+    padding:40px 44px; box-shadow:0 10px 36px rgba(18,41,75,.08);
+    opacity:0;
+  }
+  #thinkTitle { font-size:40px; font-weight:700; color:#C08A2D; margin-bottom:28px; display:flex; align-items:center; gap:16px;}
+  #thinkTitle .spinner {
+    width:34px; height:34px; border-radius:50%;
+    border:5px solid #E8D9BC; border-top-color:#C08A2D;
+  }
+  .thinkLine { font-size:38px; line-height:1.75; color:#3D4F66; margin-bottom:10px; min-height:66px; opacity:0;}
+  .thinkLine .hl { color:#12294B; font-weight:700; background:linear-gradient(transparent 68%, #F0DDB4 68%); padding:0 2px;}
+  #thinkPanel.collapsed .thinkLine, #thinkPanel.collapsed #thinkTitle .spinner { display:none; }
+
+  #answer { margin-top:44px; opacity:0; }
+  #ansLabel { font-size:36px; font-weight:700; color:#8A97A8; letter-spacing:4px; margin-bottom:24px;}
+  #ansBody {
+    background:#fff; border-radius:28px; padding:44px 48px 36px;
+    box-shadow:0 10px 36px rgba(18,41,75,.08);
+  }
+  #ansBody p {
+    font-size:38px; line-height:1.7; color:#26374E; margin-bottom:28px;
+  }
+  #ansBody p.meta { font-size:32px; color:#8A97A8; }
+  #ansBody b { color:#12294B; font-weight:800; background:linear-gradient(transparent 70%, #F0DDB4 70%); }
+  #ansBody .cursorBlock {
+    display:inline-block; width:22px; height:42px; background:#12294B;
+    vertical-align:-6px; margin-left:6px; border-radius:4px;
+  }
+  #ansBody table {
+    width:100%; border-collapse:collapse; margin:8px 0 32px;
+    font-size:32px; color:#26374E;
+  }
+  #ansBody table th {
+    background:#12294B; color:#fff; font-weight:700; text-align:left;
+    padding:16px 20px; font-size:31px;
+  }
+  #ansBody table td {
+    border-bottom:2px solid #E4E9F0; padding:14px 20px; line-height:1.5;
+  }
+  #ansBody table tr:nth-child(even) td { background:#F7F9FC; }
+  #bottomFade {
+    position:absolute; left:0; right:0; bottom:0; height:160px; pointer-events:none;
+    background:linear-gradient(rgba(245,247,250,0), #F5F7FA 85%);
+  }
+
+  #ending { position:absolute; inset:0; background:rgba(245,247,250,0); pointer-events:none; }
+  #endCenter { position:absolute; left:0; right:0; top:560px; text-align:center; opacity:0; }
+  #endCenter .l1 { font-size:64px; font-weight:800; }
+  #endCenter .l2 { font-size:52px; font-weight:600; color:#C08A2D; margin-top:24px; }
+  #endInput { position:absolute; left:64px; right:64px; top:900px; opacity:0; }
+  #disclaimer {
+    position:absolute; left:0; right:0; bottom:70px; text-align:center;
+    font-size:32px; color:#9AA6B5; opacity:0; letter-spacing:2px;
+  }
+  .danmaku {
+    position:absolute; white-space:nowrap;
+    background:rgba(18,41,75,.85); color:#fff;
+    font-size:40px; padding:18px 40px; border-radius:999px;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="header"><img src="logo_crop.png"></div>
+  <div id="chat">
+    <div id="userBubble">深挖汇成股份</div>
+    <div id="thinkPanel">
+      <div id="thinkTitle"><span class="spinner"></span><span id="thinkTitleTxt">Deep Fomo 深度思考中...</span></div>
+      <div class="thinkLine" id="tl0"></div>
+      <div class="thinkLine" id="tl1"></div>
+      <div class="thinkLine" id="tl2"></div>
+      <div class="thinkLine" id="tl3"></div>
+      <div class="thinkLine" id="tl4"></div>
+    </div>
+    <div id="answer">
+      <div id="ansLabel">DEEP FOMO 输出</div>
+      <div id="ansBody"></div>
+    </div>
+  </div>
+  <div id="bottomFade"></div>
+
+  <div id="inputScene">
+    <div class="hint">A 股 · 个股深挖 · 公开跑一次</div>
+    <div class="inputBox" id="ib1">
+      <span class="txt" id="ibTxt"><span class="ph">问点什么…</span></span>
+      <span id="submitBtn">提交</span>
+    </div>
+  </div>
+
+  <div id="ending">
+    <div id="endCenter">
+      <div class="l1">评论区报你想深挖的票</div>
+      <div class="l2">Deep Fomo 公开跑一次</div>
+    </div>
+    <div id="endInput">
+      <div class="inputBox focused">
+        <span class="txt"><span class="ph">直接评论：深挖 + 股票名</span><span class="caret" id="endCaret"></span></span>
+        <span id="submitBtn2" style="margin-left:32px;background:#12294B;color:#fff;font-size:40px;font-weight:600;padding:24px 52px;border-radius:24px;">提交</span>
+      </div>
+    </div>
+    <div id="disclaimer">仅展示研究流程，不构成投资建议</div>
+    <div class="danmaku" id="dm0">深挖汇成股份</div>
+    <div class="danmaku" id="dm1">先进封装还能追吗？</div>
+    <div class="danmaku" id="dm2">高位分歧怎么办？</div>
+  </div>
+</div>
+
+<script>
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const ease = t=>t<0?0:t>1?1:t*t*(3-2*t);
+const $ = id=>document.getElementById(id);
+
+function typeSegs(segs, n){
+  let out='', left=n;
+  for(const s of segs){
+    if(left<=0) break;
+    const take = s.t.slice(0, left);
+    out += s.hl ? '<span class="hl">'+take+'</span>' : take;
+    left -= take.length;
+  }
+  return out;
+}
+const segLen = segs=>segs.reduce((a,s)=>a+s.t.length,0);
+
+const QUESTION = '深挖汇成股份';
+
+const THINK = [
+  [{t:'识别问题类型：'},{t:'个股深挖',hl:1},{t:'。先验鲜：本地库最新 trade_date 2026-06-30。'}],
+  [{t:'D1 '},{t:'市场价值',hl:1},{t:'：6/9→6/25 峰值涨幅约 72.37%，收益保留率约 90.77%。'}],
+  [{t:'D2 '},{t:'证据硬度',hl:1},{t:'：Hybrid RAG 召回逻辑卡 + L3 公告/互动问答补事实边界。'}],
+  [{t:'盘面反差：6/30 板块集体大涨、个股反跌 0.8%——'},{t:'强板块弱个股',hl:1},{t:'。'}],
+  [{t:'生命周期重判：旧逻辑唤醒 → 二次加速定价 → '},{t:'高位分歧观察',hl:1},{t:'。'}],
+];
+const THINK_T = [[4.6,6.4],[6.7,8.9],[9.2,11.2],[11.5,13.7],[14.0,15.8]];
+
+/* ---- streaming answer: 95 分样板原文 ---- */
+const ANSWER = [
+  {cls:'meta', segs:[{t:'数据口径：金融 DuckDB 关键盘面表最大交易日均为 2026-06-30；Hybrid RAG 已召回汇成股份逻辑卡、同链封测公司与先进封装概念页；L3 边界用 2026-06-15 互动问答、06-26 异动公告、06-30 可转债募投项目结项公告补充（本机 L3 CLI 未跑通，已显式说明并降权）。'}]},
+  {segs:[{t:'汇成股份现在不能再用 6 月初那套“旧逻辑分歧承接股”简单概括。用最新盘面看，它已经完成了一轮更猛烈的二次定价：从 6 月 9 日 23.96 元到 6 月 25 日 41.30 元，区间峰值涨幅约 '},{t:'72.37%',b:1},{t:'；到 6 月 30 日仍收在 39.70 元，区间涨幅约 65.69%，峰后回撤只有 3.87%，收益保留率约 '},{t:'90.77%',b:1},{t:'。所以它不是“市场没选过”，而是“市场已经选过一轮，现在进入强板块里的再验证/掉队观察”。'}]},
+  {segs:[{t:'核心矛盾要先立住：'},{t:'汇成股份的 DDIC 封测基本盘是真实的，长鑫链和先进封装预期也确实被市场重新定价过；但 6 月 30 日半导体、存储、先进封装集体大涨时，汇成自己反而跌 0.8%，说明资金仍认可方向，却开始在同链里选择更强、更直接、更有新高确认的表达。',b:1}]},
+  {segs:[{t:'先回到公司本体。汇成股份主业是显示驱动芯片 DDIC 的封装测试，产业链位置在“芯片设计公司 -> 汇成封测 -> 面板厂”。它给联咏、天钰、瑞鼎、奇景、集创北方、云英谷、新相微等客户做显示驱动芯片全制程封测，收入主体仍是集成电路封测。知识库逻辑卡显示，2025 年封测收入 15.79 亿，占收入 88.56%；凸块制造、晶圆测试、COF、COG 是主要收入构成。这个基本盘决定了它'},{t:'不是纯 AI 封装股，也不是纯存储封测股',b:1},{t:'。'}]},
+  {segs:[{t:'公司真正有弹性的地方，是在基本盘之外叠了三条第二曲线：AMOLED/ESL 产品结构升级、参股鑫丰科技绑定长鑫 DRAM 封测链、先进封装能力建设。AMOLED 和 ESL 是最接近报表的，属于主业结构改善，毛利率相对更高；鑫丰/长鑫链有事实连接，但汇成权益比例约 27.5%，鑫丰 2025 年收入 1.78 亿且净亏 9137 万，对汇成还不是并表利润增量；先进封装想象空间最大，但目前证据仍偏能力建设，缺客户导入、设备搬入、小批量量产和收入确认。'}]},
+  {segs:[{t:'所以收入结构和利润弹性要分开看：'}]},
+  {table:{head:['逻辑线','证据硬度','是否进报表','对空间的含义'],rows:[
+    ['DDIC 封测基本盘','高','是','稳定底座，但不是高弹性主线'],
+    ['AMOLED / ESL 结构升级','中高','是','毛利率修复和收入结构改善'],
+    ['鑫丰科技 / 长鑫链','中','权益法，不并表','有预期差，但利润传导链条长'],
+    ['先进封装 / 玻璃基 / 2.5D/3D','中低','尚未充分','估值弹性大，但需 L3 验证'],
+    ['H 股递表、回购、可转债事件','事件','间接','改变关注度，不等于新增订单'],
+  ]}},
+  {segs:[{t:'客户证据硬度也要拆。公司披露和互动问答可以确认：可转债募投项目新增产能逐步释放，2025 年显示驱动芯片封测销量同比增长 14.26%，营收同比增长 18.79%；公司现有主营业务仍是显示驱动芯片封测，所封测芯片主要用于 LCD、AMOLED 等面板；互动问答明确说公司'},{t:'“暂无涉足玻璃基板封装或相关领域的计划”',b:1},{t:'。这句话很关键，它直接压低了“玻璃基板封装”叙事的证据硬度。'}]},
+  {table:{head:['证据点','硬度','对判断的改变'],rows:[
+    ['DDIC 封测客户、收入、销量增长','硬证据','基本盘真实，不是空壳概念'],
+    ['AMOLED/ESL 高毛利结构升级','中高','有利润率修复逻辑'],
+    ['鑫丰投资、长鑫链、LPDDR 封测','中','有事实连接，但只是权益法'],
+    ['鑫丰 2025 年亏损、单一客户依赖','强反证','长鑫链不是当期利润确定性'],
+    ['先进封装/2.5D/3D/CoWoS-L','中低','远期想象，需订单和客户验证'],
+    ['玻璃基板封装','反证','公司暂无涉足计划，不能当硬逻辑'],
+    ['06-26 异动公告、06-30 募投结项','事件证据','定价已很快，需新事实接力'],
+  ]}},
+  {segs:[{t:'再看市场结构。2026 年 6 月 30 日，全市场从探底阶段切到“底部横盘阶段”第 1 天，成交额 3.27 万亿，相对 20 日均量 104.81%；涨家数 3054，涨停 140，跌停 7，赚钱效应从 6 月 26 日低点修复明显。但这个修复不是低位全面扩散，而是强烈的'},{t:'主线抱团',b:1},{t:'：电子占全市场成交 36.0%，前三行业合计 51.6%。这对汇成是双刃剑：电子强，说明它站在主战场；但电子太强、太集中，资金会优先选择新高、更大成交、更强涨停热度的前排。'}]},
+  {segs:[{t:'题材层面，先进封装、半导体、存储芯片、芯片 6 月 30 日都很强：芯片涨 4.20%、存储芯片涨 4.55%、半导体涨 6.32%、先进封装涨 5.11%。但反向看，这几条题材的 diff_ratio 全是负的（芯片 -3.60、存储 -7.73、半导体 -5.69、先进封装 -5.35）：按“双红”定义，它们'},{t:'不是低位放量新启动，而是强修复/存量抱团式上涨',b:1},{t:'。'}]},
+  {segs:[{t:'这时个股相对强度就成了关键。汇成 6 月 30 日收跌 0.8%，成交 38.37 亿；同日先进封装前排里，富满微、颀中科技、联得装备、深科达 20cm 涨停，微导纳米涨 16.59%，甬矽电子涨 13.48%，晶方科技、康强电子涨停；更大成交的深科技 163.73 亿、京东方 A 445.57 亿。这就是最新盘面对汇成最强的反证：'},{t:'不是板块不行，而是板块太行；不是资金没买半导体，而是资金在半导体里买了更强的前排。',b:1}]},
+  {segs:[{t:'所以它的逻辑生命周期要从旧版升级：6 月初是“旧逻辑唤醒后的升温验证/分歧承接”，到 6 月 25 日已经进入“加速定价”，6 月 30 日则进入'},{t:'“加速定价后的高位分歧观察”',b:1},{t:'。它没有证伪，因为峰后回撤小、收益保留率高，筹码没有崩；但它也不能再按低位预期差看，因为 CAR 已经非常充分，市场开始要求新证据。'}]},
+  {table:{head:['生命周期四问','当前答案'],rows:[
+    ['处在哪一段？','旧逻辑唤醒 -> 二次加速定价 -> 高位分歧观察'],
+    ['相比过去 N 天变化？','6 月下旬大幅产生市场价值，但 6/30 强板块中转弱，从“被挖掘”变成“需再验证”'],
+    ['有没有真正产生市场价值？','有。峰值 +72.37%，至 6/30 仍 +65.69%，收益保留率约 90.77%'],
+    ['如何升级/降级/证伪？','重新新高、进强势前排、L3 订单/鑫丰扭亏可升级；强板块中掉队、跌破半衰期水位则降级'],
+  ]}},
+  {segs:[{t:'二阶导上，汇成提供的是“存储封测/先进封装预期交易”的观察点，但不是最直接瓶颈。如果市场交易长鑫链和国产存储封测，深科技、长电科技、通富微电、华天科技、甬矽电子、颀中科技这类更直接的封测表达需要比较；如果市场交易先进封装扩产，设备、材料、测试、化学品、基板环节可能更直接；如果市场交易 AI 算力高容量主线，CPO、PCB、光模块的前排可能继续分流资金。'}]},
+  {segs:[{t:'强反证链要合起来看：第一，当前估值和市值已经不是 6 月初的位置，短期价格已经抢跑部分乐观预期；第二，鑫丰亏损和权益法不并表意味着长鑫链到利润表之间还隔着很长链条；第三，互动问答对玻璃基板封装给出负面边界；第四，6 月 30 日半导体主线强但汇成不强，说明资金有替代选择；第五，异动公告和募投结项出现后，事件锚点进入“已被市场看见”的阶段，后续必须找更硬的新证据接力。'}]},
+  {segs:[{t:'所以结论不是“没空间”，而是'},{t:'空间的性质变了',b:1},{t:'。6 月初它的空间来自低位旧逻辑唤醒；6 月下旬来自半导体主线加速和长鑫链预期重估；到 6 月 30 日以后，它的新增空间只能来自更苛刻的条件：半导体/存储/先进封装继续保持容量主线和新高扩散，汇成自己重新突破 6 月 25 日高点并回到同题材强度前排，或者出现鑫丰亏损收窄/扭亏、长鑫订单或产能传导、先进封装客户验证、H 股审核推进等 L3 级证据。'}]},
+  {segs:[{t:'一句话结论：'},{t:'汇成股份已经不是“有没有逻辑”的问题，而是“逻辑已被二次定价后，能不能用新证据和新强度继续升级”的问题。它的产业底座真实，市场价值已经发生，但 6 月 30 日强板块弱个股的反向信号要求降一档看：从主线弹性挖掘，切到高位分歧后的再验证。后续若重新新高并拿到 L3 证据，它还能从二线弹性回到核心；否则更可能被先进封装/存储/半导体里更直接、更前排的标的替代。',b:1},{t:'（非投资建议）'}]},
+];
+
+const ANS_START = 17.0, ANS_RATE = 75, ANS_GAP = 0.3;
+const TABLE_LEN = 90; // virtual chars for a table (≈1.2s)
+let _acc = ANS_START;
+const ANS_SCHED = ANSWER.map(p=>{
+  const L = p.table ? TABLE_LEN : segLen(p.segs);
+  const s = {start:_acc, len:L, end:_acc + L/ANS_RATE};
+  _acc = s.end + ANS_GAP;
+  return s;
+});
+const ANS_DONE = _acc;
+
+const ansBody = document.getElementById('ansBody');
+function tableHTML(tb){
+  let h = '<table><tr>' + tb.head.map(c=>'<th>'+c+'</th>').join('') + '</tr>';
+  for(const r of tb.rows) h += '<tr>' + r.map(c=>'<td>'+c+'</td>').join('') + '</tr>';
+  return h + '</table>';
+}
+const ANS_P = ANSWER.map(p=>{
+  let el;
+  if(p.table){
+    el = document.createElement('div');
+    el.innerHTML = tableHTML(p.table);
+  } else {
+    el = document.createElement('p');
+    if(p.cls) el.className = p.cls;
+  }
+  el.style.display = 'none';
+  ansBody.appendChild(el);
+  return el;
+});
+function typeB(segs, n){
+  let out='', left=n;
+  for(const s of segs){
+    if(left<=0) break;
+    const take = s.t.slice(0,left);
+    out += s.b ? '<b>'+take+'</b>' : take;
+    left -= take.length;
+  }
+  return out;
+}
+
+const END_T = ANS_DONE + 2.0;
+const TOTAL = END_T + 8.0;
+window.TOTAL = TOTAL;
+const DM = [
+  {id:'dm0', t0:END_T+0.6, y:1300, dur:5.2},
+  {id:'dm1', t0:END_T+1.8, y:1420, dur:5.4},
+  {id:'dm2', t0:END_T+3.0, y:1540, dur:5.2},
+];
+
+window.seek = function(t){
+  /* ---------- Phase 1: input ---------- */
+  const ip = $('inputScene');
+  const ibTxt = $('ibTxt');
+  const ib1 = $('ib1');
+  if(t < 4.2){
+    ip.style.display='block';
+    ip.style.opacity = t>3.7 ? String(1-ease((t-3.7)/0.5)) : '1';
+    ib1.classList.toggle('focused', t>0.4);
+    const n = Math.floor(clamp((t-0.9)/1.6,0,1)*QUESTION.length);
+    const caretOn = (Math.floor(t*2.2)%2===0) || (t>0.9&&t<2.5);
+    const caret = t>0.4 ? '<span class="caret" style="opacity:'+(caretOn?1:0)+'"></span>' : '';
+    ibTxt.innerHTML = n===0 ? '<span class="ph">问点什么…</span>'+caret : QUESTION.slice(0,n)+caret;
+    $('submitBtn').classList.toggle('pressed', t>3.35 && t<3.65);
+  } else {
+    ip.style.display='none';
+  }
+
+  const ub = $('userBubble');
+  const ubp = ease((t-4.0)/0.45);
+  ub.style.opacity = String(ubp);
+  ub.style.transform = 'translateY('+(20*(1-ubp))+'px)';
+
+  /* ---------- Phase 2: thinking ---------- */
+  const tp = $('thinkPanel');
+  const tpp = ease((t-4.4)/0.5);
+  tp.style.opacity = String(tpp);
+  const collapsed = t>=16.2;
+  tp.classList.toggle('collapsed', collapsed);
+  $('thinkTitleTxt').textContent = collapsed
+    ? '已深度思考（用时 12 秒）'
+    : 'Deep Fomo 深度思考中' + '.'.repeat(1+Math.floor(t*1.5)%3);
+  if(collapsed){ $('thinkTitle').style.color='#8A97A8'; $('thinkTitle').style.marginBottom='0'; }
+  else { $('thinkTitle').style.color='#C08A2D'; $('thinkTitle').style.marginBottom='28px'; }
+  const spin = document.querySelector('#thinkTitle .spinner');
+  spin.style.transform = 'rotate('+(t*360)+'deg)';
+  for(let i=0;i<5;i++){
+    const el = $('tl'+i);
+    const [a,b] = THINK_T[i];
+    const L = segLen(THINK[i]);
+    const n = Math.floor(clamp((t-a)/(b-a),0,1)*L);
+    el.style.opacity = t>=a ? '1' : '0';
+    el.innerHTML = typeSegs(THINK[i], n);
+  }
+
+  /* ---------- Phase 3: streaming answer ---------- */
+  const ans = $('answer');
+  ans.style.opacity = String(ease((t-16.5)/0.5));
+  let lastVisible = -1;
+  for(let i=0;i<ANSWER.length;i++){
+    const sc = ANS_SCHED[i], el = ANS_P[i];
+    if(t < sc.start){ el.style.display='none'; continue; }
+    el.style.display='block';
+    lastVisible = i;
+    if(ANSWER[i].table){
+      el.style.opacity = String(ease((t-sc.start)/0.8));
+      continue;
+    }
+    const n = Math.floor(clamp((t-sc.start)/(sc.end-sc.start),0,1)*sc.len);
+    let html = typeB(ANSWER[i].segs, n);
+    const streamingHere = t < sc.end + ANS_GAP && t < ANS_DONE;
+    if(streamingHere && i===lastVisible && t>=sc.start){
+      html += '<span class="cursorBlock" style="opacity:'+((Math.floor(t*3)%2===0)?1:0.25)+'"></span>';
+    }
+    el.innerHTML = html;
+  }
+  const chat = $('chat');
+  chat.style.transform = 'translateY(0px)';
+  if(t > 16.5){
+    const rect = ansBody.getBoundingClientRect();
+    const bottom = rect.top + rect.height;
+    const overflow = Math.max(0, bottom - 1760);
+    chat.style.transform = 'translateY('+(-overflow)+'px)';
+  }
+
+  /* ---------- Phase 4: ending ---------- */
+  const dim = ease((t-END_T)/0.8);
+  $('ending').style.background = 'rgba(245,247,250,'+dim+')';
+  $('endCenter').style.opacity = String(ease((t-END_T-0.4)/0.6));
+  $('endInput').style.opacity = String(ease((t-END_T-0.8)/0.6));
+  $('endCaret').style.opacity = (Math.floor(t*2.2)%2===0)?'1':'0';
+  $('disclaimer').style.opacity = String(ease((t-END_T-0.6)/0.8));
+  for(const d of DM){
+    const el = $(d.id);
+    const p = (t-d.t0)/d.dur;
+    if(p<0||p>1){ el.style.display='none'; continue; }
+    el.style.display='block';
+    el.style.top = d.y+'px';
+    el.style.left = (1180 - p*(1180+900))+'px';
+    el.style.opacity = String(Math.min(1, dim));
+  }
+};
+window.seek(0);
+</script>
+</body>
+</html>

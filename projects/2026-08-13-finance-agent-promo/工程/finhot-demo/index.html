@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0D0F14; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #F2F0EB; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; }
+      #p2 { opacity: 0; }
+
+      .noise {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.10; z-index: 30;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+        background-size: 240px 240px;
+      }
+      .glowfh {
+        position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none;
+      }
+      .hud {
+        position: absolute; top: 44px; left: 70px; right: 70px; z-index: 25;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 22px;
+        letter-spacing: 4px; color: rgba(242,240,235,0.55);
+      }
+      .foot {
+        position: absolute; bottom: 56px; left: 70px; right: 70px; z-index: 25;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 19px;
+        letter-spacing: 3px; color: rgba(242,240,235,0.45);
+      }
+
+      /* P1 桌面端 2.5D 运镜 */
+      #p1 .stage { position: absolute; inset: 0; perspective: 1600px; }
+      #p1 .shotwrap {
+        position: absolute; left: 50%; top: 46%;
+        width: 1560px; height: 1950px;
+        transform: translate(-50%, -50%) rotateX(8deg) rotateY(-7deg) scale(0.78);
+        transform-style: preserve-3d;
+      }
+      #p1 .shot {
+        position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+        box-shadow: 0 60px 160px rgba(0,0,0,0.65), 0 0 0 1.5px rgba(242,240,235,0.14);
+        background: #fff;
+      }
+      #p1 .shot img { display: block; width: 1560px; height: auto; }
+      #p1 .srcchips {
+        position: absolute; left: 70px; top: 1430px; z-index: 26;
+        display: flex; gap: 18px; flex-wrap: wrap;
+      }
+      .srcchip {
+        border: 2px solid rgba(255,122,41,0.85); color: #FF7A29;
+        background: rgba(13,15,20,0.82);
+        padding: 12px 26px; font-size: 30px; font-weight: 700; letter-spacing: 2px;
+        border-radius: 999px;
+      }
+      .capline {
+        position: absolute; left: 70px; z-index: 26;
+        font-weight: 700; line-height: 1.2; letter-spacing: 2px;
+        text-shadow: 0 4px 30px rgba(0,0,0,0.7);
+      }
+      #p1 .cap1 { top: 1560px; font-size: 96px; }
+      #p1 .cap1 .or { color: #FF7A29; }
+
+      /* P2 移动端全幅推近 */
+      #p2 .mshot {
+        position: absolute; left: 50%; top: 50%;
+        width: 1080px; height: 1920px;
+        transform: translate(-50%, -50%);
+      }
+      #p2 .mshot img { display: block; width: 1080px; height: 1920px; }
+      #p2 .dim {
+        position: absolute; inset: 0; z-index: 20;
+        background: linear-gradient(180deg, rgba(13,15,20,0) 46%, rgba(13,15,20,0.88) 78%);
+      }
+      #p2 .cap2 { bottom: 360px; font-size: 92px; z-index: 26; }
+      #p2 .cap2 .or { color: #FF7A29; }
+      #p2 .cap2sub {
+        position: absolute; left: 70px; bottom: 250px; z-index: 26;
+        font-size: 36px; color: rgba(242,240,235,0.75); letter-spacing: 3px;
+      }
+      #p2 .scorebar {
+        position: absolute; left: 0; top: 260px; width: 10px; height: 320px;
+        background: #FF7A29; z-index: 24;
+        transform: scaleY(0); transform-origin: top center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="6" data-width="1080" data-height="1920">
+
+      <!-- P1 0–3.2s 桌面端信息流 · 2.5D 推近上移 -->
+      <div id="p1" class="scene">
+        <div class="glowfh" data-layout-ignore style="top:-160px; right:-220px; width:720px; height:720px; background: rgba(255,122,41,0.16);"></div>
+        <div class="glowfh" data-layout-ignore style="bottom:-260px; left:-200px; width:760px; height:760px; background: rgba(56,120,255,0.12);"></div>
+        <div class="hud"><span>FINHOT · FEED</span><span>真实界面</span></div>
+        <div class="stage">
+          <div class="shotwrap" id="shotwrap">
+            <div class="shot"><img id="dshot" src="assets/d-feed.png" alt="" /></div>
+          </div>
+        </div>
+        <div class="srcchips" id="chips" data-layout-allow-overflow>
+          <span class="srcchip" id="ch1">RSS</span>
+          <span class="srcchip" id="ch2">微博</span>
+          <span class="srcchip" id="ch3">雪球</span>
+          <span class="srcchip" id="ch4">X</span>
+          <span class="srcchip" id="ch5">公众号</span>
+        </div>
+        <div class="capline cap1" id="cap1">全都<span class="or">聚成一条流</span></div>
+        <div class="foot"><span>AGGREGATE</span><span>内容来自公开信源</span></div>
+        <div class="noise" data-layout-ignore></div>
+      </div>
+
+      <!-- P2 3.2–6s 移动端全幅 · 打分浮上来 -->
+      <div id="p2" class="scene">
+        <div class="mshot" id="mshot">
+          <img src="assets/m-feed.png" alt="" />
+          <div class="scorebar" id="scorebar" data-layout-ignore></div>
+        </div>
+        <div class="dim" data-layout-ignore></div>
+        <div class="hud"><span>FINHOT · RANK</span><span>真实界面</span></div>
+        <div class="capline cap2" id="cap2">高信号<span class="or">浮上来</span></div>
+        <div class="cap2sub" id="cap2sub">质量打分 · 噪音下沉 · AI 摘要中译</div>
+        <div class="foot"><span>SIGNAL FIRST</span><span>内容来自公开信源</span></div>
+        <div class="noise" data-layout-ignore></div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* P1 桌面 2.5D：整段缓推 + 上移，卡片入场落定 */
+      tl.fromTo("#shotwrap",
+        { y: 140, rotateX: 12, rotateY: -10, scale: 0.72, opacity: 0 },
+        { y: 0, rotateX: 8, rotateY: -7, scale: 0.78, opacity: 1, duration: 0.55, ease: "power3.out" }, 0.05);
+      tl.to("#dshot", { y: -430, duration: 2.6, ease: "sine.inOut" }, 0.62);
+      tl.to("#shotwrap", { scale: 0.84, rotateY: -5, duration: 2.6, ease: "sine.inOut" }, 0.62);
+      const chips = ["#ch1", "#ch2", "#ch3", "#ch4", "#ch5"];
+      chips.forEach((c, i) => {
+        tl.fromTo(c, { y: 40, opacity: 0, scale: 0.8 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.34, ease: "back.out(2)" }, 0.5 + i * 0.14);
+      });
+      tl.fromTo("#cap1", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 1.35);
+
+      /* 3.2s 硬切进 P2 */
+      tl.set("#p1", { opacity: 0 }, 3.2);
+      tl.set("#p2", { opacity: 1 }, 3.2);
+
+      /* P2 移动端全幅：轻推近 + 打分条点亮 */
+      tl.fromTo("#mshot", { scale: 1.0 }, { scale: 1.1, duration: 2.8, ease: "sine.inOut" }, 3.2);
+      tl.fromTo("#mshot", { y: 0 }, { y: -120, duration: 2.8, ease: "sine.inOut" }, 3.2);
+      tl.fromTo("#scorebar", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power3.out" }, 3.5);
+      tl.fromTo("#cap2", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 3.7);
+      tl.fromTo("#cap2sub", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "sine.out" }, 4.25);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

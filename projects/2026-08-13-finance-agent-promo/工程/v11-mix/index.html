@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0D0D0C; }
+      video {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        object-fit: cover;
+        background: #0D0D0C;
+      }
+      .grain {
+        position: absolute; inset: 0; z-index: 40; pointer-events: none; opacity: 0.12;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+        background-size: 240px 240px;
+      }
+      .rgbov { position: absolute; inset: 0; opacity: 0; z-index: 60; pointer-events: none; mix-blend-mode: screen; }
+      #gr { background: rgba(229,72,77,0.38); }
+      #gg { background: rgba(61,214,140,0.30); }
+      #gb { background: rgba(0,102,255,0.32); }
+      #flash {
+        position: absolute; inset: 0; z-index: 70; pointer-events: none;
+        background: #F2F0EB; opacity: 0;
+      }
+      #scan {
+        position: absolute; left: 0; right: 0; height: 8px; z-index: 65;
+        background: #FFD60A; opacity: 0; pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+      <video id="cut-v02" data-start="0" data-duration="5.145" data-media-start="0" data-track-index="0"
+        src="assets/v02-bw-kinetic.mp4" muted playsinline></video>
+      <video id="cut-v08" data-start="5.145" data-duration="4.857" data-media-start="6.543" data-track-index="0"
+        src="assets/v08-collage.mp4" muted playsinline></video>
+      <video id="cut-v06" data-start="10.002" data-duration="6" data-media-start="10.002" data-track-index="0"
+        src="assets/v06-dark-saas.mp4" muted playsinline></video>
+      <video id="cut-v07" data-start="16.002" data-duration="6" data-media-start="17.4" data-track-index="0"
+        src="assets/v07-dataviz.mp4" muted playsinline></video>
+      <video id="cut-v01" data-start="22.002" data-duration="4.857" data-media-start="22.002" data-track-index="0"
+        src="assets/v01-aurora-glass.mp4" muted playsinline></video>
+      <video id="cut-v10" data-start="26.859" data-duration="3.141" data-media-start="26.859" data-track-index="0"
+        src="assets/v10-velvet.mp4" muted playsinline></video>
+
+      <div class="grain" data-layout-ignore></div>
+      <div id="gr" class="rgbov" data-layout-ignore></div>
+      <div id="gg" class="rgbov" data-layout-ignore></div>
+      <div id="gb" class="rgbov" data-layout-ignore></div>
+      <div id="scan" data-layout-ignore></div>
+      <div id="flash" data-layout-ignore></div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/tonight-hiphop.mp3" data-volume="0.38"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function smash(t, heavy) {
+        const n = heavy ? 6 : 4;
+        const step = 0.03;
+        tl.set("#flash", { opacity: heavy ? 0.78 : 0.62 }, t);
+        tl.to("#flash", { opacity: 0, duration: 0.1, ease: "power2.out" }, t + 0.03);
+        tl.set(["#gr", "#gg", "#gb"], { opacity: 1 }, t);
+        for (let i = 0; i < n; i++) {
+          const at = t + i * step;
+          const dir = i % 2 === 0 ? 1 : -1;
+          tl.set("#gr", { x: dir * (28 + i * 8), y: -10 - i * 2 }, at);
+          tl.set("#gg", { x: -dir * (22 + i * 6), y: 12 }, at);
+          tl.set("#gb", { x: dir * (14 + i * 4), y: -16 }, at);
+          tl.set("#scan", { opacity: 0.85, top: 220 + i * 280 }, at);
+        }
+        tl.set(["#gr", "#gg", "#gb", "#scan"], { opacity: 0, x: 0, y: 0 }, t + n * step);
+      }
+
+      smash(5.145, false);
+      smash(10.002, true);
+      smash(16.002, false);
+      smash(22.002, false);
+      smash(26.859, false);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

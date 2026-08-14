@@ -1,0 +1,30 @@
+{
+  "characterId": "ar-schema",
+  "assets": [
+    {
+      "id": "master",
+      "path": "references/ar-schema-front.png",
+      "usage": "identity-reference"
+    },
+    {
+      "id": "turnaround",
+      "path": "sheets/ar-schema-turnaround.png",
+      "usage": "view-consistency"
+    },
+    {
+      "id": "expressions",
+      "path": "sheets/ar-schema-expressions.png",
+      "usage": "facial-animation"
+    },
+    {
+      "id": "actions",
+      "path": "sheets/ar-schema-actions.png",
+      "usage": "broll-blocking"
+    },
+    {
+      "id": "hands",
+      "path": "sheets/ar-schema-hands.png",
+      "usage": "prop-interaction"
+    }
+  ]
+}

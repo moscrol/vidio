@@ -1,0 +1,47 @@
+@import url("./shared/styles.css");
+
+.aroll-video {
+  transform: scale(.94);
+}
+
+.watermark-cover {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  z-index: 35;
+  width: 126px;
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 6px 9px;
+  border: 2px solid rgba(23, 23, 23, .7);
+  border-radius: 6px;
+  background: rgba(251, 250, 239, .94);
+  color: var(--xy-ink);
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.05;
+  font-weight: 950;
+}
+
+.caption-layer {
+  bottom: 82px;
+}
+
+.gate-lens .scene-title,
+.risk-domino .scene-title,
+.validation-scroll .scene-title {
+  font-size: 55px;
+}
+
+.validation-scroll .scroll-groups {
+  top: 382px;
+}
+
+.validation-scroll .scroll-stages {
+  top: 430px;
+}
+
+.validation-scroll .scroll-xiaoyan {
+  top: 700px;
+}

@@ -1,0 +1,24 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "001 五层防幻觉 · 案例优先": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-07-11T13:14:40.950Z",
+          "status": "needs-review",
+          "subtitle": "竖屏 1080×1920 · 6 页 · case-first",
+          "viewport": {
+            "width": 1080,
+            "height": 1920
+          },
+          "section": "douyin/001"
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-07-11T13:14:40.951Z",
+  "updatedAt": "2026-07-11T13:14:40.951Z"
+}

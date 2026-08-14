@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #08060F; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #E6E2F5; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; background: #08060F; }
+      #d2,#d3,#d4,#d5 { opacity: 0; }
+
+      .orb { position: absolute; border-radius: 50%; filter: blur(100px); mix-blend-mode: screen; pointer-events: none; }
+      .dotfield { position: absolute; inset: 0; pointer-events: none; }
+      .dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(139,92,246,0.5); }
+      .dot.c { background: rgba(34,211,238,0.45); }
+      .trace {
+        position: absolute; height: 2px; width: 460px; pointer-events: none;
+        background: linear-gradient(90deg, transparent, rgba(34,211,238,0.8), transparent);
+        transform-origin: left center;
+      }
+      .hud {
+        position: absolute; top: 58px; left: 70px; right: 70px;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 22px;
+        color: rgba(230,226,245,0.45); letter-spacing: 3px;
+      }
+      .foot {
+        position: absolute; bottom: 52px; left: 70px; right: 70px;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 20px;
+        color: rgba(230,226,245,0.4); letter-spacing: 2px;
+      }
+      .thin { font-weight: 400; letter-spacing: 6px; }
+      .hero-thin { font-size: 66px; font-weight: 400; letter-spacing: 4px; line-height: 1.55; text-align: center; }
+      .hero-thin .vio { color: #A78BFA; }
+      .hero-thin .cy { color: #22D3EE; }
+
+      .device {
+        position: absolute; left: 150px; top: 320px; width: 780px; height: 1130px;
+        border-radius: 64px; border: 3px solid rgba(167,139,250,0.4);
+        background: #0D0A1C;
+        box-shadow: 0 0 90px rgba(139,92,246,0.25), inset 0 0 60px rgba(139,92,246,0.06);
+        overflow: hidden;
+      }
+      .device .notch {
+        position: absolute; top: 24px; left: 50%; margin-left: -90px;
+        width: 180px; height: 34px; border-radius: 20px; background: #08060F;
+        border: 1.5px solid rgba(167,139,250,0.25);
+      }
+      .noti {
+        position: absolute; left: 40px; right: 40px;
+        background: rgba(139,92,246,0.12); border: 1.5px solid rgba(167,139,250,0.35);
+        border-radius: 20px; padding: 22px 26px; font-size: 27px; color: #CFC8EA;
+      }
+      .noti b { color: #A78BFA; }
+      .noti.alert { border-color: rgba(255,90,120,0.6); background: rgba(255,90,120,0.10); }
+      .noti.alert b { color: #FF5A78; }
+      .badge {
+        position: absolute; top: 96px; right: 52px;
+        background: #FF5A78; color: #fff; border-radius: 999px;
+        padding: 10px 24px; font-size: 28px; font-weight: 700;
+      }
+      .float-chip {
+        position: absolute; border-radius: 999px; padding: 14px 28px;
+        border: 1.5px solid rgba(34,211,238,0.5); color: #9BE8F5;
+        background: rgba(34,211,238,0.08); font-size: 25px; white-space: nowrap;
+      }
+      /* agent 屏 */
+      .cmd-pill {
+        position: absolute; left: 40px; right: 40px; top: 110px;
+        border-radius: 999px; border: 2px solid rgba(34,211,238,0.55);
+        background: rgba(34,211,238,0.07); padding: 24px 30px;
+        display: flex; align-items: center; overflow: hidden;
+      }
+      .cmd-pill .clip { overflow: hidden; white-space: nowrap; width: 0; }
+      .cmd-pill .txt { font-size: 27px; color: #D8F8FF; white-space: nowrap; }
+      .tasks { position: absolute; left: 40px; right: 40px; top: 260px; display: flex; flex-direction: column; gap: 24px; }
+      .task { display: flex; align-items: center; gap: 18px; font-size: 27px; color: rgba(230,226,245,0.75); }
+      .task .led { width: 16px; height: 16px; border-radius: 50%; background: rgba(167,139,250,0.3); flex: none; }
+      .ringwrap { position: absolute; left: 50%; margin-left: -130px; top: 560px; width: 260px; height: 260px; }
+      .ringwrap svg { transform: rotate(-90deg); }
+      .ringlabel {
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 4px;
+      }
+      .ringlabel .n { font-family: "JetBrains Mono", monospace; font-size: 56px; font-weight: 700; color: #22D3EE; }
+      .ringlabel .l { font-size: 22px; color: rgba(230,226,245,0.55); }
+      /* 结果屏 */
+      .result {
+        position: absolute; left: 40px; right: 40px; top: 110px;
+        border-radius: 24px; border: 1.5px solid rgba(167,139,250,0.35);
+        background: rgba(139,92,246,0.08); padding: 30px 30px;
+      }
+      .result .rh { font-size: 30px; font-weight: 700; color: #E6E2F5; display: flex; justify-content: space-between; align-items: baseline; }
+      .result .rh .tt { font-family: "JetBrains Mono", monospace; font-size: 22px; color: #22D3EE; }
+      .rrow { margin-top: 26px; font-size: 26px; line-height: 1.55; color: rgba(230,226,245,0.85); }
+      .rrow .tag {
+        display: inline-block; margin-left: 10px; font-size: 20px; color: #9BE8F5;
+        border: 1px solid rgba(34,211,238,0.5); border-radius: 999px; padding: 2px 14px;
+      }
+      .vsrow { position: absolute; left: 40px; right: 40px; top: 700px; display: flex; gap: 20px; }
+      .vscol { flex: 1; border-radius: 20px; padding: 24px 22px; font-size: 24px; line-height: 1.6; }
+      .vscol.l { border: 1.5px solid rgba(230,226,245,0.2); color: rgba(230,226,245,0.55); }
+      .vscol.r { border: 1.5px solid rgba(34,211,238,0.5); color: #D8F8FF; background: rgba(34,211,238,0.06); }
+      .cta-chip {
+        border: 2px solid #A78BFA; border-radius: 999px; color: #A78BFA;
+        padding: 18px 46px; font-size: 30px; letter-spacing: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+
+      <!-- D1+D2 信息轰炸（同一设备场景内推进） -->
+      <div id="d1" class="scene">
+        <div class="orb" data-layout-allow-overflow id="o1a" style="top:-200px; left:-180px; width:720px; height:720px; background: rgba(139,92,246,0.3);"></div>
+        <div class="orb" data-layout-allow-overflow id="o1b" style="bottom:-260px; right:-200px; width:820px; height:820px; background: rgba(34,211,238,0.18);"></div>
+        <div class="dotfield" id="df1"></div>
+        <div class="hud"><span>WENPAN · FEED</span><span>DEMO</span></div>
+        <div class="device" id="dev1">
+          <div class="notch"></div>
+          <div class="badge" id="badge">未读 99+</div>
+          <div class="noti" id="nt1" style="top: 170px;"><b>快讯</b>｜政策窗口临近</div>
+          <div class="noti" id="nt2" style="top: 290px;"><b>研报</b>｜目标价上调至……</div>
+          <div class="noti" id="nt3" style="top: 410px;"><b>公告</b>｜股东减持计划</div>
+          <div class="noti" id="nt4" style="top: 530px;"><b>异动</b>｜5 分钟拉升 +3.2%</div>
+          <div class="noti" id="nt5" style="top: 650px;"><b>数据</b>｜北向净流入转负</div>
+          <div class="noti" id="nt6" style="top: 770px;"><b>评论</b>｜「利好落地就是利空？」</div>
+          <div class="noti alert" id="nt7" style="top: 910px;"><b>提醒</b>｜今天的研报还有 96 页没读</div>
+        </div>
+        <div class="hero-thin" id="d1-h" style="position:absolute; left:70px; right:70px; top:1560px;">盯盘一整天，<span class="vio">还是靠感觉</span></div>
+        <div class="trace" data-layout-allow-overflow id="tr1" style="top: 300px; left: -480px;"></div>
+        <div class="foot"><span>V06 · DARK SAAS</span><span>DEMO · 画面为模拟界面</span></div>
+      </div>
+
+      <div id="d2" class="scene">
+        <div class="orb" data-layout-allow-overflow style="top:-220px; right:-200px; width:760px; height:760px; background: rgba(255,90,120,0.16);"></div>
+        <div class="orb" data-layout-allow-overflow id="o2a" style="bottom:-240px; left:-220px; width:780px; height:780px; background: rgba(139,92,246,0.26);"></div>
+        <div class="hud"><span>OVERLOAD</span><span>DEMO</span></div>
+        <div class="hero-thin" id="d2-h" style="position:absolute; left:70px; right:70px; top:780px; font-size: 82px;">
+          信息量早就超过<br /><span class="vio">一个人的极限</span>
+        </div>
+        <div class="float-chip" id="fc1" style="top: 460px; left: 90px;">快讯 128 条/时</div>
+        <div class="float-chip" id="fc2" style="top: 540px; right: 100px;">公告 64 份</div>
+        <div class="float-chip" id="fc3" style="top: 1240px; left: 130px;">研报 96 页</div>
+        <div class="float-chip" id="fc4" style="top: 1330px; right: 120px;">未读 99+</div>
+        <div class="foot"><span>OVERLOAD</span><span>DEMO · 数据为占位示例</span></div>
+      </div>
+
+      <!-- D3 agent 接管 -->
+      <div id="d3" class="scene">
+        <div class="orb" data-layout-allow-overflow id="o3a" style="top:-180px; left:-200px; width:740px; height:740px; background: rgba(34,211,238,0.2);"></div>
+        <div class="orb" data-layout-allow-overflow style="bottom:-260px; right:-180px; width:760px; height:760px; background: rgba(139,92,246,0.24);"></div>
+        <div class="hud"><span>WENPAN · RUN</span><span>DEMO 占位界面</span></div>
+        <div class="device" id="dev3">
+          <div class="notch"></div>
+          <div class="cmd-pill" id="pill">
+            <span class="mono" style="color:#22D3EE; margin-right: 14px;">›</span>
+            <div class="clip" id="d3-clip"><span class="txt">查一下今天新能源板块异动的原因</span></div>
+          </div>
+          <div class="tasks">
+            <div class="task" id="tk1"><span class="led"></span>检索今日公告与快讯</div>
+            <div class="task" id="tk2"><span class="led"></span>拉取板块与个股行情</div>
+            <div class="task" id="tk3"><span class="led"></span>交叉对比三份研报观点</div>
+            <div class="task" id="tk4"><span class="led"></span>生成结论与来源清单</div>
+          </div>
+          <div class="ringwrap">
+            <svg width="260" height="260" viewBox="0 0 260 260">
+              <circle cx="130" cy="130" r="112" fill="none" stroke="rgba(167,139,250,0.18)" stroke-width="14"/>
+              <circle id="ring" cx="130" cy="130" r="112" fill="none" stroke="#22D3EE" stroke-width="14"
+                stroke-linecap="round" stroke-dasharray="703.7" stroke-dashoffset="703.7"/>
+            </svg>
+            <div class="ringlabel"><span class="n" id="ringn">0%</span><span class="l">任务进度</span></div>
+          </div>
+        </div>
+        <div class="float-chip" id="in1" style="top: 420px; left: 40px;">公告</div>
+        <div class="float-chip" id="in2" style="top: 620px; right: 30px;">行情</div>
+        <div class="float-chip" id="in3" style="top: 1280px; left: 60px;">研报</div>
+        <div class="hero-thin" id="d3-h" style="position:absolute; left:70px; right:70px; top:1580px;">一句话，<span class="cy">它自己去查</span></div>
+        <div class="foot"><span>ONE COMMAND</span><span>DEMO · 数据为占位示例</span></div>
+      </div>
+
+      <!-- D4 结果 + 对比 -->
+      <div id="d4" class="scene">
+        <div class="orb" data-layout-allow-overflow id="o4a" style="top:-200px; right:-200px; width:780px; height:780px; background: rgba(34,211,238,0.18);"></div>
+        <div class="orb" data-layout-allow-overflow style="bottom:-240px; left:-200px; width:760px; height:760px; background: rgba(139,92,246,0.22);"></div>
+        <div class="hud"><span>REPORT</span><span>DEMO 占位数据</span></div>
+        <div class="device" id="dev4">
+          <div class="notch"></div>
+          <div class="result" id="res">
+            <div class="rh"><span>异动归因 · 新能源</span><span class="tt">1m42s</span></div>
+            <div class="rrow" id="rr1">01 拉升与产能调整公告时间吻合<span class="tag">公告</span></div>
+            <div class="rrow" id="rr2">02 领涨的是上游材料，不是整车<span class="tag">行情</span></div>
+            <div class="rrow" id="rr3">03 两份研报上周已提示该主线<span class="tag">研报</span></div>
+          </div>
+          <div class="vsrow">
+            <div class="vscol l" id="vl">聊天机器人<br />第 5 次追问中…</div>
+            <div class="vscol r" id="vr">问盘<br />结论已交付 ✓</div>
+          </div>
+        </div>
+        <div class="hero-thin" id="d4-h" style="position:absolute; left:70px; right:70px; top:1580px;">不等你追问，<span class="cy">活已经干完</span></div>
+        <div class="foot"><span>TRACEABLE</span><span>DEMO · 画面为模拟对比</span></div>
+      </div>
+
+      <!-- D5 CTA -->
+      <div id="d5" class="scene">
+        <div class="orb" data-layout-allow-overflow id="o5a" style="top:480px; left:180px; width:720px; height:720px; background: rgba(139,92,246,0.3);"></div>
+        <div class="orb" data-layout-allow-overflow style="top:700px; right:-160px; width:640px; height:640px; background: rgba(34,211,238,0.16);"></div>
+        <div class="dotfield" id="df5"></div>
+        <div class="hud"><span>WENPAN</span><span>CTA</span></div>
+        <div style="position:absolute; left:70px; right:70px; top:700px; display:flex; flex-direction:column; align-items:center; gap:54px;">
+          <div class="hero-thin" style="font-size: 92px;" id="d5-h">你最想让它<br /><span class="vio">盯什么？</span></div>
+          <div style="font-size: 32px; color: rgba(230,226,245,0.6); text-align:center; line-height:1.7;" id="d5-sub">评论区告诉我<br />拿真实数据跑给你看</div>
+          <div class="cta-chip" id="d5-chip">问盘 WENPAN · 金融 Agent</div>
+        </div>
+        <div class="foot"><span>V06 · DARK SAAS</span><span>演示画面 · 不构成投资建议</span></div>
+      </div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/g-eazy-nba-type.mp3" data-volume="0.35"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 确定性粒子场（无随机）
+      function makeDots(hostId, n, seedA, seedB) {
+        const host = document.getElementById(hostId);
+        for (let i = 0; i < n; i++) {
+          const d = document.createElement("span");
+          d.className = "dot" + (i % 3 === 0 ? " c" : "");
+          d.style.left = ((i * seedA + 13) % 100) + "%";
+          d.style.top = ((i * seedB + 29) % 100) + "%";
+          host.appendChild(d);
+        }
+      }
+      makeDots("df1", 26, 37, 53);
+      makeDots("df5", 22, 41, 59);
+
+      // 柔焦叠化（Data Drift 气质）
+      function focus(tOut, oldId, newId) {
+        tl.to(oldId, { filter: "blur(18px)", opacity: 0, duration: 0.5, ease: "power1.in" }, tOut);
+        tl.fromTo(newId, { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, tOut + 0.2);
+      }
+
+      /* D1 0–5.4 通知堆叠 */
+      tl.fromTo("#dev1", { y: 90, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: "power3.out" }, 0.2);
+      const nts = ["#nt1", "#nt2", "#nt3", "#nt4", "#nt5", "#nt6"];
+      nts.forEach((id, i) => {
+        tl.fromTo(id, { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power2.out" }, 0.9 + i * 0.34);
+      });
+      tl.fromTo("#nt7", { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2)" }, 3.15);
+      tl.fromTo("#badge", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2.6)" }, 3.5);
+      tl.fromTo("#d1-h", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 4.0);
+      tl.fromTo("#tr1", { x: 0 }, { x: 2050, duration: 1.6, ease: "power1.inOut" }, 1.2);
+      tl.fromTo("#o1a", { x: 0, y: 0, scale: 1 }, { x: 50, y: 40, scale: 1.1, duration: 2.7, ease: "sine.inOut", repeat: 1, yoyo: true }, 0);
+      focus(5.4, "#d1", "#d2");
+
+      /* D2 5.6–9.4 极限 */
+      tl.fromTo("#d2-h", { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, 6.0);
+      const fcs = [["#fc1", 6.5, -40], ["#fc2", 6.7, 40], ["#fc3", 6.9, -40], ["#fc4", 7.1, 40]];
+      fcs.forEach(([id, t, dx]) => {
+        tl.fromTo(id, { x: dx, opacity: 0 }, { x: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, t);
+      });
+      tl.fromTo("#o2a", { scale: 1 }, { scale: 1.16, duration: 1.7, ease: "sine.inOut", repeat: 1, yoyo: true }, 5.8);
+      focus(9.4, "#d2", "#d3");
+
+      /* D3 9.6–17 agent 接管：指令 → 素材吸入 → 环形进度 */
+      tl.fromTo("#dev3", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 10.0);
+      tl.fromTo("#d3-clip", { width: 0 }, { width: 460, duration: 1.6, ease: "steps(15)" }, 10.7);
+      // 外部数据 chips 被吸进设备
+      const ins = [["#in1", 12.6, 320, 260], ["#in2", 12.9, -300, 220], ["#in3", 13.2, 300, -380]];
+      ins.forEach(([id, t, dx, dy]) => {
+        tl.fromTo(id, { x: 0, y: 0, opacity: 1 }, { x: dx, y: dy, opacity: 0, scale: 0.5, duration: 0.7, ease: "power2.in" }, t);
+      });
+      const tks = [["#tk1", 12.4], ["#tk2", 13.1], ["#tk3", 13.8], ["#tk4", 14.5]];
+      tks.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, t);
+        tl.to(id + " .led", { backgroundColor: "#22D3EE", duration: 0.25, ease: "none" }, t + 0.4);
+      });
+      tl.fromTo("#ring", { attr: { "stroke-dashoffset": 703.7 } }, { attr: { "stroke-dashoffset": 0 }, duration: 3.4, ease: "power1.inOut" }, 12.4);
+      const rc = { v: 0 };
+      tl.to(rc, {
+        v: 100, duration: 3.4, ease: "power1.inOut",
+        onUpdate: function () { document.getElementById("ringn").textContent = Math.round(rc.v) + "%"; }
+      }, 12.4);
+      tl.fromTo("#d3-h", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 15.4);
+      tl.fromTo("#o3a", { x: 0, scale: 1 }, { x: 60, scale: 1.12, duration: 3.5, ease: "sine.inOut", repeat: 1, yoyo: true }, 9.8);
+      focus(17.0, "#d3", "#d4");
+
+      /* D4 17.2–24.6 结果 + 对比 */
+      tl.fromTo("#dev4", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 17.6);
+      tl.fromTo("#res", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 18.2);
+      const rrs = [["#rr1", 18.7], ["#rr2", 19.3], ["#rr3", 19.9]];
+      rrs.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, t);
+      });
+      tl.fromTo("#vl", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 21.0);
+      tl.fromTo("#vr", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 21.3);
+      tl.fromTo("#d4-h", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 22.2);
+      tl.fromTo("#o4a", { y: 0, scale: 1 }, { y: 50, scale: 1.1, duration: 3.6, ease: "sine.inOut", repeat: 1, yoyo: true }, 17.4);
+      focus(24.6, "#d4", "#d5");
+
+      /* D5 24.8–30 CTA */
+      tl.fromTo("#d5-h", { opacity: 0, scale: 1.14 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, 25.3);
+      tl.fromTo("#d5-sub", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 26.3);
+      tl.fromTo("#d5-chip", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, 26.9);
+      tl.fromTo("#o5a", { scale: 1 }, { scale: 1.18, duration: 2.2, ease: "sine.inOut", repeat: 1, yoyo: true }, 25.0);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
