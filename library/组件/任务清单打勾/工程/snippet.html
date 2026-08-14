@@ -1,0 +1,22 @@
+<!-- 任务清单打勾（spinner→tick 皮肤，提取自 v01）-->
+<style>
+  .task { display: flex; align-items: center; gap: 18px; }
+  .task .slot { position: relative; width: 38px; height: 38px; flex: none; }
+  .task .ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.2); border-top-color: #FFC300;
+  }
+  .task .tick {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: #FFC300; color: #000; font-weight: 900;
+    display: flex; align-items: center; justify-content: center; opacity: 0;
+  }
+</style>
+<div class="task" id="t1"><span class="slot"><span class="ring"></span><span class="tick">✓</span></span><span class="lb">检索今日公告与快讯</span></div>
+<script>
+  // 每项：入场 → ring 旋转（duration 到达打勾时刻）→ ring 隐藏 + tick back.out 弹出 + 文字变亮
+  // tl.fromTo("#t1", { x:-26, opacity:0 }, { x:0, opacity:1, duration:0.4, ease:"power2.out" }, T);
+  // tl.fromTo("#t1 .ring", { rotation:0 }, { rotation:720, duration:D, ease:"none" }, T+0.3);
+  // tl.set("#t1 .ring", { opacity:0 }, T+0.3+D);
+  // tl.fromTo("#t1 .tick", { scale:0.4, opacity:0 }, { scale:1, opacity:1, duration:0.3, ease:"back.out(2.5)" }, T+0.3+D);
+</script>

@@ -1,0 +1,182 @@
+{
+  "title": "商业航天不是发火箭_单条",
+  "sourcePath": "../短视频演讲稿/商业航天/商业航天不是发火箭_分镜执行表.md",
+  "generatedAt": "2026-06-05T14:11:52.328Z",
+  "items": [
+    {
+      "time": "段落 1",
+      "voiceover": "商业航天最容易被误解的一点，就是以为它等于“发火箭”。",
+      "intent": "hook",
+      "semanticComponent": "Hook",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "HookCard",
+      "propsDraft": {
+        "title": "商业航天最容易被误解的一点，就是以为它等于“发火…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 2",
+      "voiceover": "但火箭只是太空产业的物流车，负责把卫星送上去。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 3",
+      "voiceover": "真正值钱的，不是火箭飞得多高，而是卫星上天之后，能不能形成持续收费。",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "收费"
+        ],
+        "bottleneck": "收费",
+        "resultLabel": "利润"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 4",
+      "voiceover": "你可以把商业航天理解成一条链：低成本发射、批量卫星制造、低轨星座组网、地面终端连接、下游应用收费。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "上天后怎么赚钱",
+        "nodes": [
+          "低成本发射",
+          "卫星制造",
+          "星座组网",
+          "地面终端",
+          "应用收费"
+        ],
+        "highlightNode": "应用收费"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 5",
+      "voiceover": "火箭是入口，卫星是天上的基站和传感器，测控系统是太空交通指挥中心，地面终端是用户手里的卫星路由器。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "地面终端"
+        ],
+        "highlightNode": "地面终端"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 6",
+      "voiceover": "最后真正收钱的，是卫星宽带、应急通信、遥感数据、导航增强这些服务。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 7",
+      "voiceover": "所以商业航天不是单一军工概念，而是一套太空基础设施。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "所以商业航天不是单一军工概念，而是一套太空基础设…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 8",
+      "voiceover": "判断这个行业，不要只看今天又发射了几颗卫星，要看三个问题：发射成本有没有下降，星座有没有按期组网，下游用户有没有持续付费。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 9",
+      "voiceover": "一句话：商业航天不是能不能上天，而是上天之后能不能赚钱。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "一句话：商业航天不是能不能上天，而是上天之后能不能赚钱。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 10",
+      "voiceover": "你觉得商业航天最核心的是火箭、卫星，还是下游应用？",
+      "intent": "quote / interaction",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "你觉得商业航天最核心的是火箭、卫星，还是下游应用？"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 11",
+      "voiceover": "评论区聊聊。",
+      "intent": "quote / interaction",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "评论区聊聊。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    }
+  ],
+  "summary": {
+    "Hook": 1,
+    "B-roll": 2,
+    "XiaoyanProfitPipe": 1,
+    "XiaoyanIndustryScroll": 3,
+    "Compare": 1,
+    "ClosingQuote": 3
+  }
+}

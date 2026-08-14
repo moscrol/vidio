@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<title>001 五层防幻觉 · 屏幕卡</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    background: #0b1020;
+    color: #f2f4f8;
+    width: 1080px;
+  }
+  .card {
+    width: 1080px;
+    height: 1920px;
+    padding: 96px 72px 120px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, #1a2744 0%, transparent 55%),
+      linear-gradient(165deg, #0b1020 0%, #121a30 50%, #0d1528 100%);
+  }
+  .badge {
+    display: inline-block;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #c9a227;
+    background: rgba(201, 162, 39, 0.12);
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    border-radius: 999px;
+    padding: 10px 28px;
+    margin-bottom: 48px;
+  }
+  .warn {
+    position: absolute;
+    top: 72px;
+    right: 64px;
+    font-size: 22px;
+    color: #8b9bb4;
+  }
+  h1 {
+    font-size: 88px;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    margin-bottom: 36px;
+  }
+  h1 em {
+    font-style: normal;
+    color: #e8b54d;
+  }
+  .sub {
+    font-size: 40px;
+    line-height: 1.45;
+    color: #a8b4c8;
+    font-weight: 500;
+    max-width: 900px;
+  }
+  .arrow {
+    margin-top: 56px;
+    font-size: 42px;
+    line-height: 1.7;
+    font-weight: 600;
+  }
+  .arrow .row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+  .arrow .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #e8b54d;
+    flex-shrink: 0;
+  }
+  .layers {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .layer {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 24px;
+    align-items: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 32px;
+  }
+  .layer .n {
+    font-size: 40px;
+    font-weight: 900;
+    color: #e8b54d;
+  }
+  .layer .t {
+    font-size: 38px;
+    font-weight: 700;
+  }
+  .layer .d {
+    font-size: 30px;
+    color: #8b9bb4;
+    margin-top: 6px;
+  }
+  .auth {
+    margin-top: 28px;
+    border: 2px solid rgba(201, 162, 39, 0.55);
+    border-radius: 20px;
+    padding: 32px;
+    background: rgba(201, 162, 39, 0.08);
+  }
+  .auth .t { font-size: 40px; font-weight: 800; color: #e8b54d; }
+  .auth .d { font-size: 32px; color: #c5d0e0; margin-top: 10px; }
+  .split {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 26px 28px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    font-size: 34px;
+  }
+  .tag {
+    font-size: 28px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 10px;
+  }
+  .ok { background: rgba(80, 200, 120, 0.2); color: #6fe3a0; }
+  .maybe { background: rgba(201, 162, 39, 0.2); color: #e8b54d; }
+  .no { background: rgba(220, 80, 80, 0.18); color: #f08080; }
+  .chips {
+    margin-top: 64px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .chip {
+    font-size: 36px;
+    font-weight: 600;
+    padding: 20px 36px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .q {
+    margin-top: 80px;
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.4;
+    color: #e8b54d;
+  }
+  .foot {
+    position: absolute;
+    bottom: 72px;
+    left: 72px;
+    right: 72px;
+    font-size: 26px;
+    color: #5c6b84;
+  }
+</style>
+</head>
+<body>
+
+<!-- 卡1 -->
+<section class="card" id="c1">
+  <div class="badge">01 · 定义</div>
+  <h1>生成<em>不是</em><br/>真相</h1>
+  <p class="sub">把 AI 想成快记者。<br/>稿子再顺，也只是候选——不是终审事实。</p>
+  <p class="sub" style="margin-top:48px;color:#c9a227;">防幻觉 ≠ 永不犯错<br/>= 错误很难一路升到决策权</p>
+  <p class="foot">短视频 001 · 架构演示</p>
+</section>
+
+<!-- 卡2 -->
+<section class="card" id="c2">
+  <div class="badge">02 · 第一性</div>
+  <h1 style="font-size:64px;">为什么要<br/>层层挡住</h1>
+  <div class="arrow">
+    <div class="row"><span class="dot"></span><span>流畅 ≠ 真实（在预测下一个词）</span></div>
+    <div class="row"><span class="dot"></span><span>事实在模型外 → 要证据</span></div>
+    <div class="row"><span class="dot"></span><span>证据也会用错 → 要代码校验</span></div>
+    <div class="row"><span class="dot"></span><span>规则会过拟合 → 要历史重放</span></div>
+    <div class="row"><span class="dot"></span><span>标签会模糊 → 要人工金标准</span></div>
+    <div class="row"><span class="dot"></span><span style="color:#e8b54d;">意见 ≠ 权限 → 单独控决策权</span></div>
+  </div>
+  <p class="foot">短视频 001 · 第一性原理</p>
+</section>
+
+<!-- 卡3 -->
+<section class="card" id="c3">
+  <div class="badge">03 · 五层</div>
+  <h1 style="font-size:64px;">五层防线</h1>
+  <div class="layers">
+    <div class="layer"><div class="n">1</div><div><div class="t">生成器</div><div class="d">写候选，不宣布终审</div></div></div>
+    <div class="layer"><div class="n">2</div><div><div class="t">数据证据</div><div class="d">对齐外部可追溯记录</div></div></div>
+    <div class="layer"><div class="n">3</div><div><div class="t">确定性校验</div><div class="d">同输入 → 同检查结果</div></div></div>
+    <div class="layer"><div class="n">4</div><div><div class="t">历史重放</div><div class="d">禁止偷看当时不可知信息</div></div></div>
+    <div class="layer"><div class="n">5</div><div><div class="t">人工金标准</div><div class="d">模糊边界与争议样本</div></div></div>
+  </div>
+  <div class="auth">
+    <div class="t">+ 权限 authority</div>
+    <div class="d">未验收的分数，不能自动写库、不能当硬闸门</div>
+  </div>
+  <p class="foot">短视频 001 · 研究 Agent 落地思路（隐含）</p>
+</section>
+
+<!-- 卡4 -->
+<section class="card" id="c4">
+  <div class="warn">架构演示 · 非投资建议</div>
+  <div class="badge">04 · 拆一句</div>
+  <h1 style="font-size:56px;margin-top:24px;">别整句<br/>打一个对错</h1>
+  <div class="split">
+    <div class="row2"><span>成交额 +20%</span><span class="tag ok">可核验事实</span></div>
+    <div class="row2"><span>属于健康分歧</span><span class="tag maybe">仍是解释</span></div>
+    <div class="row2"><span>明天会回流</span><span class="tag no">预测</span></div>
+    <div class="row2"><span>A 是最强标的</span><span class="tag no">选择 / 建议</span></div>
+  </div>
+  <p class="sub" style="margin-top:48px;">事实对了，也不能把后面整段一起升级。</p>
+  <p class="foot">短视频 001 · 实例皮肤</p>
+</section>
+
+<!-- 卡5 -->
+<section class="card" id="c5">
+  <div class="badge">05 · 可复用</div>
+  <h1 style="font-size:64px;">同一套问题</h1>
+  <div class="chips">
+    <span class="chip">客服 Agent</span>
+    <span class="chip">企业知识库</span>
+    <span class="chip">代码助手</span>
+    <span class="chip">研究 Agent</span>
+  </div>
+  <p class="q">你现在信 AI 的<br/>哪一层？</p>
+  <p class="sub" style="margin-top:36px;">评论区聊聊 · 不求关注</p>
+  <p class="foot">短视频 001 · 结尾</p>
+</section>
+
+</body>
+</html>

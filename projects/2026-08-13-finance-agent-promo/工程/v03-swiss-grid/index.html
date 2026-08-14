@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #F4F4F1; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #141414; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; background: #F4F4F1; }
+      #g2,#g3,#g4,#g5,#g6 { opacity: 0; }
+
+      .colgrid {
+        position: absolute; inset: 0; pointer-events: none;
+        background-image: repeating-linear-gradient(90deg, rgba(20,20,20,0.06) 0, rgba(20,20,20,0.06) 1px, transparent 1px, transparent 90px);
+      }
+      .topbar {
+        position: absolute; top: 0; left: 0; right: 0; height: 8px; background: #0066FF;
+        transform-origin: left center;
+      }
+      .meta-row {
+        position: absolute; top: 52px; left: 80px; right: 80px;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 21px; color: #5a5a5a; letter-spacing: 2px;
+      }
+      .rule { height: 4px; background: #141414; transform-origin: left center; }
+      .h1 { font-size: 92px; font-weight: 700; line-height: 1.22; letter-spacing: 1px; }
+      .h2 { font-size: 46px; font-weight: 400; color: #3c3c3c; line-height: 1.5; }
+      .blue { color: #0066FF; }
+      .red { color: #D62828; }
+      .stat { font-family: "JetBrains Mono", monospace; font-weight: 700; font-variant-numeric: tabular-nums; }
+      .label { font-size: 24px; letter-spacing: 4px; color: #5a5a5a; }
+      .foot {
+        position: absolute; bottom: 48px; left: 80px; right: 80px;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 20px; color: #8a8a8a; letter-spacing: 2px;
+      }
+
+      /* G1 */
+      #g1 .block { position: absolute; left: 80px; top: 380px; right: 80px; }
+      #g1 .statline { display: flex; align-items: baseline; gap: 26px; margin-top: 70px; }
+      #g1 .stat { font-size: 210px; }
+      #g1 .statlabel { font-size: 34px; color: #3c3c3c; line-height: 1.5; }
+      /* G2 柱状图 */
+      #g2 .block { position: absolute; left: 80px; top: 330px; right: 80px; }
+      #g2 .chart { display: flex; align-items: flex-end; gap: 44px; height: 560px; margin-top: 90px; }
+      #g2 .barwrap { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; gap: 18px; }
+      #g2 .bar { background: #141414; transform-origin: bottom center; width: 100%; }
+      #g2 .bar.hot { background: #D62828; }
+      #g2 .bval { font-family: "JetBrains Mono", monospace; font-size: 30px; font-weight: 700; }
+      #g2 .bname { font-size: 26px; color: #3c3c3c; }
+      #g2 .flood { position: absolute; left: 80px; right: 80px; top: 1490px; }
+      /* G3 表单 */
+      #g3 .block { position: absolute; left: 80px; top: 300px; right: 80px; }
+      #g3 .form {
+        border: 3px solid #141414; margin-top: 60px;
+      }
+      #g3 .fhead { padding: 22px 28px; border-bottom: 3px solid #141414; display: flex; justify-content: space-between; align-items: center; }
+      #g3 .fhead .t { font-size: 30px; font-weight: 700; letter-spacing: 3px; }
+      #g3 .fhead .demo { font-family: "JetBrains Mono", monospace; font-size: 20px; color: #5a5a5a; }
+      #g3 .cmd { padding: 26px 28px; border-bottom: 3px solid #141414; display: flex; align-items: center; gap: 16px; }
+      #g3 .cmd .clip { overflow: hidden; white-space: nowrap; width: 0; }
+      #g3 .cmd .txt { font-size: 32px; white-space: nowrap; }
+      #g3 .caret { width: 4px; height: 42px; background: #0066FF; }
+      #g3 .trow { padding: 24px 28px; display: flex; align-items: center; gap: 22px; font-size: 32px; border-bottom: 1.5px solid rgba(20,20,20,0.18); }
+      #g3 .trow:last-child { border-bottom: none; }
+      #g3 .box { width: 34px; height: 34px; border: 3px solid #141414; position: relative; flex: none; }
+      #g3 .box .fill { position: absolute; inset: 4px; background: #0066FF; transform: scale(0); }
+      /* G4 结论表 */
+      #g4 .block { position: absolute; left: 80px; top: 300px; right: 80px; }
+      #g4 .row { display: flex; gap: 24px; padding: 34px 0; border-bottom: 2px solid rgba(20,20,20,0.2); align-items: flex-start; }
+      #g4 .idx { font-family: "JetBrains Mono", monospace; font-size: 30px; font-weight: 700; color: #0066FF; padding-top: 6px; }
+      #g4 .txt { font-size: 34px; line-height: 1.55; flex: 1; }
+      #g4 .tag { font-family: "JetBrains Mono", monospace; font-size: 22px; border: 2px solid #141414; padding: 4px 14px; white-space: nowrap; }
+      #g4 .timeline { display: flex; align-items: baseline; gap: 24px; margin-top: 70px; }
+      #g4 .stat { font-size: 150px; }
+      /* G5 对比 */
+      #g5 .block { position: absolute; left: 80px; top: 340px; right: 80px; }
+      #g5 .cmp { display: flex; gap: 3px; margin-top: 70px; border: 3px solid #141414; }
+      #g5 .side { flex: 1; padding: 40px 32px; }
+      #g5 .side.l { border-right: 3px solid #141414; }
+      #g5 .side .name { font-size: 28px; letter-spacing: 3px; color: #5a5a5a; }
+      #g5 .side .num { font-size: 130px; margin-top: 20px; }
+      #g5 .side .desc { font-size: 28px; color: #3c3c3c; margin-top: 16px; line-height: 1.5; }
+      /* G6 CTA */
+      #g6 { background: #141414; color: #F4F4F1; }
+      #g6 .block { position: absolute; left: 80px; top: 620px; right: 80px; }
+      #g6 .h1 { color: #F4F4F1; }
+      #g6 .chip { border: 3px solid #F4F4F1; display: inline-block; padding: 16px 36px; font-size: 30px; letter-spacing: 4px; margin-top: 60px; }
+      #g6 .foot { color: rgba(244,244,241,0.55); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+
+      <div id="g1" class="scene">
+        <div class="colgrid"></div>
+        <div class="topbar" id="tb1"></div>
+        <div class="meta-row"><span>WENPAN — 01 / 06</span><span>问题</span></div>
+        <div class="block">
+          <div class="rule" id="r1" style="width: 340px;"></div>
+          <div class="h1" style="margin-top: 46px;" id="g1-h">盯盘一整天<br />研报看不完</div>
+          <div class="statline">
+            <span class="stat" id="g1-stat">0</span>
+            <span class="statlabel">页研报 / 天<br />还在增加</span>
+          </div>
+          <div class="h2" style="margin-top: 60px;" id="g1-sub">下单那一刻，还是靠感觉。</div>
+        </div>
+        <div class="foot"><span>SWISS GRID</span><span>DEMO · 数据为占位示例</span></div>
+      </div>
+
+      <div id="g2" class="scene">
+        <div class="colgrid"></div>
+        <div class="topbar"></div>
+        <div class="meta-row"><span>WENPAN — 02 / 06</span><span>信息过载</span></div>
+        <div class="block">
+          <div class="rule" style="width: 340px;"></div>
+          <div class="h1" style="margin-top: 46px;">每天涌来的<br /><span class="red">信息</span></div>
+          <div class="chart">
+            <div class="barwrap"><span class="bval" id="v2a">128</span><div class="bar" id="b2a" style="height: 46%;"></div><span class="bname">快讯</span></div>
+            <div class="barwrap"><span class="bval" id="v2b">64</span><div class="bar" id="b2b" style="height: 30%;"></div><span class="bname">公告</span></div>
+            <div class="barwrap"><span class="bval" id="v2c">96</span><div class="bar" id="b2c" style="height: 38%;"></div><span class="bname">研报页</span></div>
+            <div class="barwrap"><span class="bval red" id="v2d">99+</span><div class="bar hot" id="b2d" style="height: 100%;"></div><span class="bname">未读</span></div>
+          </div>
+        </div>
+        <div class="flood h2" id="g2-sub">超过一个人能处理的极限。</div>
+        <div class="foot"><span>OVERLOAD</span><span>DEMO · 数据为占位示例</span></div>
+      </div>
+
+      <div id="g3" class="scene">
+        <div class="colgrid"></div>
+        <div class="topbar"></div>
+        <div class="meta-row"><span>WENPAN — 03 / 06</span><span>解法</span></div>
+        <div class="block">
+          <div class="rule" style="width: 340px;"></div>
+          <div class="h1" style="margin-top: 46px;">交给<span class="blue">问盘</span></div>
+          <div class="form">
+            <div class="fhead"><span class="t">任务面板</span><span class="demo">DEMO 占位界面</span></div>
+            <div class="cmd">
+              <span class="mono blue" style="font-size: 32px;">&gt;</span>
+              <div class="clip" id="g3-clip"><span class="txt mono">查一下今天新能源板块异动的原因</span></div>
+              <div class="caret" id="g3-caret"></div>
+            </div>
+            <div class="trow" id="tr1"><span class="box"><span class="fill"></span></span>检索今日公告与快讯</div>
+            <div class="trow" id="tr2"><span class="box"><span class="fill"></span></span>拉取板块与个股行情</div>
+            <div class="trow" id="tr3"><span class="box"><span class="fill"></span></span>交叉对比三份研报观点</div>
+            <div class="trow" id="tr4"><span class="box"><span class="fill"></span></span>生成结论与来源清单</div>
+          </div>
+          <div class="h2" style="margin-top: 56px;" id="g3-sub">一句话，它自己去查。</div>
+        </div>
+        <div class="foot"><span>ONE COMMAND</span><span>DEMO · 数据为占位示例</span></div>
+      </div>
+
+      <div id="g4" class="scene">
+        <div class="colgrid"></div>
+        <div class="topbar"></div>
+        <div class="meta-row"><span>WENPAN — 04 / 06</span><span>产出</span></div>
+        <div class="block">
+          <div class="rule" style="width: 340px;"></div>
+          <div class="h1" style="margin-top: 46px;">一页结论<br />判断<span class="blue">有来源</span></div>
+          <div style="margin-top: 56px;">
+            <div class="row" id="row1"><span class="idx">01</span><span class="txt">拉升与上午的产能调整公告时间吻合</span><span class="tag">公告</span></div>
+            <div class="row" id="row2"><span class="idx">02</span><span class="txt">领涨的是上游材料，不是整车</span><span class="tag">行情</span></div>
+            <div class="row" id="row3"><span class="idx">03</span><span class="txt">两份研报上周已提示这条主线</span><span class="tag">研报</span></div>
+          </div>
+          <div class="timeline">
+            <span class="stat" id="g4-stat">1'42"</span>
+            <span class="statlabel h2">从指令到结论<br />（占位示例）</span>
+          </div>
+        </div>
+        <div class="foot"><span>TRACEABLE</span><span>DEMO · 数据为占位示例</span></div>
+      </div>
+
+      <div id="g5" class="scene">
+        <div class="colgrid"></div>
+        <div class="topbar"></div>
+        <div class="meta-row"><span>WENPAN — 05 / 06</span><span>差异</span></div>
+        <div class="block">
+          <div class="rule" style="width: 340px;"></div>
+          <div class="h1" style="margin-top: 46px;">它不等你<span class="red">追问</span></div>
+          <div class="cmp">
+            <div class="side l" id="side-l">
+              <div class="name">普通聊天机器人</div>
+              <div class="num stat" id="g5-n1">5次</div>
+              <div class="desc">来回追问，才拼出半个答案</div>
+            </div>
+            <div class="side" id="side-r">
+              <div class="name blue">问盘</div>
+              <div class="num stat blue" id="g5-n2">0次</div>
+              <div class="desc">自己把活干完，直接给结论</div>
+            </div>
+          </div>
+        </div>
+        <div class="foot"><span>AUTOPILOT</span><span>DEMO · 画面为模拟对比</span></div>
+      </div>
+
+      <div id="g6" class="scene">
+        <div class="topbar" style="background:#F4F4F1;"></div>
+        <div class="meta-row" style="color: rgba(244,244,241,0.6);"><span>WENPAN — 06 / 06</span><span>CTA</span></div>
+        <div class="block">
+          <div class="rule" id="r6" style="width: 340px; background:#F4F4F1;"></div>
+          <div class="h1" style="margin-top: 46px;" id="g6-h">你最想让它<br />盯什么？</div>
+          <div class="h2" style="margin-top: 44px; color: rgba(244,244,241,0.75);" id="g6-sub">评论区告诉我，拿真实数据跑给你看。</div>
+          <div class="chip" id="g6-chip">问盘 WENPAN · 金融 AGENT</div>
+        </div>
+        <div class="foot"><span>V03 · SWISS</span><span>演示画面 · 不构成投资建议</span></div>
+      </div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/house-vibez.mp3" data-volume="0.35"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 推移转场（瑞士式：水平推）
+      function push(tOut, oldId, newId) {
+        tl.to(oldId, { x: -1080, duration: 0.45, ease: "power3.inOut" }, tOut);
+        tl.fromTo(newId, { x: 1080, opacity: 1 }, { x: 0, opacity: 1, duration: 0.45, ease: "power3.inOut" }, tOut);
+      }
+
+      /* G1 0–5 */
+      tl.fromTo("#tb1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "expo.out" }, 0.15);
+      tl.fromTo("#r1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power4.out" }, 0.35);
+      tl.fromTo("#g1-h", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "expo.out" }, 0.55);
+      const c1 = { v: 0 };
+      tl.to(c1, {
+        v: 96, duration: 1.6, ease: "power2.out",
+        onUpdate: function () { document.getElementById("g1-stat").textContent = Math.round(c1.v); }
+      }, 1.1);
+      tl.fromTo("#g1-sub", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "sine.out" }, 3.0);
+      push(5.0, "#g1", "#g2");
+
+      /* G2 5.2–9.6 柱状图 */
+      tl.fromTo("#g2 .h1", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 5.6);
+      const bars = [["#b2a", 6.0], ["#b2b", 6.2], ["#b2c", 6.4], ["#b2d", 6.6]];
+      bars.forEach(([id, t]) => {
+        tl.fromTo(id, { scaleY: 0 }, { scaleY: 1, duration: 0.6, ease: "power4.out" }, t);
+      });
+      const vals = [["#v2a", 6.0], ["#v2b", 6.2], ["#v2c", 6.4], ["#v2d", 6.6]];
+      vals.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, t + 0.35);
+      });
+      tl.fromTo("#g2-sub", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 7.6);
+      push(9.6, "#g2", "#g3");
+
+      /* G3 9.8–16.2 表单 */
+      tl.fromTo("#g3 .h1", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 10.15);
+      tl.fromTo("#g3 .form", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 10.5);
+      tl.fromTo("#g3-clip", { width: 0 }, { width: 480, duration: 1.6, ease: "steps(15)" }, 11.1);
+      tl.fromTo("#g3-caret", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", repeat: 9, yoyo: true }, 11.0);
+      const boxes = [["#tr1", 12.9], ["#tr2", 13.5], ["#tr3", 14.1], ["#tr4", 14.7]];
+      boxes.forEach(([id, t]) => {
+        tl.fromTo(id + " .fill", { scale: 0 }, { scale: 1, duration: 0.22, ease: "power4.out" }, t);
+      });
+      tl.fromTo("#g3-sub", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 15.2);
+      push(16.2, "#g3", "#g4");
+
+      /* G4 16.4–21.6 结论表 */
+      tl.fromTo("#g4 .h1", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 16.75);
+      const rows = [["#row1", 17.2], ["#row2", 17.7], ["#row3", 18.2]];
+      rows.forEach(([id, t]) => {
+        tl.fromTo(id, { x: -50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, t);
+      });
+      tl.fromTo("#g4-stat", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.8)" }, 19.0);
+      push(21.6, "#g4", "#g5");
+
+      /* G5 21.8–26.4 对比 */
+      tl.fromTo("#g5 .h1", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 22.15);
+      tl.fromTo("#side-l", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 22.6);
+      tl.fromTo("#side-r", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 22.85);
+      tl.fromTo("#g5-n1", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 23.2);
+      tl.fromTo("#g5-n2", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 23.5);
+      push(26.4, "#g5", "#g6");
+
+      /* G6 26.6–30 CTA（深底反白） */
+      tl.fromTo("#r6", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power4.out" }, 26.9);
+      tl.fromTo("#g6-h", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "expo.out" }, 27.1);
+      tl.fromTo("#g6-sub", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "sine.out" }, 27.7);
+      tl.fromTo("#g6-chip", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 28.1);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

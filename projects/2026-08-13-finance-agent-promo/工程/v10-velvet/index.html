@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Serif SC"; font-weight: 900; font-style: normal;
+        src: url("shared/fonts/noto-serif-sc-chinese-simplified-900-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #07100C; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #F2EFE6; }
+      .serif { font-family: "Noto Serif SC", serif; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene {
+        position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden;
+        background: radial-gradient(ellipse 130% 90% at 50% 30%, #0B1D15 0%, #07100C 70%);
+      }
+      #l2,#l3,#l4,#l5 { opacity: 0; }
+
+      .grain {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.22;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+        background-size: 240px 240px;
+      }
+      .vign {
+        position: absolute; inset: 0; pointer-events: none;
+        background: radial-gradient(ellipse 120% 100% at 50% 45%, transparent 55%, rgba(3,6,5,0.7) 100%);
+      }
+      .numeral {
+        font-family: "Noto Serif SC", serif; font-weight: 900;
+        font-size: 40px; color: #D4AF6A; letter-spacing: 6px;
+      }
+      .caps {
+        font-size: 24px; letter-spacing: 14px; color: rgba(242,239,230,0.5);
+        text-transform: uppercase;
+      }
+      .gold-rule { height: 1.5px; background: linear-gradient(90deg, transparent, #D4AF6A, transparent); transform-origin: center center; }
+      .hero {
+        font-family: "Noto Serif SC", serif; font-weight: 900;
+        font-size: 96px; line-height: 1.45; text-align: center;
+      }
+      .hero .gd { color: #D4AF6A; }
+      .sweep-wrap { position: relative; overflow: hidden; }
+      .sweep {
+        position: absolute; top: 0; bottom: 0; width: 260px; left: -320px;
+        background: linear-gradient(105deg, transparent 0%, rgba(255,250,235,0.16) 50%, transparent 100%);
+        transform: skewX(-12deg); pointer-events: none;
+      }
+      .centerstack {
+        position: absolute; left: 90px; right: 90px;
+        display: flex; flex-direction: column; align-items: center;
+      }
+      .foot {
+        position: absolute; bottom: 56px; left: 90px; right: 90px;
+        display: flex; justify-content: space-between;
+        font-size: 19px; letter-spacing: 4px; color: rgba(242,239,230,0.4);
+      }
+      .emblem { position: relative; width: 380px; height: 380px; }
+      .emblem .ring { position: absolute; border-radius: 50%; border: 1.5px solid rgba(212,175,106,0.8); }
+      .emblem .r1 { inset: 0; }
+      .emblem .r2 { inset: 18px; border-color: rgba(212,175,106,0.4); }
+      .emblem .core {
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 10px;
+      }
+      .lux-list { display: flex; flex-direction: column; gap: 34px; margin-top: 60px; width: 100%; max-width: 760px; }
+      .lux-item {
+        display: flex; align-items: center; gap: 24px; font-size: 32px;
+        color: rgba(242,239,230,0.85); justify-content: center;
+      }
+      .lux-item .gdot { width: 12px; height: 12px; border-radius: 50%; background: #D4AF6A; flex: none; }
+      .finding { text-align: center; padding: 34px 0; border-bottom: 1px solid rgba(212,175,106,0.25); }
+      .finding .t { font-size: 34px; line-height: 1.6; }
+      .finding .s { font-size: 21px; letter-spacing: 8px; color: #D4AF6A; margin-top: 14px; }
+      .chip-lux {
+        border: 1.5px solid #D4AF6A; color: #D4AF6A; padding: 20px 54px;
+        font-size: 28px; letter-spacing: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+
+      <!-- L1 -->
+      <div id="l1" class="scene">
+        <div class="centerstack" style="top: 520px; gap: 44px;">
+          <div class="numeral" id="l1-n">Ⅰ</div>
+          <div class="caps" id="l1-c">THE PROBLEM</div>
+          <div class="gold-rule" id="l1-r" style="width: 420px;"></div>
+          <div class="sweep-wrap" id="l1-sw">
+            <div class="hero" id="l1-h">盯盘一整天<br />研报<span class="gd">看不完</span></div>
+            <div class="sweep" id="swp1"></div>
+          </div>
+          <div style="font-size: 32px; color: rgba(242,239,230,0.6); letter-spacing: 4px;" id="l1-sub">下单那一刻，还是靠感觉</div>
+        </div>
+        <div class="foot"><span>V10 · VELVET</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="grain"></div><div class="vign"></div>
+      </div>
+
+      <!-- L2 -->
+      <div id="l2" class="scene">
+        <div class="centerstack" style="top: 560px; gap: 44px;">
+          <div class="numeral">Ⅱ</div>
+          <div class="caps">THE OVERLOAD</div>
+          <div class="gold-rule" style="width: 420px;" id="l2-r"></div>
+          <div class="hero" id="l2-h">信息量早就超过<br /><span class="gd">一个人的极限</span></div>
+          <div style="display:flex; gap: 70px; margin-top: 36px;" id="l2-stats">
+            <div style="text-align:center;"><div class="serif" style="font-size:64px; color:#D4AF6A;">128</div><div class="caps" style="letter-spacing:8px;">快讯/时</div></div>
+            <div style="text-align:center;"><div class="serif" style="font-size:64px; color:#D4AF6A;">96</div><div class="caps" style="letter-spacing:8px;">研报页</div></div>
+            <div style="text-align:center;"><div class="serif" style="font-size:64px; color:#D4AF6A;">99+</div><div class="caps" style="letter-spacing:8px;">未读</div></div>
+          </div>
+        </div>
+        <div class="foot"><span>OVERLOAD</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="grain"></div><div class="vign"></div>
+      </div>
+
+      <!-- L3 -->
+      <div id="l3" class="scene">
+        <div class="centerstack" style="top: 360px; gap: 40px;">
+          <div class="numeral">Ⅲ</div>
+          <div class="caps">THE AGENT</div>
+          <div class="emblem" id="l3-em">
+            <span class="ring r1" id="ring1"></span>
+            <span class="ring r2" id="ring2"></span>
+            <div class="core">
+              <div class="serif" style="font-size: 52px; color:#D4AF6A;">FinHot</div>
+              <div class="caps" style="letter-spacing: 8px;">AUTONOMOUS</div>
+            </div>
+          </div>
+          <div style="font-size: 34px; color: rgba(242,239,230,0.75); letter-spacing: 2px; text-align:center; line-height:1.7;" id="l3-cmd">先看源头，再看热闹<br /><span style="font-size:24px; color:rgba(242,239,230,0.45);">高信号浮上来，噪音沉下去</span></div>
+          <div class="lux-list">
+            <div class="lux-item" id="lx1"><span class="gdot"></span>多源聚成一条时间线</div>
+            <div class="lux-item" id="lx2"><span class="gdot"></span>质量打分，弱信号下沉</div>
+            <div class="lux-item" id="lx3"><span class="gdot"></span>AI 摘要与外文中译</div>
+            <div class="lux-item" id="lx4"><span class="gdot"></span>公告互动易一键回查</div>
+          </div>
+        </div>
+        <div class="foot"><span>ONE COMMAND</span><span>DEMO · 占位界面</span></div>
+        <div class="grain"></div><div class="vign"></div>
+      </div>
+
+      <!-- L4 -->
+      <div id="l4" class="scene">
+        <div class="centerstack" style="top: 400px; gap: 40px;">
+          <div class="numeral">Ⅳ</div>
+          <div class="caps">THE PROOF</div>
+          <div class="gold-rule" style="width: 420px;"></div>
+          <div class="hero" style="font-size: 82px;" id="l4-h">每个判断<br />都有<span class="gd">来源</span></div>
+          <div style="width: 100%; max-width: 800px; margin-top: 30px;">
+            <div class="finding" id="f1"><div class="t">拉升与上午的产能调整公告时间吻合</div><div class="s">来源 · 公告</div></div>
+            <div class="finding" id="f2"><div class="t">领涨的是上游材料，不是整车</div><div class="s">来源 · 行情</div></div>
+            <div class="finding" id="f3" style="border-bottom:none;"><div class="t">两份研报上周已提示这条主线</div><div class="s">来源 · 研报</div></div>
+          </div>
+          <div class="serif" style="font-size: 88px; color:#D4AF6A;" id="l4-t">1'42"</div>
+        </div>
+        <div class="foot"><span>TRACEABLE</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="grain"></div><div class="vign"></div>
+      </div>
+
+      <!-- L5 -->
+      <div id="l5" class="scene">
+        <div class="centerstack" style="top: 620px; gap: 48px;">
+          <div class="numeral">Ⅴ</div>
+          <div class="caps">YOUR MOVE</div>
+          <div class="gold-rule" style="width: 420px;" id="l5-r"></div>
+          <div class="sweep-wrap" id="l5-sw">
+            <div class="hero" id="l5-h">你最想让它<br /><span class="gd">盯什么？</span></div>
+            <div class="sweep" id="swp5"></div>
+          </div>
+          <div style="font-size: 30px; color: rgba(242,239,230,0.6); text-align:center; line-height:1.8;" id="l5-sub">开源 · 本地优先<br />数据在你自己机器上</div>
+          <div class="chip-lux" id="l5-chip">FinHot · 本地优先的金融信息流</div>
+        </div>
+        <div class="foot"><span>V10 · VELVET</span><span>演示画面 · 不构成投资建议</span></div>
+        <div class="grain"></div><div class="vign"></div>
+      </div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/g-eazy-nba-type.mp3" data-volume="0.32"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 奢华慢叠化
+      function luxe(tOut, oldId, newId) {
+        tl.to(oldId, { filter: "blur(22px)", opacity: 0, duration: 0.8, ease: "sine.inOut" }, tOut);
+        tl.fromTo(newId, { opacity: 0, filter: "blur(14px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.85, ease: "sine.inOut" }, tOut + 0.3);
+      }
+
+      /* L1 0–7 */
+      tl.fromTo("#l1-n", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: "sine.inOut" }, 0.3);
+      tl.fromTo("#l1-c", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "sine.inOut" }, 0.7);
+      tl.fromTo("#l1-r", { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: "sine.inOut" }, 1.0);
+      tl.fromTo("#l1-h", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.1, ease: "power2.out" }, 1.5);
+      tl.to("#swp1", { x: 1300, duration: 1.4, ease: "power1.inOut" }, 3.0);
+      tl.fromTo("#l1-sub", { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "sine.inOut" }, 4.2);
+      luxe(7.0, "#l1", "#l2");
+
+      /* L2 7.3–13 */
+      tl.fromTo("#l2-r", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "sine.inOut" }, 8.2);
+      tl.fromTo("#l2-h", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 1.0, ease: "power2.out" }, 8.6);
+      tl.fromTo("#l2-stats > div:nth-child(1)", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: "sine.out" }, 10.0);
+      tl.fromTo("#l2-stats > div:nth-child(2)", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: "sine.out" }, 10.35);
+      tl.fromTo("#l2-stats > div:nth-child(3)", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 10.7);
+      luxe(13.0, "#l2", "#l3");
+
+      /* L3 13.3–19.6 */
+      tl.fromTo("#ring1", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, ease: "power2.out" }, 14.2);
+      tl.fromTo("#ring2", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, ease: "power2.out" }, 14.4);
+      tl.fromTo("#l3-em .core", { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "sine.inOut" }, 14.9);
+      tl.fromTo("#l3-cmd", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "sine.inOut" }, 15.8);
+      const lxs = [["#lx1", 16.7], ["#lx2", 17.15], ["#lx3", 17.6], ["#lx4", 18.05]];
+      lxs.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.55, ease: "sine.out" }, t);
+      });
+      luxe(19.6, "#l3", "#l4");
+
+      /* L4 19.9–25.4 */
+      tl.fromTo("#l4-h", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" }, 20.8);
+      const fds = [["#f1", 21.6], ["#f2", 22.2], ["#f3", 22.8]];
+      fds.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "sine.out" }, t);
+      });
+      tl.fromTo("#l4-t", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" }, 23.7);
+      luxe(25.4, "#l4", "#l5");
+
+      /* L5 25.7–30 */
+      tl.fromTo("#l5-r", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "sine.inOut" }, 26.4);
+      tl.fromTo("#l5-h", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.85, ease: "power2.out" }, 26.7);
+      tl.to("#swp5", { x: 1300, duration: 1.2, ease: "power1.inOut" }, 27.6);
+      tl.fromTo("#l5-sub", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.inOut" }, 27.8);
+      tl.fromTo("#l5-chip", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "sine.inOut" }, 28.0);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "vidio-studio",
+  "private": true,
+  "type": "module",
+  "description": "vidio 仓库能力的本地 GUI 工作台",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

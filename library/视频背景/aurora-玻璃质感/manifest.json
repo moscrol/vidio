@@ -1,0 +1,9 @@
+{
+  "name": "aurora-玻璃质感背景",
+  "category": "视频背景",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/demo (v01)",
+  "specs": { "width": 1080, "height": 1920, "fps": 30, "duration_s": 0 },
+  "params": { "blob_colors": "任意 rgba，建议 0.16-0.3 透明度", "blur": "90-100px", "noise_opacity": 0.16 },
+  "reuse": "复制 工程/snippet.html 里的 .aurora/.noise/.vignette/.glass CSS 与每镜 2-3 个 aurora div + 一条合并 x/y/scale 的有限次 yoyo 呼吸 tween。禁止软链。源自 uitripled Background Builder 配方。"
+}

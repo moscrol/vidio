@@ -1,0 +1,16 @@
+<!-- 打字机命令行（提取自金融 agent 十版 demo）-->
+<style>
+  .cmd-row { display: flex; align-items: center; /* 皮肤自定 */ }
+  .cmd-clip { overflow: hidden; white-space: nowrap; width: 0; }
+  .cmd-text { white-space: nowrap; font-family: "JetBrains Mono", monospace; }
+  .caret { width: 4px; height: 40px; background: currentColor; margin-left: 8px; }
+</style>
+<div class="cmd-row">
+  <div class="cmd-clip" id="cmd-clip"><span class="cmd-text">帮我查一下今天新能源板块异动的原因</span></div>
+  <div class="caret" id="caret"></div>
+</div>
+<script>
+  // steps 数 = 字符数；width 按渲染实测填
+  // tl.fromTo("#cmd-clip", { width: 0 }, { width: 560, duration: 1.7, ease: "steps(17)" }, T);
+  // tl.fromTo("#caret", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", repeat: 9, yoyo: true }, T - 0.2);
+</script>

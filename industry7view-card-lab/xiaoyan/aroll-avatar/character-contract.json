@@ -1,0 +1,47 @@
+{
+  "characterId": "ar-schema",
+  "displayName": "A-roll素描分身",
+  "palette": "black-white-grayscale",
+  "proportion": {
+    "headsTall": 5.5,
+    "adult": true,
+    "slenderBuild": true
+  },
+  "identityAnchors": [
+    "narrow-oval-face",
+    "tapered-jaw",
+    "shoulder-length-black-hair",
+    "three-seven-side-part",
+    "left-side-tucked-behind-ear",
+    "right-curved-side-fringe",
+    "slightly-flipped-hair-ends",
+    "straight-fine-brows",
+    "slender-almond-eyes",
+    "thin-lips",
+    "long-neck",
+    "narrow-shoulders"
+  ],
+  "requiredCostume": [
+    "white-stand-collar-shirt",
+    "rolled-sleeves",
+    "light-trousers",
+    "round-watch-left-wrist",
+    "small-ear-studs"
+  ],
+  "forbiddenTraits": [
+    "large-anime-eyes",
+    "round-child-face",
+    "short-chibi-body",
+    "glamour-influencer-styling",
+    "eyeglasses",
+    "hat",
+    "doctoral-cap"
+  ],
+  "renderStyle": [
+    "editorial-pencil-sketch",
+    "charcoal-outline",
+    "grayscale-hatching",
+    "paper-grain",
+    "clean-white-background"
+  ]
+}

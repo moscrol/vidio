@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>02 · Data Hero Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== DataHero-specific ============== */
+    .data-hero-main {
+      bottom: 118px;
+      left: 30px;
+      padding: 36px 28px 30px;
+      position: absolute;
+      right: 30px;
+      top: 122px;
+      z-index: 2;
+    }
+    .card-title {
+      color: var(--navy);
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: -0.065em;
+      line-height: 1.08;
+      margin: 0;
+    }
+    .card-title .gold { color: var(--gold); }
+    .data-number-row {
+      align-items: flex-end;
+      display: flex;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .data-number {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: -0.1em;
+      line-height: 0.92;
+    }
+    .data-unit {
+      color: var(--navy);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      padding-bottom: 7px;
+      white-space: nowrap;
+    }
+    .data-label {
+      color: var(--navy);
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1.25;
+      margin-top: 24px;
+    }
+    .data-compare {
+      background: var(--data-bg);
+      border: 1px solid var(--data-border);
+      color: var(--gold);
+      display: inline-flex;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 900;
+      margin-top: 20px;
+      padding: 9px 11px;
+    }
+    .data-insight {
+      background: var(--navy);
+      color: #fff;
+      font-size: 19px;
+      font-weight: 900;
+      line-height: 1.35;
+      margin-top: 22px;
+      padding: 16px 18px;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>02 · Data Hero Card</h1>
+    <p>核心硬数据卡，凸显一个重要数字。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card data-hero-card">
+    <div class="brand-row">
+      <span class="tag">认证周期</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <div class="data-hero-main panel">
+      <div class="small-label">DATA / 时间门槛</div>
+      <div class="data-number-row">
+        <span class="data-number">12-24</span>
+        <span class="data-unit">个月</span>
+      </div>
+      <div class="data-label">头部晶圆厂主流设备验证周期</div>
+      <div class="data-compare">进入壁垒极高，验证难度极大</div>
+      <div class="data-insight">漫长的验证周期，形成了极高客户信任壁垒。</div>
+    </div>
+    <div class="bottom-note">时间是半导体设备公司最硬的护城河。</div>
+  </article>
+</body>
+</html>

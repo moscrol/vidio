@@ -1,0 +1,15 @@
+{
+  "name": "做旧纸张-毛玻璃",
+  "category": "视频背景",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/finhot-film",
+  "specs": { "width": 1080, "height": 1920, "fps": 30, "duration_s": "全片铺底" },
+  "params": {
+    "paper": "#EDE2CB 底 + 陈渍径向斑 + multiply 纤维噪点(0.16) + 暖褐晕影",
+    "ink": "#33291C 墨字 + 1px 纸白浮雕 text-shadow",
+    "accent": "#E8590C 烧橙（纸底高对比档）",
+    "glass": "rgba(255,251,242,0.42) + blur(18px) saturate(1.2) + 白描边 + 暖褐投影",
+    "blobs": "三枚暖色 blob 供毛玻璃折射（没有它们 blur 看不出来）"
+  },
+  "reuse": "复制 工程/snippet.html 的共享层进 body 顶部，.glass/.plate 直接套组件。字体三声部随附：细体 400 铺垫词 + 衬线 900 关键词（.hero.or 烧橙）+ mono 角签；注意 .hero.or 层叠规则必须在 .hero 之后声明。"
+}

@@ -1,0 +1,1149 @@
+{
+  "title": "商业航天_AI口播稿",
+  "sourcePath": "../短视频演讲稿/商业航天/商业航天_AI口播稿.md",
+  "generatedAt": "2026-06-05T14:11:22.176Z",
+  "items": [
+    {
+      "time": "段落 1",
+      "voiceover": "商业航天，真不是发火箭。火箭只是太空物流车。它负责把卫星送上去。",
+      "intent": "hook",
+      "semanticComponent": "Hook",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "HookCard",
+      "propsDraft": {
+        "title": "商业航天，真不是发火箭。火箭只是太空物流车。它负…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 2",
+      "voiceover": "但真正值钱的，是卫星上天之后，能不能持续收费。你可以把它想成一条链。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 3",
+      "voiceover": "低成本发射。批量制造卫星。低轨星座组网。地面终端连接。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "低成本发射",
+          "批量制造",
+          "星座组网",
+          "地面终端"
+        ],
+        "highlightNode": "地面终端"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 4",
+      "voiceover": "最后，下游应用付费。火箭像快递车。卫星像天上的基站。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 5",
+      "voiceover": "测控系统像交通指挥中心。地面终端像你手里的卫星路由器。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "地面终端"
+        ],
+        "highlightNode": "地面终端"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 6",
+      "voiceover": "真正收钱的，是卫星宽带、应急通信、遥感数据、导航增强。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 7",
+      "voiceover": "所以商业航天不是单一军工概念。它更像太空版新基建。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "所以商业航天不是单一军工概念。它更像太空版新基建…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 8",
+      "voiceover": "最容易看错的地方，就是盯着火箭起飞鼓掌。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "最容易看错的地方，就是盯着火箭起飞鼓掌。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 9",
+      "voiceover": "但火箭只是入口，不是终点。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "但火箭只是入口，不是终点。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 10",
+      "voiceover": "一句话，商业航天不是能不能上天，而是上天之后能不能赚钱。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "一句话，商业航天不是能不能上天，而是上天之后能不能赚钱。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 11",
+      "voiceover": "20 万颗卫星，是什么概念？",
+      "intent": "data",
+      "semanticComponent": "DataHero",
+      "renderer": "SwissCard",
+      "existingComponent": "DataHeroMotion",
+      "propsDraft": {
+        "number": "20万颗",
+        "label": "20 万颗卫星，是什么概念？"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 12",
+      "voiceover": "现在天上的星链，也就几千颗。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "现在天上的星链，也就几千颗。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 13",
+      "voiceover": "但中国在 2026 年初，向国际电联申报了多个低轨星座计划。",
+      "intent": "data",
+      "semanticComponent": "DataHero",
+      "renderer": "SwissCard",
+      "existingComponent": "DataHeroMotion",
+      "propsDraft": {
+        "number": "2026年",
+        "label": "但中国在 2026 年初，向国际电联申报了多个低轨星座计…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 14",
+      "voiceover": "总规模超过 20 万颗。这不是为了好看。这是太空版占座。",
+      "intent": "data",
+      "semanticComponent": "DataHero",
+      "renderer": "SwissCard",
+      "existingComponent": "DataHeroMotion",
+      "propsDraft": {
+        "number": "20万颗",
+        "label": "总规模超过 20 万颗。这不是为了好看。这是太空版占座。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 15",
+      "voiceover": "低轨卫星有个特点。离地球近，时延低。适合做卫星互联网。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 16",
+      "voiceover": "但低轨轨道和频率，不是无限的。国际规则很现实。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "但低轨轨道和频率，不是无限的。国际规则很现实。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 17",
+      "voiceover": "谁先申报，谁先发射，谁先占用。谁就更容易拿到好位置。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "火箭发射 / 发射场"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 18",
+      "voiceover": "晚了，优质轨道和频段就被别人占走。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "晚了，优质轨道和频段就被别人占走。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 19",
+      "voiceover": "所以 GW 星座、千帆星座、鸿鹄星座都在加速。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "所以 GW 星座、千帆星座、鸿鹄星座都在加速。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 20",
+      "voiceover": "GW 规划接近 1.3 万颗。千帆长期目标也是万颗级。",
+      "intent": "data",
+      "semanticComponent": "DataHero",
+      "renderer": "SwissCard",
+      "existingComponent": "DataHeroMotion",
+      "propsDraft": {
+        "number": "1.3万颗",
+        "label": "GW 规划接近 1.3 万颗。千帆长期目标也是万颗级。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 21",
+      "voiceover": "这不是单纯发射竞赛。这是基础设施卡位。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "这不是单纯发射竞赛。这是基础设施卡位。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 22",
+      "voiceover": "最狠的地方在于，星座不是发一颗就结束。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "最狠的地方在于，星座不是发一颗就结束。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 23",
+      "voiceover": "它要批量制造，连续发射，持续补网。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "火箭发射 / 发射场"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 24",
+      "voiceover": "一句话，商业航天突然加速，不是因为概念热了，而是窗口期到了。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "一句话，商业航天突然加速，不是因为概念热了，而是窗口期到了。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 25",
+      "voiceover": "SpaceX 最强的，不是火箭。而是闭环。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "SpaceX 最强的，不是火箭。而是闭环。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 26",
+      "voiceover": "很多人看到猎鹰 9 号回收，会觉得这就是商业航天的终点。其实不是。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "很多人看到猎鹰 9 号回收，会觉得这就是商业航天…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 27",
+      "voiceover": "火箭复用，只解决一个问题。把上天成本打下来。",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "成本"
+        ],
+        "bottleneck": "成本",
+        "resultLabel": "利润"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 28",
+      "voiceover": "真正厉害的是下一步。低成本发射，把星链卫星批量送上去。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "低成本发射"
+        ],
+        "highlightNode": "低成本发射"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 29",
+      "voiceover": "星链组网之后，用户开始付月费。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "星链组网之后，用户开始付月费。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 30",
+      "voiceover": "这些现金流，又反过来支持下一代火箭和卫星。这就形成一个循环。",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "现金流"
+        ],
+        "resultLabel": "现金流"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 31",
+      "voiceover": "低成本发射。批量组网。用户付费。现金流反哺研发。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "低成本发射"
+        ],
+        "highlightNode": "低成本发射"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 32",
+      "voiceover": "这才是 SpaceX 的核心。打个比方。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "这才是 SpaceX 的核心。打个比方。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 33",
+      "voiceover": "只会发火箭，像快递车跑一趟赚一次运费。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "只会发火箭，像快递车跑一趟赚一次运费。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 34",
+      "voiceover": "但星链像路由器装进用户家里，每个月都能收网费。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "但星链像路由器装进用户家里，每个月都能收网费。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 35",
+      "voiceover": "中国商业航天现在还在前半段。发射、组网、制造，正在加速。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "火箭发射 / 发射场"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 36",
+      "voiceover": "但真正的下游付费，还没有完全跑通。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 37",
+      "voiceover": "所以别只问谁能发射。要问谁能形成现金流闭环。别急着找火箭股。",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "现金流"
+        ],
+        "resultLabel": "现金流"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 38",
+      "voiceover": "商业航天短期更容易兑现的，可能不是火箭。",
+      "intent": "compare",
+      "semanticComponent": "Compare",
+      "renderer": "SwissCard / A-roll",
+      "existingComponent": "CompareMotion",
+      "propsDraft": {
+        "title": "商业航天短期更容易兑现的，可能不是火箭。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 39",
+      "voiceover": "从全球太空经济结构看，发射服务占比并不高。火箭是入口。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "火箭发射 / 发射场"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 40",
+      "voiceover": "但更大的价值池，在地面设备、卫星服务和下游应用。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 41",
+      "voiceover": "短期最确定的，是组网前就要采购的东西。比如 T/R 组件。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "短期最确定的，是组网前就要采购的东西。比如 T/R 组件。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 42",
+      "voiceover": "它是相控阵天线的核心。低轨卫星要高速通信，离不开它。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 43",
+      "voiceover": "再比如通信载荷、相控阵芯片、测控系统、地面站、终端模组。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "再比如通信载荷、相控阵芯片、测控系统、地面站、终端模组。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 44",
+      "voiceover": "卫星还没真正收费前，这些设备就要先买。打个比方。你要开一万个快递站。",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "收费"
+        ],
+        "bottleneck": "收费",
+        "resultLabel": "利润"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 45",
+      "voiceover": "谁先赚钱？",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "需求",
+          "成本",
+          "价格",
+          "付费",
+          "利润"
+        ],
+        "bottleneck": "成本",
+        "resultLabel": "利润"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 46",
+      "voiceover": "不一定是最后收快递费的人。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "不一定是最后收快递费的人。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 47",
+      "voiceover": "而是先卖货架、扫码枪、运输车和调度系统的人。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "而是先卖货架、扫码枪、运输车和调度系统的人。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 48",
+      "voiceover": "这就是商业航天的短期逻辑。当然，公司名不要硬背。先记住三类环节。",
+      "intent": "checklist",
+      "semanticComponent": "TrackingChecklist",
+      "renderer": "SwissCard",
+      "existingComponent": "TrackingChecklistCard",
+      "propsDraft": {
+        "items": [
+          "变量一",
+          "变量二",
+          "变量三"
+        ]
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 49",
+      "voiceover": "星上核心器件。地面通信设备。测控和终端系统。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "真实产业场景"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 50",
+      "voiceover": "这只是产业链映射，不构成投资建议。卫星上天，不等于赚钱。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 51",
+      "voiceover": "这是商业航天最容易被忽略的一句话。很多公司能证明，我能造卫星。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "这是商业航天最容易被忽略的一句话。很多公司能证明，我能造卫星。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 52",
+      "voiceover": "我能发卫星。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 53",
+      "voiceover": "但还没证明，我能持续收钱。业内有个判断很扎心。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "但还没证明，我能持续收钱。业内有个判断很扎心。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 54",
+      "voiceover": "商业发射的卫星里，真正能提供有效服务应用的，可能不足 30%。",
+      "intent": "data",
+      "semanticComponent": "DataHero",
+      "renderer": "SwissCard",
+      "existingComponent": "DataHeroMotion",
+      "propsDraft": {
+        "number": "30%",
+        "label": "商业发射的卫星里，真正能提供有效服务应用的，可能不足 3…"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 55",
+      "voiceover": "这意味着什么？",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "这意味着什么？"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 56",
+      "voiceover": "上天只是第一关。能用，才是第二关。有人买单，才是第三关。",
+      "intent": "checklist",
+      "semanticComponent": "TrackingChecklist",
+      "renderer": "SwissCard",
+      "existingComponent": "TrackingChecklistCard",
+      "propsDraft": {
+        "items": [
+          "变量一",
+          "变量二",
+          "变量三"
+        ]
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 57",
+      "voiceover": "最怕的是，市场把三件事混在一起。发射成功，直接等于业绩兑现。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "火箭发射 / 发射场"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 58",
+      "voiceover": "星座组网，直接等于用户付费。名字里有航天，直接等于商业航天。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "上天后怎么赚钱",
+        "nodes": [
+          "星座组网"
+        ],
+        "highlightNode": "星座组网"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 59",
+      "voiceover": "这就很危险。2026 年初，板块已经出现过这种情况。",
+      "intent": "data",
+      "semanticComponent": "DataHero",
+      "renderer": "SwissCard",
+      "existingComponent": "DataHeroMotion",
+      "propsDraft": {
+        "number": "2026年",
+        "label": "这就很危险。2026 年初，板块已经出现过这种情况。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 60",
+      "voiceover": "一些公司大涨后，又公告澄清。有的收入占比很低。有的只是零部件业务。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "一些公司大涨后，又公告澄清。有的收入占比很低。有的只是零部件业务…"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 61",
+      "voiceover": "有的根本没有实质参与。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "有的根本没有实质参与。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 62",
+      "voiceover": "所以商业航天长期逻辑强。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "所以商业航天长期逻辑强。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 63",
+      "voiceover": "但短期必须看真实订单、收入占比、毛利率和现金流。",
+      "intent": "validation",
+      "semanticComponent": "XiaoyanValidationChain",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanValidationChain",
+      "propsDraft": {
+        "title": "验证链",
+        "stages": [
+          "样机",
+          "客户验证",
+          "稳定跑产",
+          "订单兑现"
+        ],
+        "riskStage": "客户验证",
+        "finalProof": "订单兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 64",
+      "voiceover": "这只是产业研究，不构成投资建议。不用天天追发射。",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "火箭发射 / 发射场"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 65",
+      "voiceover": "看商业航天，盯三个变量就够了。第一个，可回收火箭能不能稳定复用。",
+      "intent": "checklist",
+      "semanticComponent": "TrackingChecklist",
+      "renderer": "SwissCard",
+      "existingComponent": "TrackingChecklistCard",
+      "propsDraft": {
+        "items": [
+          "变量一",
+          "变量二",
+          "变量三"
+        ]
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 66",
+      "voiceover": "不是试一次成功。而是多次复用，成本真的降下来。",
+      "intent": "economics",
+      "semanticComponent": "XiaoyanProfitPipe",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanProfitPipe",
+      "propsDraft": {
+        "title": "利润管道",
+        "factors": [
+          "成本"
+        ],
+        "bottleneck": "成本",
+        "resultLabel": "利润"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 67",
+      "voiceover": "因为没有低成本发射，万颗星座就是昂贵梦想。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "低成本发射"
+        ],
+        "highlightNode": "低成本发射"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 68",
+      "voiceover": "第二个，千帆和 GW 能不能按期组网。低轨频轨资源有窗口期。",
+      "intent": "checklist",
+      "semanticComponent": "TrackingChecklist",
+      "renderer": "SwissCard",
+      "existingComponent": "TrackingChecklistCard",
+      "propsDraft": {
+        "items": [
+          "组网"
+        ]
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 69",
+      "voiceover": "发射频次跟不上，商业计划就会变形。第三个，下游有没有真实付费。",
+      "intent": "chain",
+      "semanticComponent": "XiaoyanIndustryScroll",
+      "renderer": "HyperFrames / XiaoyanSketch",
+      "existingComponent": "XiaoyanIndustryScroll",
+      "propsDraft": {
+        "title": "产业链路径",
+        "nodes": [
+          "上游",
+          "中游",
+          "下游",
+          "应用兑现"
+        ],
+        "highlightNode": "应用兑现"
+      },
+      "gap": "无",
+      "decision": "add-props"
+    },
+    {
+      "time": "段落 70",
+      "voiceover": "卫星宽带终端卖给谁？",
+      "intent": "b-roll",
+      "semanticComponent": "B-roll",
+      "renderer": "B-roll",
+      "existingComponent": "素材库 / AI B-roll prompt",
+      "propsDraft": {
+        "scene": "卫星 / 地面站 / 终端"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 71",
+      "voiceover": "月费多少？",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "月费多少？"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 72",
+      "voiceover": "遥感数据谁买？",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "遥感数据谁买？"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 73",
+      "voiceover": "复购率怎么样？",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "复购率怎么样？"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 74",
+      "voiceover": "这些问题，比“今天又发了几颗”更重要。商业航天最怕被讲成星辰大海。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "这些问题，比“今天又发了几颗”更重要。商业航天最怕被讲成星辰大海…"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 75",
+      "voiceover": "星辰大海当然浪漫。",
+      "intent": "context",
+      "semanticComponent": "A-roll",
+      "renderer": "A-roll / subtitles",
+      "existingComponent": "无",
+      "propsDraft": {
+        "note": "星辰大海当然浪漫。"
+      },
+      "gap": "无",
+      "decision": "one-off"
+    },
+    {
+      "time": "段落 76",
+      "voiceover": "但产业研究要看账本。可回收火箭，是成本账。星座组网，是进度账。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "但产业研究要看账本。可回收火箭，是成本账。星座组网，是进度账。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    },
+    {
+      "time": "段落 77",
+      "voiceover": "用户付费，是收入账。三本账对上了，商业航天才从题材变成生意。",
+      "intent": "quote",
+      "semanticComponent": "ClosingQuote",
+      "renderer": "A-roll / SwissCard",
+      "existingComponent": "ClosingQuoteCard",
+      "propsDraft": {
+        "quote": "用户付费，是收入账。三本账对上了，商业航天才从题材变成生意。"
+      },
+      "gap": "无",
+      "decision": "use-existing"
+    }
+  ],
+  "summary": {
+    "Hook": 1,
+    "XiaoyanIndustryScroll": 12,
+    "B-roll": 12,
+    "Compare": 8,
+    "A-roll": 21,
+    "ClosingQuote": 6,
+    "DataHero": 6,
+    "XiaoyanProfitPipe": 6,
+    "TrackingChecklist": 4,
+    "XiaoyanValidationChain": 1
+  }
+}

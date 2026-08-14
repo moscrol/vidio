@@ -1,0 +1,33 @@
+{
+  "id": "validation-chain-semi",
+  "topic": "半导体设备",
+  "title": "从样机到订单",
+  "stages": [
+    {
+      "label": "样机",
+      "state": "done"
+    },
+    {
+      "label": "客户验证",
+      "state": "current"
+    },
+    {
+      "label": "小批量导入",
+      "state": "next"
+    },
+    {
+      "label": "长期跑产",
+      "state": "risk"
+    },
+    {
+      "label": "批量订单",
+      "state": "next"
+    }
+  ],
+  "riskStage": "长期跑产",
+  "finalProof": "收入和毛利兑现",
+  "blueNote": "看验证进度",
+  "redNote": "卡在产线信任",
+  "footer": "真正的国产化，在产线和订单里。",
+  "durationSeconds": 8
+}

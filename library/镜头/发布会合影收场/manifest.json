@@ -1,0 +1,14 @@
+{
+  "name": "发布会合影收场",
+  "category": "镜头",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/finhot-film",
+  "specs": { "width": 1080, "height": 1920, "fps": 30, "duration_s": "4.9" },
+  "params": {
+    "结构": "字标先立 → 已展示功能各出一个代表元素四方飞入围住字标（Q8）→ 收束拍 impact + 全片唯一白闪",
+    "深度": "成员焦外飞入落位入焦；后排落定留 1.6px 浅焦做前后排纵深",
+    "落定": "旋转不归零，停在 ±1.2–1.8° 纸片微倾",
+    "声音": "riser 铺满整镜 → impact 峰值钉收束拍（全片最响）→ sparkle 余韵"
+  },
+  "reuse": "复制 工程/snippet.html。成员素材 = 本片已展示过的截图缩样 + 功能芯片（每个已展示功能一个代表，缺席算漏拍）；收束拍必须钉真实鼓点。"
+}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>08 · Evidence Grid Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== EvidenceGrid-specific ============== */
+    .evidence-card .evidence-main {
+      bottom: 112px;
+      left: 30px;
+      padding: 30px 26px;
+      position: absolute;
+      right: 30px;
+      top: 118px;
+      z-index: 2;
+    }
+    .evidence-title {
+      color: var(--navy);
+      font-size: 42px;
+      font-weight: 950;
+      letter-spacing: -0.07em;
+      line-height: 1.08;
+      margin: 18px 0 0;
+    }
+    .evidence-title .gold { color: var(--gold); }
+    .evidence-subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.4;
+      margin-top: 18px;
+    }
+    .evidence-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, 1fr);
+      margin-top: 26px;
+    }
+    .evidence-item {
+      background: rgba(15, 39, 71, 0.045);
+      border: 1px solid rgba(15, 39, 71, 0.14);
+      min-height: 82px;
+      padding: 14px 12px;
+    }
+    .evidence-label {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      line-height: 1.2;
+    }
+    .evidence-value {
+      color: var(--navy);
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      line-height: 1.12;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>08 · Evidence Grid Card</h1>
+    <p>2×N 证据网格卡（多维量化证据并列）。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card evidence-card">
+    <div class="brand-row">
+      <span class="tag">事实证据</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <div class="evidence-main panel">
+      <div class="small-label">EVIDENCE / 关键数据</div>
+      <h2 class="evidence-title">四项<span class="gold">关键证据</span></h2>
+      <div class="evidence-subtitle">从国产化率到验证周期，看产业拐点。</div>
+      <div class="evidence-grid">
+        <div class="evidence-item">
+          <div class="evidence-label">国产化率</div>
+          <div class="evidence-value">35%</div>
+        </div>
+        <div class="evidence-item">
+          <div class="evidence-label">验证周期</div>
+          <div class="evidence-value">12-24 月</div>
+        </div>
+        <div class="evidence-item">
+          <div class="evidence-label">复购率</div>
+          <div class="evidence-value">+58%</div>
+        </div>
+        <div class="evidence-item">
+          <div class="evidence-label">头部客户</div>
+          <div class="evidence-value">8 家</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-note">数据来自公告与产业链调研</div>
+  </article>
+</body>
+</html>

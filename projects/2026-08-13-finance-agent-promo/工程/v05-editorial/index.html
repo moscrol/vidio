@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Serif SC"; font-weight: 900; font-style: normal;
+        src: url("shared/fonts/noto-serif-sc-chinese-simplified-900-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #F6EEDF; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #2A2118; }
+      .serif { font-family: "Noto Serif SC", serif; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; background: #F6EEDF; }
+      #p2,#p3,#p4,#p5,#p6 { opacity: 0; }
+
+      .paper {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='0.14'/%3E%3C/svg%3E");
+        background-size: 260px 260px;
+      }
+      .masthead {
+        position: absolute; top: 64px; left: 80px; right: 80px;
+        display: flex; justify-content: space-between; align-items: baseline;
+        border-bottom: 4px double #2A2118; padding-bottom: 22px;
+      }
+      .masthead .name { font-family: "Noto Serif SC", serif; font-size: 40px; font-weight: 900; letter-spacing: 10px; }
+      .masthead .no { font-size: 22px; color: #7A6A55; letter-spacing: 3px; }
+      .pagefoot {
+        position: absolute; bottom: 52px; left: 80px; right: 80px;
+        display: flex; justify-content: space-between;
+        font-size: 20px; color: #7A6A55; letter-spacing: 3px;
+        border-top: 1.5px solid rgba(42,33,24,0.35); padding-top: 18px;
+      }
+      .vlabel {
+        position: absolute; right: 62px; top: 260px;
+        writing-mode: vertical-rl; letter-spacing: 14px;
+        font-size: 25px; color: #7A6A55;
+      }
+      .kicker { font-size: 26px; letter-spacing: 8px; color: #B4501E; font-weight: 700; }
+      .hrule { height: 2px; background: rgba(42,33,24,0.55); transform-origin: left center; }
+      .hero { font-family: "Noto Serif SC", serif; font-weight: 900; font-size: 104px; line-height: 1.32; }
+      .hero .amber { color: #B4501E; }
+      .deck { font-size: 36px; line-height: 1.75; color: #4A3B2A; }
+      .seal {
+        position: absolute; background: #B4231D; color: #F6EEDF;
+        font-family: "Noto Serif SC", serif; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 6px 24px rgba(180,35,29,0.3);
+      }
+      .marker { position: relative; display: inline-block; }
+      .marker .swipe {
+        position: absolute; left: -3%; bottom: 8px; width: 106%; height: 34%;
+        background: rgba(224,159,62,0.55); z-index: -1; transform: scaleX(0); transform-origin: left center;
+      }
+
+      /* P1 */
+      #p1 .block { position: absolute; left: 80px; right: 80px; top: 330px; }
+      #p1 .seal1 { right: 110px; top: 1120px; width: 220px; height: 220px; font-size: 64px; transform: rotate(-8deg); flex-direction: column; line-height: 1.2; }
+      /* P2 剪报 */
+      #p2 .block { position: absolute; left: 80px; right: 80px; top: 320px; }
+      .clip-card {
+        background: #FDF8EC; border: 1.5px solid rgba(42,33,24,0.3);
+        padding: 22px 26px; font-size: 30px; line-height: 1.5; color: #4A3B2A;
+        box-shadow: 0 8px 22px rgba(42,33,24,0.10); position: absolute; white-space: nowrap;
+      }
+      .clip-card b { color: #B4501E; }
+      #p2 .pull { position: absolute; left: 80px; right: 80px; top: 1180px; }
+      #p2 .pq { font-family: "Noto Serif SC", serif; font-weight: 900; font-size: 92px; line-height: 1.4; }
+      #p2 .lq { font-family: "Noto Serif SC", serif; font-size: 130px; color: #B4501E; line-height: 0.8; }
+      /* P3 目录 */
+      #p3 .block { position: absolute; left: 80px; right: 80px; top: 320px; }
+      #p3 .featured {
+        border: 2.5px solid #2A2118; padding: 34px 36px; margin-top: 56px; background: #FDF8EC;
+      }
+      #p3 .quote { font-family: "Noto Serif SC", serif; font-size: 40px; font-weight: 900; line-height: 1.6; }
+      #p3 .toc { margin-top: 60px; display: flex; flex-direction: column; gap: 40px; }
+      .toc-row { display: flex; align-items: baseline; gap: 18px; font-size: 34px; }
+      .toc-row .dots { flex: 1; border-bottom: 3px dotted rgba(42,33,24,0.4); transform: translateY(-8px); }
+      .toc-row .pg { font-family: "JetBrains Mono", monospace; color: #B4501E; font-weight: 700; }
+      /* P4 摘要 */
+      #p4 .block { position: absolute; left: 80px; right: 80px; top: 320px; }
+      #p4 .entry { padding: 36px 0; border-bottom: 1.5px solid rgba(42,33,24,0.3); }
+      #p4 .entry .fn { color: #B4501E; font-family: "Noto Serif SC", serif; font-weight: 900; }
+      #p4 .entry .t { font-size: 38px; line-height: 1.6; }
+      #p4 .foot-note { margin-top: 48px; font-size: 26px; color: #7A6A55; line-height: 1.8; }
+      #p4 .timebox { position: absolute; right: 80px; top: 1300px; text-align: right; }
+      #p4 .timebox .n { font-family: "Noto Serif SC", serif; font-weight: 900; font-size: 120px; color: #B4501E; }
+      /* P5 对比 */
+      #p5 .block { position: absolute; left: 80px; right: 80px; top: 330px; }
+      #p5 .cols { display: flex; gap: 50px; margin-top: 64px; }
+      #p5 .col { flex: 1; }
+      #p5 .col h4 { font-size: 30px; letter-spacing: 5px; color: #7A6A55; border-bottom: 2.5px solid #2A2118; padding-bottom: 16px; }
+      #p5 .col ul { list-style: none; margin-top: 26px; display: flex; flex-direction: column; gap: 24px; font-size: 31px; line-height: 1.55; }
+      #p5 .col li::before { content: "— "; color: #B4501E; }
+      #p5 .col.right h4 { color: #B4501E; border-color: #B4501E; }
+      /* P6 封底 */
+      #p6 .block { position: absolute; left: 80px; right: 80px; top: 620px; }
+      #p6 .seal2 { right: 120px; top: 1180px; width: 190px; height: 190px; font-size: 52px; transform: rotate(6deg); flex-direction: column; line-height: 1.25; }
+      #p6 .chip { border: 2.5px solid #2A2118; display: inline-block; padding: 18px 40px; font-size: 30px; letter-spacing: 4px; margin-top: 64px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+
+      <div id="p1" class="scene">
+        <div class="masthead"><span class="name">金融手记</span><span class="no">VOL.02 · 特刊 · DEMO</span></div>
+        <div class="vlabel">写给盯盘到深夜的你</div>
+        <div class="block">
+          <div class="kicker" id="p1-k">本期议题</div>
+          <div class="hrule" id="p1-r" style="width: 300px; margin-top: 26px;"></div>
+          <div class="hero" style="margin-top: 50px;" id="p1-h">盯盘一整天<br />研报<span class="amber">看不完</span></div>
+          <div class="deck" style="margin-top: 56px;" id="p1-d">信息在涨，时间没涨。<br />真正做决定那一刻，凭的是什么？</div>
+        </div>
+        <div class="seal seal1" id="p1-seal"><span>靠</span><span>感觉</span></div>
+        <div class="pagefoot"><span>V05 · EDITORIAL</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="paper"></div>
+      </div>
+
+      <div id="p2" class="scene">
+        <div class="masthead"><span class="name">金融手记</span><span class="no">02 / 06 · 现象</span></div>
+        <div class="block">
+          <div class="kicker">今日剪报</div>
+          <div class="hrule" style="width: 300px; margin-top: 26px;"></div>
+        </div>
+        <div class="clip-card" id="cc1" style="top: 480px; left: 80px; transform: rotate(-2deg);"><b>快讯</b>｜政策窗口临近</div>
+        <div class="clip-card" id="cc2" style="top: 590px; left: 330px; transform: rotate(1.5deg);"><b>研报</b>｜目标价上调至……</div>
+        <div class="clip-card" id="cc3" style="top: 700px; left: 120px; transform: rotate(-1deg);"><b>公告</b>｜股东减持计划</div>
+        <div class="clip-card" id="cc4" style="top: 810px; left: 400px; transform: rotate(2deg);"><b>异动</b>｜5 分钟拉升 +3.2%</div>
+        <div class="clip-card" id="cc5" style="top: 920px; left: 90px; transform: rotate(1deg);"><b>评论</b>｜「利好落地就是利空？」</div>
+        <div class="pull">
+          <div class="lq" id="p2-lq">「</div>
+          <div class="pq" id="p2-pq">信息量早就超过<br />一个人的<span class="marker">极限<span class="swipe" id="p2-sw"></span></span></div>
+        </div>
+        <div class="pagefoot"><span>OVERLOAD</span><span>DEMO · 画面为模拟示例</span></div>
+        <div class="paper"></div>
+      </div>
+
+      <div id="p3" class="scene">
+        <div class="masthead"><span class="name">金融手记</span><span class="no">03 / 06 · 主角</span></div>
+        <div class="block">
+          <div class="kicker">本期主角</div>
+          <div class="hero" style="margin-top: 40px; font-size: 96px;" id="p3-h">把活交给<br /><span class="amber">问盘</span></div>
+          <div class="featured" id="p3-f">
+            <div class="quote">「查一下今天新能源板块<br />异动的原因。」</div>
+            <div style="margin-top: 20px; font-size: 26px; color: #7A6A55;">—— 你只需要说这一句（占位示例）</div>
+          </div>
+          <div class="toc">
+            <div class="toc-row" id="t1"><span>检索今日公告与快讯</span><span class="dots"></span><span class="pg">✓</span></div>
+            <div class="toc-row" id="t2"><span>拉取板块与个股行情</span><span class="dots"></span><span class="pg">✓</span></div>
+            <div class="toc-row" id="t3"><span>交叉对比三份研报观点</span><span class="dots"></span><span class="pg">✓</span></div>
+            <div class="toc-row" id="t4"><span>生成结论与来源清单</span><span class="dots"></span><span class="pg">✓</span></div>
+          </div>
+        </div>
+        <div class="pagefoot"><span>ONE COMMAND</span><span>DEMO · 占位界面</span></div>
+        <div class="paper"></div>
+      </div>
+
+      <div id="p4" class="scene">
+        <div class="masthead"><span class="name">金融手记</span><span class="no">04 / 06 · 摘要</span></div>
+        <div class="block">
+          <div class="kicker">一页结论</div>
+          <div class="hero" style="margin-top: 40px; font-size: 92px;" id="p4-h">每个判断<br />都有<span class="amber">来源</span></div>
+          <div style="margin-top: 40px;">
+            <div class="entry" id="e1"><div class="t">拉升与上午的产能调整公告时间吻合<span class="fn">¹</span></div></div>
+            <div class="entry" id="e2"><div class="t">领涨的是上游材料，不是整车<span class="fn">²</span></div></div>
+            <div class="entry" id="e3"><div class="t">两份研报上周已提示这条主线<span class="fn">³</span></div></div>
+          </div>
+          <div class="foot-note" id="p4-fn">¹ 来源：公告 &nbsp;&nbsp; ² 来源：行情 &nbsp;&nbsp; ³ 来源：研报（DEMO 占位数据）</div>
+        </div>
+        <div class="timebox" id="p4-time"><div class="n">1'42"</div><div style="font-size: 26px; color: #7A6A55;">从指令到结论</div></div>
+        <div class="pagefoot"><span>TRACEABLE</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="paper"></div>
+      </div>
+
+      <div id="p5" class="scene">
+        <div class="masthead"><span class="name">金融手记</span><span class="no">05 / 06 · 观点</span></div>
+        <div class="block">
+          <div class="kicker">编辑部对比</div>
+          <div class="hero" style="margin-top: 40px; font-size: 92px;" id="p5-h">它不等你<span class="amber">追问</span></div>
+          <div class="cols">
+            <div class="col" id="p5-l">
+              <h4>普通聊天机器人</h4>
+              <ul>
+                <li>你问一句，它答半句</li>
+                <li>五次追问拼出半个答案</li>
+                <li>信息还是你自己找</li>
+              </ul>
+            </div>
+            <div class="col right" id="p5-r">
+              <h4>问盘</h4>
+              <ul>
+                <li>接到一句话就开工</li>
+                <li>自己检索、对比、汇总</li>
+                <li>交付带来源的结论</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="pagefoot"><span>AUTOPILOT</span><span>DEMO · 画面为模拟对比</span></div>
+        <div class="paper"></div>
+      </div>
+
+      <div id="p6" class="scene">
+        <div class="masthead"><span class="name">金融手记</span><span class="no">06 / 06 · 封底</span></div>
+        <div class="block">
+          <div class="kicker" id="p6-k">来信征集</div>
+          <div class="hero" style="margin-top: 44px;" id="p6-h">你最想让它<br /><span class="amber">盯什么？</span></div>
+          <div class="deck" style="margin-top: 52px;" id="p6-d">评论区告诉我，<br />下一期拿真实数据跑给你看。</div>
+          <div class="chip" id="p6-chip">问盘 WENPAN · 金融 Agent</div>
+        </div>
+        <div class="seal seal2" id="p6-seal"><span>已</span><span>盖章</span></div>
+        <div class="pagefoot"><span>V05 · EDITORIAL</span><span>演示画面 · 不构成投资建议</span></div>
+        <div class="paper"></div>
+      </div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/cat-walk.mp3" data-volume="0.38"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 柔和模糊叠化（编辑部气质）
+      function dissolve(tOut, oldId, newId) {
+        tl.to(oldId, { filter: "blur(16px)", scale: 1.02, opacity: 0, duration: 0.55, ease: "power2.inOut" }, tOut);
+        tl.fromTo(newId,
+          { filter: "blur(16px)", scale: 0.98, opacity: 0 },
+          { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.55, ease: "power2.inOut" }, tOut + 0.12);
+      }
+
+      /* P1 0–5.2 */
+      tl.fromTo("#p1-k", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.25);
+      tl.fromTo("#p1-r", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power4.out" }, 0.45);
+      tl.fromTo("#p1-h", { y: 54, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: "power3.out" }, 0.65);
+      tl.fromTo("#p1-d", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "sine.out" }, 1.5);
+      tl.fromTo("#p1-seal", { scale: 1.7, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: -8, duration: 0.35, ease: "power4.out" }, 2.6);
+      dissolve(5.2, "#p1", "#p2");
+
+      /* P2 5.4–10.2 剪报 */
+      const clips = [["#cc1", 5.9], ["#cc2", 6.15], ["#cc3", 6.4], ["#cc4", 6.65], ["#cc5", 6.9]];
+      clips.forEach(([id, t], i) => {
+        tl.fromTo(id, { y: -36, opacity: 0, rotation: i % 2 ? 6 : -7 }, { y: 0, opacity: 1, rotation: i % 2 ? 1.7 : -1.6, duration: 0.4, ease: "power3.out" }, t);
+      });
+      tl.fromTo("#p2-lq", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 7.5);
+      tl.fromTo("#p2-pq", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 7.75);
+      tl.fromTo("#p2-sw", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 8.6);
+      dissolve(10.2, "#p2", "#p3");
+
+      /* P3 10.4–16.4 目录 */
+      tl.fromTo("#p3-h", { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 10.8);
+      tl.fromTo("#p3-f", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 11.5);
+      const tocs = [["#t1", 12.5], ["#t2", 13.2], ["#t3", 13.9], ["#t4", 14.6]];
+      tocs.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, x: -34 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, t);
+        tl.fromTo(id + " .pg", { scale: 0 }, { scale: 1, duration: 0.3, ease: "back.out(2.5)" }, t + 0.3);
+      });
+      dissolve(16.4, "#p3", "#p4");
+
+      /* P4 16.6–22 摘要 */
+      tl.fromTo("#p4-h", { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 17.0);
+      const entries = [["#e1", 17.7], ["#e2", 18.3], ["#e3", 18.9]];
+      entries.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, t);
+      });
+      tl.fromTo("#p4-fn", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 19.6);
+      tl.fromTo("#p4-time", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.7)" }, 20.1);
+      dissolve(22.0, "#p4", "#p5");
+
+      /* P5 22.2–26.6 对比 */
+      tl.fromTo("#p5-h", { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 22.6);
+      tl.fromTo("#p5-l", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 23.2);
+      tl.fromTo("#p5-r", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 23.5);
+      dissolve(26.6, "#p5", "#p6");
+
+      /* P6 26.8–30 封底 */
+      tl.fromTo("#p6-k", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "sine.out" }, 27.1);
+      tl.fromTo("#p6-h", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 27.3);
+      tl.fromTo("#p6-d", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "sine.out" }, 28.0);
+      tl.fromTo("#p6-chip", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 28.4);
+      tl.fromTo("#p6-seal", { scale: 1.7, opacity: 0, rotation: 22 }, { scale: 1, opacity: 1, rotation: 6, duration: 0.35, ease: "power4.out" }, 28.8);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

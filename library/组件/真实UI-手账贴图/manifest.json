@@ -1,0 +1,15 @@
+{
+  "name": "真实UI-手账贴图",
+  "category": "组件",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/finhot-film",
+  "specs": { "width": "任意截图", "height": "任意", "fps": 30, "duration_s": "单镜" },
+  "params": {
+    "grade": "sepia(0.16) saturate(0.9) contrast(0.95) brightness(0.99)——截图统一暖调",
+    "warmwash": "暖褐 multiply 罩层，白屏变奶油色贴合纸底",
+    "mat": "12px 半透纸白相框边 + 暖褐投影",
+    "tape": "半透明纸胶带贴角（虚线撕边），落定微倾 ±1.2–1.8°",
+    "wrap25d": "perspective 1700px + rotateX 7° rotateY -6° 的 2.5D 卡容器"
+  },
+  "reuse": "复制 工程/snippet.html。治「B-roll 和底座融合感差」：真实 UI 截图（Q1 必须真截图）套 .shot 容器即读作贴在纸上的旧照片。注意容器如需胶带外露不要 overflow:hidden，圆角落在 img 上。"
+}

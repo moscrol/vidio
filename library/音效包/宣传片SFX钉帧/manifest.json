@@ -1,0 +1,14 @@
+{
+  "name": "宣传片SFX钉帧",
+  "category": "音效包",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/finhot-film + v11-mix",
+  "specs": { "素材库": ".agents/skills/video-shotcraft/assets/audio/sfx（149 个，Mixkit 免费商用）" },
+  "params": {
+    "词汇表": "whoosh(转场) / impact(落地) / riser→impact→sparkle(收束三拍) / pop(逐项嵌入，阶梯递减) / keyboard(打字拟音)",
+    "峰值对齐": "whoosh-fast@0.721s · swoosh-quick@0.296s · impact-deep-whoosh@0.551s · impact-zoom-quick@0.414s · sparkle@1.377s · riser-cine 对齐终点(4.859s)",
+    "轻素材增益": "whoosh-fast(-5.6dB)→0.70 · sparkle(-14.2dB)→0.90（volume 是乘法系数不是目标音量）",
+    "BGM": "0.38 铺底 + 1s 淡入 / 1.7s 淡出；节拍网格用 npx hyperframes beats，网格残差大则钉真实瞬态"
+  },
+  "reuse": "复制 工程/sound-template.sh 改钉帧表。铁律：SFX 按素材内部峰值对齐（adelay = 目标拍 − 峰值时刻）；收束 impact 是全片最响；渲后 volumedetect 回测各切点窗口峰值须高于 BGM 底、全片 max 不削波。"
+}

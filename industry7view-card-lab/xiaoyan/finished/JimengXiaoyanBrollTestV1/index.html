@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>即梦 A-roll × 小研 B-roll 试片 v1</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main
+      id="semiconductor-finished-v2"
+      data-composition-id="jimeng-xiaoyan-broll-test-v1"
+      data-start="0"
+      data-duration="28.833333"
+      data-width="720"
+      data-height="1280"
+    >
+      <video
+        id="aroll"
+        class="clip aroll-video"
+        data-start="0"
+        data-duration="28.833333"
+        data-track-index="0"
+        src="./media/aroll.mp4"
+        muted
+        playsinline
+      ></video>
+      <audio
+        id="aroll-audio"
+        class="clip"
+        data-start="0"
+        data-duration="28.833333"
+        data-track-index="1"
+        src="./media/aroll.mp4"
+      ></audio>
+      <div class="aroll-shade"></div>
+      <div id="scene-layer"></div>
+      <div id="brand" class="brand light">INDUSTRY 7 VIEW / 小研看产业</div>
+      <div id="topic-chip" class="topic-chip">半导体设备</div>
+      <div id="caption-layer" class="caption-layer"></div>
+      <div id="watermark-cover" class="watermark-cover">INDUSTRY<br />7 VIEW</div>
+      <div id="paper-transition" class="paper-transition"></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const timeline = gsap.timeline({ paused: true });
+      timeline.to(
+        {},
+        {
+          duration: 28.833333,
+          onUpdate: () => {
+            if (window.__seekJimengXiaoyanTest) {
+              window.__seekJimengXiaoyanTest(timeline.time());
+            }
+          },
+        },
+        0,
+      );
+      window.__timelines["jimeng-xiaoyan-broll-test-v1"] = timeline;
+    </script>
+    <script type="module" src="./composition.js"></script>
+  </body>
+</html>
