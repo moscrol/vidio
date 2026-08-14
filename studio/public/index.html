@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>vidio studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="side">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <div>
+          <div class="brand-name">vidio studio</div>
+          <div class="brand-sub">vibe motion 工作台</div>
+        </div>
+      </div>
+      <nav id="nav">
+        <button data-view="dash" class="active"><span class="ico">◧</span>工作台</button>
+        <button data-view="gallery"><span class="ico">▦</span>风格画廊</button>
+        <button data-view="mixer"><span class="ico">✂</span>混剪台</button>
+        <button data-view="library"><span class="ico">❖</span>组件库</button>
+        <button data-view="map"><span class="ico">◎</span>能力地图</button>
+        <button data-view="qc"><span class="ico">▣</span>质检</button>
+      </nav>
+      <div class="side-foot" id="side-foot"></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 id="view-title">工作台</h1>
+        <div class="topbar-right" id="proj-picker"></div>
+      </header>
+      <section id="view" class="view"></section>
+    </main>
+
+    <div id="toast" class="toast" hidden></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

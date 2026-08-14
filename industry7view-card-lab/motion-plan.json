@@ -1,0 +1,41 @@
+{
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "talkingHeadVideoPath": "/semiconductor-equipment.mov",
+  "talkingHeadDuration": 90.2,
+  "includeCoverInTimeline": true,
+  "publish": {
+    "intro": 1.5,
+    "outro": 2.8,
+    "ctaPrimary": "关注获取完整研报",
+    "ctaSecondary": "克制研究 · 不喊口号"
+  },
+  "brolls": [],
+  "segments": [
+    {
+      "cardId": "00-cover-card",
+      "start": 0,
+      "duration": 5.066,
+      "recipe": "cover.titleFadeUp"
+    },
+    {
+      "cardId": "04-not-a-is-b",
+      "start": 9.266,
+      "duration": 5,
+      "recipe": "compare.explainReveal"
+    },
+    {
+      "cardId": "05-business-loop",
+      "start": 25,
+      "duration": 5,
+      "recipe": "loop.sequentialStepHighlight"
+    },
+    {
+      "cardId": "06-tracking-checklist",
+      "start": 64.133,
+      "duration": 5,
+      "recipe": "checklist.staggerReveal"
+    }
+  ]
+}

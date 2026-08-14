@@ -1,0 +1,32 @@
+<!-- aurora 玻璃质感背景组件（提取自 v01-aurora-glass）
+     用法：每个 .scene 内放 2-3 个 .aurora + .noise + .vignette；卡片加 .glass -->
+<style>
+  .aurora {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); mix-blend-mode: screen; pointer-events: none;
+  }
+  .noise {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.16;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 240px 240px;
+  }
+  .vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 130% 105% at 50% 42%, transparent 58%, rgba(2,4,10,0.55) 100%);
+  }
+  .glass {
+    background: rgba(13, 20, 38, 0.52);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 24px 70px rgba(0,0,0,0.5);
+  }
+</style>
+<!-- 场景内标记（示例色：蓝/紫，可换） -->
+<div class="aurora" data-layout-allow-overflow style="top:180px; right:-260px; width:760px; height:760px; background: rgba(56,189,248,0.22);"></div>
+<div class="aurora" data-layout-allow-overflow style="bottom:-220px; left:-200px; width:820px; height:820px; background: rgba(139,92,246,0.18);"></div>
+<div class="noise"></div><div class="vignette"></div>
+<script>
+  // 呼吸漂移：x/y/scale 合并在一条 tween，有限次 yoyo（时长按场景算 repeat）
+  // tl.fromTo("#aurora-id", { x:0, y:0, scale:1 },
+  //   { x:-60, y:50, scale:1.12, duration:2.5, ease:"sine.inOut", repeat:1, yoyo:true }, 0);
+</script>

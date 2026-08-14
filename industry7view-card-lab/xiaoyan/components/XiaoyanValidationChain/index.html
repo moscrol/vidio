@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Industry7View Xiaoyan Validation Chain</title>
+    <style>
+      :root {
+        --ink: #121212;
+        --paper: #fffefa;
+        --blue: #1d65d8;
+        --red: #df2626;
+        --green: #168f4a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #ece9df;
+        font-family:
+          "Kaiti SC", "STKaiti", "Songti SC", "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+      }
+
+      #xiaoyan-validation-chain {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 42% 46%, rgba(0, 0, 0, 0.035), transparent 42%),
+          linear-gradient(180deg, rgba(255, 252, 239, 0.7), transparent 38%),
+          var(--paper);
+        color: var(--ink);
+      }
+
+      .brand {
+        position: absolute;
+        left: 82px;
+        top: 82px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+        font-size: 24px;
+        font-weight: 750;
+      }
+
+      .topic {
+        position: absolute;
+        right: 82px;
+        top: 76px;
+        padding: 8px 20px 10px;
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        background: #fffefa;
+        font-size: 27px;
+        font-weight: 800;
+        transform: rotate(2deg);
+      }
+
+      .title {
+        position: absolute;
+        left: 90px;
+        top: 190px;
+        right: 90px;
+        font-size: 78px;
+        line-height: 1.08;
+        font-weight: 850;
+        letter-spacing: 0;
+        transform: rotate(-1deg);
+      }
+
+      .subtitle-line {
+        position: absolute;
+        left: 94px;
+        top: 374px;
+        width: 520px;
+        height: 36px;
+        border-bottom: 5px solid rgba(18, 18, 18, 0.75);
+        border-radius: 50%;
+        transform: rotate(-2deg);
+      }
+
+      .chain-wrap {
+        position: absolute;
+        left: 44px;
+        top: 520px;
+        width: 992px;
+        height: 720px;
+      }
+
+      .chain-svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 992px;
+        height: 720px;
+        overflow: visible;
+      }
+
+      .stage-layer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 992px;
+        height: 720px;
+      }
+
+      .stage {
+        position: absolute;
+        width: 164px;
+        min-height: 158px;
+        padding: 20px 14px 16px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        border: 4px solid var(--ink);
+        border-radius: 7px;
+        background: #fffefa;
+        box-shadow: 9px 11px 0 rgba(18, 18, 18, 0.08);
+        transform: translate(-50%, -50%) rotate(var(--stage-rotate));
+      }
+
+      .stage::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        top: -20px;
+        height: 22px;
+        border: 4px solid var(--ink);
+        border-bottom: 0;
+        border-radius: 18px 18px 0 0;
+        background: #fffefa;
+      }
+
+      .stage::after {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: -18px;
+        height: 22px;
+        border: 4px solid var(--ink);
+        border-top: 0;
+        border-radius: 0 0 18px 18px;
+        background: #fffefa;
+      }
+
+      .stage-label {
+        position: relative;
+        z-index: 1;
+        font-size: 32px;
+        line-height: 1.16;
+        font-weight: 850;
+      }
+
+      .stage-desc {
+        position: relative;
+        z-index: 1;
+        margin-top: 9px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+        font-size: 19px;
+        line-height: 1.25;
+        font-weight: 750;
+        opacity: 0.72;
+      }
+
+      .stage[data-state="done"] {
+        border-color: rgba(18, 18, 18, 0.66);
+      }
+
+      .stage[data-state="current"] {
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+
+      .stage[data-state="risk"] {
+        border-color: var(--red);
+        color: var(--red);
+      }
+
+      .stage[data-state="next"] {
+        border-style: dashed;
+      }
+
+      .note {
+        position: absolute;
+        z-index: 3;
+        max-width: 310px;
+        font-size: 33px;
+        line-height: 1.14;
+        font-weight: 850;
+        transform: rotate(-5deg);
+      }
+
+      .blue-note {
+        color: var(--blue);
+      }
+
+      .red-note {
+        color: var(--red);
+        transform: rotate(4deg);
+      }
+
+      .final-proof {
+        position: absolute;
+        right: 56px;
+        top: 1034px;
+        width: 410px;
+        min-height: 132px;
+        padding: 28px 26px;
+        border: 5px solid var(--green);
+        border-radius: 8px;
+        background: #fffefa;
+        color: var(--green);
+        font-size: 40px;
+        line-height: 1.18;
+        font-weight: 900;
+        text-align: center;
+        box-shadow: 10px 12px 0 rgba(22, 143, 74, 0.14);
+        transform: rotate(-2deg);
+      }
+
+      .final-proof .small {
+        display: block;
+        margin-bottom: 8px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+        font-size: 22px;
+        letter-spacing: 0;
+        color: var(--ink);
+      }
+
+      .xiaoyan {
+        position: absolute;
+        left: 104px;
+        top: 1040px;
+        width: 246px;
+        height: 340px;
+        overflow: visible;
+      }
+
+      .caption {
+        position: absolute;
+        left: 86px;
+        right: 86px;
+        bottom: 210px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
+          sans-serif;
+        font-size: 41px;
+        line-height: 1.36;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .paper-mark {
+        position: absolute;
+        border: 3px solid rgba(18, 18, 18, 0.22);
+        border-left: 0;
+        border-right: 0;
+        border-radius: 50%;
+        transform: rotate(-3deg);
+      }
+
+      .paper-mark.one {
+        left: 720px;
+        top: 360px;
+        width: 198px;
+        height: 40px;
+      }
+
+      .paper-mark.two {
+        left: 110px;
+        bottom: 132px;
+        width: 240px;
+        height: 52px;
+        transform: rotate(2deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="xiaoyan-validation-chain"
+      data-composition-id="xiaoyan-validation-chain"
+      data-width="1080"
+      data-height="1920"
+      data-duration="8"
+      data-start="0"
+      data-track-index="0"
+    >
+      <div class="brand">INDUSTRY 7VIEW / XIAOYAN</div>
+      <div class="topic" data-prop="topic">半导体设备</div>
+      <div class="title" data-prop="title">从样机到订单</div>
+      <div class="subtitle-line"></div>
+      <div class="paper-mark one"></div>
+      <div class="paper-mark two"></div>
+
+      <div class="chain-wrap">
+        <svg class="chain-svg" viewBox="0 0 992 720" aria-label="验证链手绘动效">
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path class="path-shadow" d="M92 334 C210 284, 316 372, 438 326 S666 296, 802 330 S944 378, 990 332" stroke="#121212" stroke-width="18" opacity="0.07" />
+            <path class="main-path" d="M74 316 C198 274, 310 354, 438 312 S658 288, 798 318 S922 370, 990 320" stroke="#121212" stroke-width="6" />
+            <path class="main-path-light" d="M76 304 C202 260, 312 342, 440 300 S654 276, 796 304 S926 356, 988 306" stroke="#1d65d8" stroke-width="3" opacity="0.42" />
+            <path class="arrow-head" d="M956 286 L990 306 L960 330" stroke="#121212" stroke-width="6" />
+            <path class="risk-arrow" d="M458 530 C506 482, 538 432, 566 368" stroke="#df2626" stroke-width="5" />
+            <path class="risk-arrow-head" d="M548 382 L566 368 L570 392" stroke="#df2626" stroke-width="5" />
+            <path class="blue-arrow" d="M192 520 C236 462, 278 420, 332 380" stroke="#1d65d8" stroke-width="5" />
+            <path class="blue-arrow-head" d="M306 376 L332 380 L320 404" stroke="#1d65d8" stroke-width="5" />
+          </g>
+        </svg>
+        <div class="stage-layer" data-stage-layer></div>
+        <div class="note blue-note" data-prop="blueNote">看验证进度</div>
+        <div class="note red-note" data-prop="redNote">卡在产线信任</div>
+      </div>
+
+      <div class="final-proof">
+        <span class="small">最后看</span>
+        <span data-prop="finalProof">收入和毛利兑现</span>
+      </div>
+
+      <svg class="xiaoyan" viewBox="0 0 246 340" aria-label="小研">
+        <g class="xy-body" fill="none" stroke="#121212" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="80" cy="58" r="36" fill="#fffefa" />
+          <path d="M66 54 L56 62" />
+          <circle cx="93" cy="55" r="2.5" fill="#121212" stroke="none" />
+          <path d="M80 96 L84 170" />
+          <path d="M82 118 L48 150" />
+          <path d="M84 120 L144 150" />
+          <path d="M84 170 L46 270" />
+          <path d="M84 170 L134 270 L104 270" />
+          <path d="M144 150 L170 122" />
+        </g>
+        <g class="magnifier" fill="none" stroke="#121212" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="184" cy="104" rx="42" ry="47" transform="rotate(-16 184 104)" fill="rgba(255,255,255,0.58)" />
+          <ellipse cx="184" cy="104" rx="30" ry="35" transform="rotate(-16 184 104)" stroke-width="3" opacity="0.5" />
+          <path d="M160 140 L144 162" />
+        </g>
+      </svg>
+
+      <div class="caption" data-prop="footer">真正的国产化，在产线和订单里。</div>
+    </div>
+
+    <script type="application/json" id="xiaoyan-props">
+      {
+        "id": "validation-chain-semi",
+        "topic": "半导体设备",
+        "title": "从样机到订单",
+        "stages": [
+          {"label": "样机", "state": "done"},
+          {"label": "客户验证", "state": "current"},
+          {"label": "小批量导入", "state": "next"},
+          {"label": "长期跑产", "state": "risk"},
+          {"label": "批量订单", "state": "next"}
+        ],
+        "riskStage": "长期跑产",
+        "finalProof": "收入和毛利兑现",
+        "blueNote": "看验证进度",
+        "redNote": "卡在产线信任",
+        "footer": "真正的国产化，在产线和订单里。",
+        "durationSeconds": 8
+      }
+    </script>
+    <script>
+      const root = document.querySelector("#xiaoyan-validation-chain");
+      const props = JSON.parse(document.querySelector("#xiaoyan-props").textContent);
+      root.dataset.duration = String(props.durationSeconds || 8);
+
+      document.querySelector('[data-prop="topic"]').textContent = props.topic || "";
+      document.querySelector('[data-prop="title"]').textContent = props.title || "";
+      document.querySelector('[data-prop="finalProof"]').textContent = props.finalProof || "";
+      document.querySelector('[data-prop="blueNote"]').textContent = props.blueNote || "";
+      document.querySelector('[data-prop="redNote"]').textContent = props.redNote || "";
+      document.querySelector('[data-prop="footer"]').textContent = props.footer || "";
+
+      const stageLayer = document.querySelector("[data-stage-layer]");
+      const stages = Array.isArray(props.stages) ? props.stages.slice(0, 6) : [];
+      const coordinates = [
+        { x: 110, y: 330, r: "-3deg" },
+        { x: 300, y: 296, r: "2deg" },
+        { x: 492, y: 336, r: "-1deg" },
+        { x: 690, y: 304, r: "3deg" },
+        { x: 878, y: 338, r: "-2deg" },
+        { x: 946, y: 250, r: "2deg" },
+      ];
+      const riskIndex = Math.max(
+        stages.findIndex((stage) => stage.label === props.riskStage),
+        stages.findIndex((stage) => stage.state === "risk"),
+      );
+      const currentIndex = Math.max(
+        stages.findIndex((stage) => stage.state === "current"),
+        0,
+      );
+
+      stages.forEach((stage, index) => {
+        const point = coordinates[index] || coordinates[coordinates.length - 1];
+        const node = document.createElement("div");
+        node.className = "stage";
+        node.dataset.state = stage.state || "next";
+        node.dataset.label = stage.label || "";
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y}px`;
+        node.style.setProperty("--stage-rotate", point.r);
+        node.innerHTML = `<div><div class="stage-label">${stage.label || ""}</div>${stage.desc ? `<div class="stage-desc">${stage.desc}</div>` : ""}</div>`;
+        stageLayer.append(node);
+      });
+
+      const riskPoint = coordinates[riskIndex >= 0 ? riskIndex : 3];
+      const currentPoint = coordinates[currentIndex];
+      const redNote = document.querySelector(".red-note");
+      const blueNote = document.querySelector(".blue-note");
+      redNote.style.left = `${Math.max(riskPoint.x - 94, 340)}px`;
+      redNote.style.top = `${riskPoint.y + 172}px`;
+      blueNote.style.left = `${Math.max(currentPoint.x - 120, 76)}px`;
+      blueNote.style.top = `${currentPoint.y + 178}px`;
+
+      const totalDuration = props.durationSeconds || 8;
+      const q = (selector) => Array.from(document.querySelectorAll(selector));
+      const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+      const easeOut = (value) => 1 - Math.pow(1 - clamp(value), 3);
+      const progress = (time, start, duration) => easeOut((time - start) / duration);
+
+      function reveal(nodes, time, start, duration, from = {}) {
+        const p = progress(time, start, duration);
+        nodes.forEach((node) => {
+          const opacity = p;
+          const x = (from.x || 0) * (1 - p);
+          const y = (from.y || 0) * (1 - p);
+          const scale = (from.scale || 1) + (1 - (from.scale || 1)) * p;
+          const rotate = (from.rotate || 0) * (1 - p);
+          node.style.opacity = String(opacity);
+          node.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+        });
+      }
+
+      function drawPaths(nodes, time, start, duration, length) {
+        const p = progress(time, start, duration);
+        nodes.forEach((node) => {
+          node.style.opacity = String(p);
+          node.style.strokeDasharray = `${length * p} ${length}`;
+        });
+      }
+
+      let currentTime = 0;
+      const timeline = {
+        duration() {
+          return totalDuration;
+        },
+        pause() {
+          return this;
+        },
+        time() {
+          return currentTime;
+        },
+        seek(nextTime) {
+          currentTime = clamp(Number(nextTime) || 0, 0, totalDuration);
+          renderFrame(currentTime);
+          return this;
+        },
+      };
+
+      function renderFrame(time) {
+        reveal(q(".brand, .topic"), time, 0.1, 0.42, { y: -14 });
+        reveal(q(".title"), time, 0.25, 0.56, { y: 24, rotate: -3 });
+        reveal(q(".subtitle-line, .paper-mark"), time, 0.58, 0.42, { scale: 0.3 });
+        reveal(q(".xiaoyan"), time, 0.82, 0.62, { x: -58, rotate: -3 });
+        drawPaths(q(".main-path, .main-path-light"), time, 1.4, 0.9, 1200);
+        reveal(q(".arrow-head"), time, 2.12, 0.28, { x: -22 });
+
+        q(".stage").forEach((node, index) => {
+          reveal([node], time, 1.55 + index * 0.2, 0.36, { y: 20, scale: 0.9 });
+        });
+
+        drawPaths(q(".blue-arrow, .blue-arrow-head"), time, 3.72, 0.46, 280);
+        reveal(q(".blue-note"), time, 4.02, 0.34, { y: 18, rotate: -9 });
+        drawPaths(q(".risk-arrow, .risk-arrow-head"), time, 4.62, 0.45, 260);
+        reveal(q(".red-note"), time, 4.92, 0.36, { y: 16, rotate: 8 });
+        reveal(q(".final-proof"), time, 5.75, 0.54, { y: 28, scale: 0.92 });
+        reveal(q(".caption"), time, 6.55, 0.56, { y: 34 });
+
+        const swing = time >= 4.22 && time <= 5.6 ? Math.sin((time - 4.22) * 10) * 8 : 0;
+        document.querySelector(".magnifier").style.transformOrigin = "144px 162px";
+        document.querySelector(".magnifier").style.transform = `rotate(${-swing}deg)`;
+      }
+
+      renderFrame(0);
+      root.__hyperframesTimeline = timeline;
+      window.__timelines = window.__timelines || {};
+      window.__timelines["xiaoyan-validation-chain"] = timeline;
+    </script>
+  </body>
+</html>

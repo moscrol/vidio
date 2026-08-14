@@ -1,0 +1,145 @@
+{
+  "srtPath": "/semiconductor-equipment.srt",
+  "defaultStartOffset": 0,
+  "avoidOverlap": true,
+  "minGap": 0.3,
+  "segments": [
+    {
+      "cardId": "00-cover-card",
+      "keywords": [
+        "很多人以为，半导体设备国产化，",
+        "就是设备终于造出来了。"
+      ],
+      "start": 0,
+      "duration": 5.066,
+      "recipe": "cover.titleFadeUp",
+      "sourceCueIndexes": [
+        1,
+        2
+      ],
+      "reason": "开头第一句和第二句是反常识核心，适合作封面和开场主视觉。"
+    },
+    {
+      "cardId": "01-hook-card",
+      "enabled": false,
+      "keywords": [
+        "但真正的门槛，不在发布会，",
+        "也不在实验室样机，"
+      ],
+      "recipe": "hook.staggerTitleReveal",
+      "sourceCueIndexes": [
+        3,
+        4
+      ],
+      "reason": "作为对比的过渡引导句，由 CompareMotion 处理，此卡保持 disabled 预留 B-roll 空间。"
+    },
+    {
+      "cardId": "04-not-a-is-b",
+      "keywords": [
+        "而在晶圆厂敢不敢用。"
+      ],
+      "start": 5.066,
+      "duration": 6.334,
+      "recipe": "compare.explainReveal",
+      "sourceCueIndexes": [
+        5
+      ],
+      "reason": "指出能跑通与敢上产线的核心本质差异，适合 Compare 卡展示。"
+    },
+    {
+      "cardId": "03-logistics-card",
+      "enabled": false,
+      "keywords": [
+        "因为芯片制造不是普通工厂，",
+        "一台设备只要不稳定，",
+        "就可能影响良率、污染晶圆，",
+        "甚至拖慢整条产线。"
+      ],
+      "recipe": "logistics.metaphorReveal",
+      "sourceCueIndexes": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "reason": "解释设备失败的沉重代价，采用 A-roll 和洁净室 B-roll 承载更佳，不单独上卡。"
+    },
+    {
+      "cardId": "02-data-hero-card",
+      "enabled": false,
+      "keywords": [
+        "一个设备进入晶圆厂认证，",
+        "常见周期可能是 12 到 24 个月。"
+      ],
+      "recipe": "dataHero.numberEmphasis",
+      "sourceCueIndexes": [
+        24,
+        25
+      ],
+      "reason": "时间周期作为口播字幕即可，不单独上屏避免卡片连续出现感到疲劳。"
+    },
+    {
+      "cardId": "05-business-loop",
+      "keywords": [
+        "中间隔着一条很长的验证链。",
+        "第一步，是样机做出来。",
+        "第二步，是送到客户那里验证。",
+        "第三步，是小批量导入，",
+        "看它能不能在真实工艺里稳定运行。",
+        "第四步，是长期跑产，",
+        "看良率、稳定性、",
+        "维护成本和备件供应能不能扛住。",
+        "最后，才是批量订单、收入确认 and 毛利兑现。"
+      ],
+      "start": 25.0,
+      "duration": 24.166,
+      "recipe": "loop.sequentialStepHighlight",
+      "sourceCueIndexes": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "reason": "系统拆解样机到订单的5大阶段，非常适合 BusinessLoop 阶段图表达。"
+    },
+    {
+      "cardId": "06-tracking-checklist",
+      "keywords": [
+        "别只问有没有国产替代故事，要问三个问题。",
+        "第一，有没有进入头部晶圆厂验证？",
+        "第二，有没有从首台套变成重复订单？",
+        "第三，收入和毛利有没有真正兑现？"
+      ],
+      "start": 62.833,
+      "duration": 15.367,
+      "recipe": "checklist.staggerReveal",
+      "sourceCueIndexes": [
+        27,
+        28,
+        29,
+        30
+      ],
+      "reason": "给出投资者的三个核心跟踪指标，用 Checklist 精准表达。"
+    },
+    {
+      "cardId": "07-closing-quote",
+      "enabled": false,
+      "keywords": [
+        "晶圆厂敢用、产线跑得稳、",
+        "客户愿意继续下单。"
+      ],
+      "recipe": "quote.fadeUp",
+      "sourceCueIndexes": [
+        33,
+        34,
+        35
+      ],
+      "reason": "结尾收尾观点建议用 A-roll + 强烈全屏字幕，不单独上 quote 卡，保持空窗呼吸感。"
+    }
+  ]
+}

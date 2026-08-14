@@ -1,0 +1,9 @@
+node_modules/
+output/
+public/card-assets/
+public/*.mov
+public/*.mp4
+.DS_Store
+_check-*.png
+_t*.png
+cards-static/_preview-*.png

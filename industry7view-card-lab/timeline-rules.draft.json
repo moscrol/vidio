@@ -1,0 +1,103 @@
+{
+  "srtPath": "/0510-2(1).srt",
+  "defaultStartOffset": 0,
+  "avoidOverlap": true,
+  "minGap": 0.3,
+  "segments": [
+    {
+      "cardId": "00-cover-card",
+      "keywords": [
+        "创新药 真的变天了",
+        "中国创新药 开始被全球买单",
+        "industry7view com / innovative-drug"
+      ],
+      "duration": 2,
+      "recipe": "cover.titleFadeUp"
+    },
+    {
+      "cardId": "01-hook-card",
+      "keywords": [
+        "创新药 ≠ 医药行情",
+        "真正变化是全球药企开始买单",
+        "短视频讲判断 长文讲完整逻辑"
+      ],
+      "duration": 3,
+      "recipe": "hook.staggerTitleReveal"
+    },
+    {
+      "cardId": "02-data-hero-card",
+      "keywords": [
+        "1356.55",
+        "亿美元",
+        "2025年中国创新药BD出海交易总金额",
+        "2024年为519亿美元"
+      ],
+      "duration": 4,
+      "recipe": "dataHero.numberEmphasis"
+    },
+    {
+      "cardId": "03-logistics-card",
+      "keywords": [
+        "创新药 = 新钥匙",
+        "不是复制旧药 而是重新开锁",
+        "仿制药配钥匙 创新药造钥匙"
+      ],
+      "duration": 3.5,
+      "recipe": "logistics.metaphorReveal"
+    },
+    {
+      "cardId": "04-not-a-is-b",
+      "keywords": [
+        "总金额",
+        "首付款",
+        "总金额不等于真实兑现",
+        "BD故事不等于现金流落地"
+      ],
+      "duration": 3.5,
+      "recipe": "compare.oldNewReveal"
+    },
+    {
+      "cardId": "05-business-loop",
+      "keywords": [
+        "创新药从实验室到资产重估要过五关",
+        "判断产业 不只看故事 要看兑现",
+        "靶点发现",
+        "临床验证"
+      ],
+      "duration": 5,
+      "recipe": "loop.sequentialStepHighlight"
+    },
+    {
+      "cardId": "06-tracking-checklist",
+      "keywords": [
+        "创新药 看三个变量",
+        "适合收藏 首付 数据 支付",
+        "首付款",
+        "看对方真实认可度"
+      ],
+      "duration": 4.5,
+      "recipe": "checklist.staggerReveal"
+    },
+    {
+      "cardId": "07-closing-quote",
+      "keywords": [
+        "不是行情重来 是资产重估",
+        "核心是数据 首付和放量",
+        "本文仅作产业研究和知识整理 不构成投资建议"
+      ],
+      "duration": 5,
+      "recipe": "quote.fadeUp"
+    },
+    {
+      "cardId": "08-evidence-grid-card",
+      "keywords": [
+        "谁在为 中国创新药买单",
+        "不是情绪升温 而是全球药企真实交易",
+        "证据墙负责展示“谁在买 买什么 怎么兑现”",
+        "MNC 药企"
+      ],
+      "duration": 5,
+      "recipe": "evidenceGrid.gridStaggerReveal"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "profit-pipe-default",
+  "topic": "产业研究利润流向",
+  "title": "利润水管",
+  "factors": ["需求", "成本", "价格", "竞争", "利润"],
+  "bottleneck": {
+    "label": "卡点",
+    "targetFactor": "成本"
+  },
+  "resultLabel": "利润",
+  "blueNote": "看流向",
+  "redNote": "卡点",
+  "footer": "题材热不热先放一边，利润阀门能不能打开，才是产业研究要看的问题。",
+  "durationSeconds": 6
+}

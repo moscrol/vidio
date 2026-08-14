@@ -1,0 +1,9 @@
+{
+  "name": "手绘圈注",
+  "category": "组件",
+  "version": 1,
+  "source_project": "projects/2026-08-13-finance-agent-promo/工程/v08-collage",
+  "specs": { "width": 360, "height": 140, "fps": 30, "duration_s": 0.9 },
+  "params": { "stroke": "颜色/宽度自定", "dasharray": "≈ 路径长度，dashoffset 从满到 0" },
+  "reuse": "复制 工程/snippet.html，把 SVG 绝对定位包在目标词的 relative 容器里；同族还有涂鸦下划线与箭头（见 v08 源码 #scrib #arr1）。"
+}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1080px; height:1920px; overflow:hidden; }
+  body {
+    background:#F5F7FA;
+    font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+    color:#12294B;
+    position:relative;
+  }
+  #stage { position:absolute; inset:0; padding:0 64px; }
+
+  /* header */
+  #header { padding-top:56px; display:flex; align-items:center; gap:20px; }
+  #header img { height:110px; }
+
+  /* chat column */
+  #chat { margin-top:40px; display:flex; flex-direction:column; }
+
+  /* user bubble */
+  #userBubble {
+    align-self:flex-end;
+    background:#12294B; color:#fff;
+    font-size:46px; font-weight:600;
+    padding:28px 44px; border-radius:36px 36px 8px 36px;
+    opacity:0; box-shadow:0 8px 24px rgba(18,41,75,.18);
+  }
+
+  /* phase 1 centered input */
+  #inputScene {
+    position:absolute; left:64px; right:64px; top:640px;
+  }
+  #inputScene .hint { font-size:40px; color:#8A97A8; margin-bottom:36px; text-align:center; letter-spacing:2px;}
+  .inputBox {
+    background:#fff; border:3px solid #D8DFE8; border-radius:32px;
+    padding:44px 48px; display:flex; align-items:center;
+    box-shadow:0 12px 40px rgba(18,41,75,.08);
+  }
+  .inputBox.focused { border-color:#C08A2D; box-shadow:0 12px 40px rgba(192,138,45,.18); }
+  .inputBox .txt { font-size:52px; min-height:70px; flex:1; white-space:nowrap; }
+  .inputBox .txt .ph { color:#B6C0CC; }
+  .caret {
+    display:inline-block; width:5px; height:60px; background:#12294B;
+    vertical-align:-8px; margin-left:4px;
+  }
+  #submitBtn {
+    margin-left:32px; background:#12294B; color:#fff; font-size:40px; font-weight:600;
+    padding:24px 52px; border-radius:24px; flex-shrink:0;
+    transition:none;
+  }
+  #submitBtn.pressed { background:#C08A2D; transform:scale(.94); }
+
+  /* thinking panel */
+  #thinkPanel {
+    margin-top:44px;
+    background:#fff; border-radius:28px; border-left:10px solid #C08A2D;
+    padding:40px 44px; box-shadow:0 10px 36px rgba(18,41,75,.08);
+    opacity:0;
+  }
+  #thinkTitle { font-size:40px; font-weight:700; color:#C08A2D; margin-bottom:28px; display:flex; align-items:center; gap:16px;}
+  #thinkTitle .spinner {
+    width:34px; height:34px; border-radius:50%;
+    border:5px solid #E8D9BC; border-top-color:#C08A2D;
+  }
+  .thinkLine { font-size:38px; line-height:1.75; color:#3D4F66; margin-bottom:10px; min-height:66px; opacity:0;}
+  .thinkLine .hl { color:#12294B; font-weight:700; background:linear-gradient(transparent 68%, #F0DDB4 68%); padding:0 2px;}
+  #thinkPanel.collapsed .thinkLine, #thinkPanel.collapsed #thinkTitle .spinner { display:none; }
+
+  /* answer */
+  #answer { margin-top:44px; opacity:0; }
+  #ansLabel { font-size:36px; font-weight:700; color:#8A97A8; letter-spacing:4px; margin-bottom:24px;}
+  #ansBody {
+    background:#fff; border-radius:28px; padding:44px 48px 36px;
+    box-shadow:0 10px 36px rgba(18,41,75,.08);
+  }
+  #ansBody p {
+    font-size:40px; line-height:1.72; color:#26374E; margin-bottom:28px;
+  }
+  #ansBody p.meta { font-size:34px; color:#8A97A8; }
+  #ansBody p.bullet { padding-left:44px; text-indent:-44px; margin-bottom:14px; }
+  #ansBody b { color:#12294B; font-weight:800; background:linear-gradient(transparent 70%, #F0DDB4 70%); }
+  #ansBody .cursorBlock {
+    display:inline-block; width:22px; height:44px; background:#12294B;
+    vertical-align:-6px; margin-left:6px; border-radius:4px;
+  }
+  #bottomFade {
+    position:absolute; left:0; right:0; bottom:0; height:160px; pointer-events:none;
+    background:linear-gradient(rgba(245,247,250,0), #F5F7FA 85%);
+  }
+
+  /* ending */
+  #ending { position:absolute; inset:0; background:rgba(245,247,250,0); pointer-events:none; }
+  #endCenter {
+    position:absolute; left:0; right:0; top:560px; text-align:center; opacity:0;
+  }
+  #endCenter .l1 { font-size:64px; font-weight:800; }
+  #endCenter .l2 { font-size:52px; font-weight:600; color:#C08A2D; margin-top:24px; }
+  #endInput { position:absolute; left:64px; right:64px; top:900px; opacity:0; }
+  #disclaimer {
+    position:absolute; left:0; right:0; bottom:70px; text-align:center;
+    font-size:32px; color:#9AA6B5; opacity:0; letter-spacing:2px;
+  }
+  .danmaku {
+    position:absolute; white-space:nowrap;
+    background:rgba(18,41,75,.85); color:#fff;
+    font-size:40px; padding:18px 40px; border-radius:999px;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="header"><img src="logo_crop.png"></div>
+  <div id="chat">
+    <div id="userBubble">深挖汇成股份</div>
+    <div id="thinkPanel">
+      <div id="thinkTitle"><span class="spinner"></span><span id="thinkTitleTxt">Deep Fomo 深度思考中...</span></div>
+      <div class="thinkLine" id="tl0"></div>
+      <div class="thinkLine" id="tl1"></div>
+      <div class="thinkLine" id="tl2"></div>
+      <div class="thinkLine" id="tl3"></div>
+      <div class="thinkLine" id="tl4"></div>
+    </div>
+    <div id="answer">
+      <div id="ansLabel">DEEP FOMO 输出</div>
+      <div id="ansBody"></div>
+    </div>
+  </div>
+  <div id="bottomFade"></div>
+
+  <div id="inputScene">
+    <div class="hint">A 股 · 个股深挖 · 公开跑一次</div>
+    <div class="inputBox" id="ib1">
+      <span class="txt" id="ibTxt"><span class="ph">问点什么…</span></span>
+      <span id="submitBtn">提交</span>
+    </div>
+  </div>
+
+  <div id="ending">
+    <div id="endCenter">
+      <div class="l1">评论区报你想深挖的票</div>
+      <div class="l2">Deep Fomo 公开跑一次</div>
+    </div>
+    <div id="endInput">
+      <div class="inputBox focused">
+        <span class="txt"><span class="ph">直接评论：深挖 + 股票名</span><span class="caret" id="endCaret"></span></span>
+        <span id="submitBtn2" style="margin-left:32px;background:#12294B;color:#fff;font-size:40px;font-weight:600;padding:24px 52px;border-radius:24px;">提交</span>
+      </div>
+    </div>
+    <div id="disclaimer">仅展示研究流程，不构成投资建议</div>
+    <div class="danmaku" id="dm0">深挖汇成股份</div>
+    <div class="danmaku" id="dm1">先进封装还能追吗？</div>
+    <div class="danmaku" id="dm2">高位分歧怎么办？</div>
+  </div>
+</div>
+
+<script>
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const ease = t=>t<0?0:t>1?1:t*t*(3-2*t);
+const $ = id=>document.getElementById(id);
+
+// segment typing: segs = [{t:'text', hl:bool}], returns html for first n chars
+function typeSegs(segs, n){
+  let out='', left=n;
+  for(const s of segs){
+    if(left<=0) break;
+    const take = s.t.slice(0, left);
+    out += s.hl ? '<span class="hl">'+take+'</span>' : take;
+    left -= take.length;
+  }
+  return out;
+}
+const segLen = segs=>segs.reduce((a,s)=>a+s.t.length,0);
+
+const QUESTION = '深挖汇成股份';
+
+const THINK = [
+  [{t:'识别问题类型：'},{t:'个股深挖',hl:1},{t:'。先验鲜：本地库最新 trade_date 2026-06-30。'}],
+  [{t:'D1 '},{t:'市场价值',hl:1},{t:'：6/9 启动涨幅约 72%，收益保留约 91%——市场真付过钱。'}],
+  [{t:'D2 '},{t:'证据硬度',hl:1},{t:'：硬证据仅 6 月扩产公告；客户导入全是研报推断，不算兑现。'}],
+  [{t:'盘面反差：当日板块大涨、个股反跌——'},{t:'强板块弱个股',hl:1},{t:'，资金在换更锋利表达。'}],
+  [{t:'生命周期重判：旧标签“升温验证”→ 新事实推进到'},{t:'高位分歧观察',hl:1},{t:'。'}],
+];
+// schedule: line i types from THINK_T[i][0] to [1]
+const THINK_T = [[4.6,6.4],[6.7,8.9],[9.2,11.2],[11.5,13.7],[14.0,15.8]];
+
+/* ---- streaming answer: paragraphs of segments {t, b} ---- */
+const ANSWER = [
+  {cls:'meta', segs:[{t:'数据口径：本地 DuckDB 最新 trade_date 2026-06-30；知识库实体页 + L3 公告已核对，互动易工具超时一次（已降权，客户判断只用硬证据）。'}]},
+  {segs:[{t:'先说市场在交易什么：汇成股份 6/9 启动至 6/25 峰值区间涨幅约 '},{t:'72%',b:1},{t:'，6/30 仍保留约 '},{t:'91%',b:1},{t:' 峰值收益——市场确实为“先进封装弹性”付了钱，这不是脉冲。但 6/30 当日半导体、存储、先进封装板块集体大涨，目标股反而跌 0.8%：'},{t:'强板块、弱个股',b:1},{t:'，资金在同题材里已经开始换更锋利的表达。'}]},
+  {segs:[{t:'真实业务上，公司主业是'},{t:'显示驱动芯片封测',b:1},{t:'，“先进封装”暴露是产能延展而非当期收入主力。硬证据只有一条：6 月中旬公告的扩产项目；客户导入进展全部来自研报推断（L1），不能当兑现。反证也要摆出来：Q1 毛利率环比走弱，扩产投产要到明年，当期逻辑撑不起第二波独立行情。'}]},
+  {segs:[{t:'生命周期重判：旧标签是“旧逻辑唤醒/升温验证”，但峰值后回撤收窄 + 强板块弱个股这两个新事实，把它推进到'},{t:'高位分歧观察',b:1},{t:'——不是趋势破坏，而是领涨权旁落。'}]},
+  {segs:[{t:'二阶导与条件化结论：'}]},
+  {cls:'bullet', segs:[{t:'· P0：盘面已选择的替代表达，若其'},{t:'边际量连续两日回落',b:1},{t:'，资金可能回流本股；'}]},
+  {cls:'bullet', segs:[{t:'· 再升级条件：扩产项目'},{t:'提前投产公告',b:1},{t:'，或出现可验证的大客户订单（公告级）；'}]},
+  {cls:'bullet', segs:[{t:'· 降级/证伪条件：跌破 6/25 以来的'},{t:'分歧低点',b:1},{t:'且板块双红消失，判定本轮定价结束。'}]},
+  {segs:[{t:'一句话：'},{t:'市场付过钱、证据没跟上、替代者已出现',b:1},{t:'——当前位置提供的不是买点，而是一组可盘后验证的观察条件。'}]},
+];
+// build per-paragraph char schedule
+const ANS_START = 17.0, ANS_RATE = 28, ANS_GAP = 0.35; // chars/s, pause between paragraphs
+let _acc = ANS_START;
+const ANS_SCHED = ANSWER.map(p=>{
+  const L = segLen(p.segs);
+  const s = {start:_acc, len:L, end:_acc + L/ANS_RATE};
+  _acc = s.end + ANS_GAP;
+  return s;
+});
+const ANS_DONE = _acc; // ~ answer finish time
+// pre-create paragraph nodes
+const ansBody = document.getElementById('ansBody');
+const ANS_P = ANSWER.map(p=>{
+  const el = document.createElement('p');
+  if(p.cls) el.className = p.cls;
+  el.style.display = 'none';
+  ansBody.appendChild(el);
+  return el;
+});
+function typeB(segs, n){
+  let out='', left=n;
+  for(const s of segs){
+    if(left<=0) break;
+    const take = s.t.slice(0,left);
+    out += s.b ? '<b>'+take+'</b>' : take;
+    left -= take.length;
+  }
+  return out;
+}
+
+const END_T = 44.0;
+const DM = [
+  {id:'dm0', t0:END_T+0.6, y:1300, dur:5.2},
+  {id:'dm1', t0:END_T+1.8, y:1420, dur:5.4},
+  {id:'dm2', t0:END_T+3.0, y:1540, dur:5.2},
+];
+
+window.seek = function(t){
+  /* ---------- Phase 1: input 0-4.2 ---------- */
+  const ip = $('inputScene');
+  const ibTxt = $('ibTxt');
+  const ib1 = $('ib1');
+  if(t < 4.2){
+    ip.style.display='block';
+    ip.style.opacity = t>3.7 ? String(1-ease((t-3.7)/0.5)) : '1';
+    ib1.classList.toggle('focused', t>0.4);
+    const n = Math.floor(clamp((t-0.9)/1.6,0,1)*QUESTION.length);
+    const caretOn = (Math.floor(t*2.2)%2===0) || (t>0.9&&t<2.5);
+    const caret = t>0.4 ? '<span class="caret" style="opacity:'+(caretOn?1:0)+'"></span>' : '';
+    ibTxt.innerHTML = n===0 ? '<span class="ph">问点什么…</span>'+caret : QUESTION.slice(0,n)+caret;
+    $('submitBtn').classList.toggle('pressed', t>3.35 && t<3.65);
+  } else {
+    ip.style.display='none';
+  }
+
+  /* ---------- user bubble ---------- */
+  const ub = $('userBubble');
+  const ubp = ease((t-4.0)/0.45);
+  ub.style.opacity = String(ubp);
+  ub.style.transform = 'translateY('+(20*(1-ubp))+'px)';
+
+  /* ---------- Phase 2: thinking 4.4-16 ---------- */
+  const tp = $('thinkPanel');
+  const tpp = ease((t-4.4)/0.5);
+  tp.style.opacity = String(tpp);
+  const collapsed = t>=16.2;
+  tp.classList.toggle('collapsed', collapsed);
+  $('thinkTitleTxt').textContent = collapsed
+    ? '已深度思考（用时 12 秒）'
+    : 'Deep Fomo 深度思考中' + '.'.repeat(1+Math.floor(t*1.5)%3);
+  if(collapsed){ $('thinkTitle').style.color='#8A97A8'; $('thinkTitle').style.marginBottom='0'; }
+  else { $('thinkTitle').style.color='#C08A2D'; $('thinkTitle').style.marginBottom='28px'; }
+  const spin = document.querySelector('#thinkTitle .spinner');
+  spin.style.transform = 'rotate('+(t*360)+'deg)';
+  for(let i=0;i<5;i++){
+    const el = $('tl'+i);
+    const [a,b] = THINK_T[i];
+    const L = segLen(THINK[i]);
+    const n = Math.floor(clamp((t-a)/(b-a),0,1)*L);
+    el.style.opacity = t>=a ? '1' : '0';
+    el.innerHTML = typeSegs(THINK[i], n);
+  }
+
+  /* ---------- Phase 3: streaming answer ---------- */
+  const ans = $('answer');
+  ans.style.opacity = String(ease((t-16.5)/0.5));
+  let lastVisible = -1;
+  for(let i=0;i<ANSWER.length;i++){
+    const sc = ANS_SCHED[i], el = ANS_P[i];
+    if(t < sc.start){ el.style.display='none'; continue; }
+    el.style.display='block';
+    lastVisible = i;
+    const n = Math.floor(clamp((t-sc.start)/(sc.end-sc.start),0,1)*sc.len);
+    let html = typeB(ANSWER[i].segs, n);
+    const streamingHere = t < sc.end + ANS_GAP && t < ANS_DONE;
+    if(streamingHere && i===lastVisible && t>=sc.start){
+      html += '<span class="cursorBlock" style="opacity:'+((Math.floor(t*3)%2===0)?1:0.25)+'"></span>';
+    }
+    el.innerHTML = html;
+  }
+  /* auto-scroll: keep streaming bottom in view */
+  const chat = $('chat');
+  chat.style.transform = 'translateY(0px)';
+  if(t > 16.5){
+    const rect = ansBody.getBoundingClientRect();
+    const bottom = rect.top + rect.height;
+    const overflow = Math.max(0, bottom - 1760);
+    chat.style.transform = 'translateY('+(-overflow)+'px)';
+  }
+
+  /* ---------- Phase 4: ending ---------- */
+  const dim = ease((t-END_T)/0.8);
+  $('ending').style.background = 'rgba(245,247,250,'+(0.97*dim)+')';
+  $('endCenter').style.opacity = String(ease((t-END_T-0.4)/0.6));
+  $('endInput').style.opacity = String(ease((t-END_T-0.8)/0.6));
+  $('endCaret').style.opacity = (Math.floor(t*2.2)%2===0)?'1':'0';
+  $('disclaimer').style.opacity = String(ease((t-END_T-0.6)/0.8));
+  for(const d of DM){
+    const el = $(d.id);
+    const p = (t-d.t0)/d.dur;
+    if(p<0||p>1){ el.style.display='none'; continue; }
+    el.style.display='block';
+    el.style.top = d.y+'px';
+    el.style.left = (1180 - p*(1180+900))+'px';
+    el.style.opacity = String(Math.min(1, dim));
+  }
+};
+window.seek(0);
+</script>
+</body>
+</html>

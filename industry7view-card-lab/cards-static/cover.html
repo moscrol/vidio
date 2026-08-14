@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>00 · Cover Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== Cover-specific ============== */
+    .cover-card {
+      background:
+        radial-gradient(circle at 80% 20%, rgba(184, 131, 45, 0.12), transparent 28%),
+        radial-gradient(circle at 12% 72%, rgba(255, 255, 255, 0.055), transparent 34%),
+        linear-gradient(180deg, #102744 0%, #0a1e38 100%);
+      color: #fff;
+    }
+    .cover-card::before {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.034) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.034) 1px, transparent 1px);
+    }
+    .cover-card::after { display: none; }
+    .cover-card .brand { color: rgba(255, 255, 255, 0.54); }
+    .cover-card .tag {
+      background: transparent;
+      border-color: rgba(184, 131, 45, 0.40);
+      color: rgba(255, 255, 255, 0.74);
+    }
+    .cover-main {
+      left: 30px;
+      position: absolute;
+      right: 30px;
+      top: 96px;
+      z-index: 2;
+    }
+    .cover-main::before {
+      background: var(--gold);
+      content: "";
+      display: block;
+      height: 3px;
+      margin-bottom: 18px;
+      width: 44px;
+    }
+    .cover-kicker {
+      color: rgba(184, 131, 45, 0.92);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+    }
+    .cover-title {
+      color: #fff;
+      font-size: 50px;
+      font-weight: 950;
+      letter-spacing: -0.075em;
+      line-height: 0.98;
+      margin: 14px 0 0;
+    }
+    .cover-title .gold { color: var(--gold); }
+    .cover-subtitle {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 19px;
+      font-weight: 850;
+      line-height: 1.32;
+      margin-top: 16px;
+    }
+    .cover-badge {
+      bottom: 56px;
+      border: 1px solid rgba(184, 131, 45, 0.42);
+      color: rgba(243, 210, 143, 0.92);
+      display: inline-flex;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 900;
+      left: 30px;
+      letter-spacing: 0.12em;
+      padding: 8px 12px;
+      position: absolute;
+      z-index: 3;
+    }
+    .cover-footer {
+      bottom: 28px;
+      color: rgba(255, 255, 255, 0.48);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      left: 34px;
+      letter-spacing: -0.02em;
+      position: absolute;
+      right: 34px;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>00 · Cover Card</h1>
+    <p>用于发布封面 / B站 / 抖音图文封面 / 视频开场。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card cover-card">
+    <div class="brand-row">
+      <span class="tag">半导体设备</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <div class="cover-main">
+      <div class="cover-kicker">INDUSTRY 7VIEW / SEMI EQUIPMENT</div>
+      <h2 class="cover-title">半导体设备<br/>不是造出来就赢了</h2>
+      <div class="cover-subtitle">真正的门槛，是晶圆厂敢不敢用</div>
+    </div>
+    <div class="cover-badge">半导体设备</div>
+    <div class="cover-footer">industry7view.com</div>
+  </article>
+</body>
+</html>

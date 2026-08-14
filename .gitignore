@@ -1,0 +1,58 @@
+.DS_Store
+**/.DS_Store
+
+.env
+.env.*
+*.secret
+*secret*
+*token*
+mcp_config.json
+feishu_config.json
+.claude/settings.local.json
+.stitch/
+.superpowers/
+
+node_modules/
+**/node_modules/
+# 外部工具供给层（OpenMontage 等），按 commit 克隆，不入库
+vendor/
+output/
+**/output/
+public/card-assets/
+**/public/card-assets/
+
+*.mp4
+*.mov
+# 技能自带的素材和组件库成品不受媒体忽略规则限制
+!.agents/skills/**/*.mp4
+!.agents/skills/**/*.mov
+!.agents/skills/**/*.webm
+!library/**/*.mp4
+!library/**/*.mov
+!library/**/*.webm
+
+# 临时英雄帧网格（12.0s.png 这类），不入库；正式质检用 frame- / f* / recheck/
+projects/**/质检/v[0-9][0-9]/[0-9]*.png
+
+# 项目渲染产物不入库
+projects/*/成片/
+projects/**/out/
+projects/**/renders/
+*.zip
+*.duckdb
+*.db
+*.sqlite
+*.sqlite3
+
+_check-*.png
+_t*.png
+cards-static/_preview-*.png
+.git-embedded-backups/
+
+industry7view-card-lab/xiaoyan/renders/*
+!industry7view-card-lab/xiaoyan/renders/.gitkeep
+archive/industry7view-card-lab/xiaoyan/renders/*
+!archive/industry7view-card-lab/xiaoyan/renders/.gitkeep
+
+# studio 缩略图缓存
+studio/.thumbs/

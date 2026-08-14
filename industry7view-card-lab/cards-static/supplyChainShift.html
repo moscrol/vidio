@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>09 · Supply Chain Shift Card</title>
+  <link rel="stylesheet" href="_base.css" />
+  <style>
+    /* ============== SupplyChainShift-specific ============== */
+    .supply-chain-shift-card::after { display: none; }
+    .shift-title {
+      color: var(--navy);
+      font-size: 24px;
+      font-weight: 900;
+      left: 32px;
+      letter-spacing: -0.05em;
+      line-height: 1.18;
+      position: absolute;
+      right: 28px;
+      top: 100px;
+      z-index: 2;
+    }
+    .shift-title::after {
+      background: var(--gold);
+      content: "";
+      display: block;
+      height: 3px;
+      margin-top: 12px;
+      width: 32px;
+    }
+    .shift-flow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      left: 32px;
+      position: absolute;
+      right: 32px;
+      top: 174px;
+      z-index: 2;
+    }
+    .shift-side {
+      flex: 1;
+      padding: 14px 14px;
+      border: 2px solid rgba(15, 39, 71, 0.18);
+      min-height: 78px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .shift-side.from {
+      background-color: #f9fafb;
+      color: var(--muted);
+    }
+    .shift-side.to {
+      background-color: var(--navy);
+      color: #fff;
+      border-color: var(--gold);
+    }
+    .shift-side .shift-side-value { font-size: 19px; }
+    .shift-side-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.6;
+      margin-bottom: 4px;
+    }
+    .shift-side-value {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .shift-arrow {
+      font-size: 28px;
+      color: var(--gold);
+      font-weight: 900;
+      line-height: 1;
+    }
+    .shift-drivers-box {
+      left: 32px;
+      position: absolute;
+      right: 32px;
+      top: 282px;
+      z-index: 2;
+    }
+    .shift-drivers-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--navy);
+      opacity: 0.6;
+      border-bottom: 1px solid rgba(15, 39, 71, 0.14);
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+    .shift-drivers-list {
+      display: grid;
+      gap: 10px;
+    }
+    .shift-driver-item {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      gap: 8px;
+      line-height: 1.35;
+    }
+    .shift-driver-item::before {
+      content: "•";
+      color: var(--gold);
+      font-weight: 900;
+    }
+    .shift-result-box {
+      left: 32px;
+      position: absolute;
+      right: 32px;
+      bottom: 90px;
+      background-color: var(--soft-blue);
+      border-left: 3px solid var(--gold);
+      padding: 12px 14px;
+      z-index: 2;
+    }
+    .shift-result-text {
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 850;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>09 · Supply Chain Shift Card</h1>
+    <p>供应链迁移卡（from→to + 驱动因素 + 结果）。</p>
+    <div class="nav"><a href="index.html">← 返回总览</a></div>
+  </header>
+
+  <article class="video-card supply-chain-shift-card">
+    <div class="brand-row">
+      <span class="tag">供应链迁移</span>
+      <span class="brand">INDUSTRY 7VIEW</span>
+    </div>
+    <h2 class="shift-title">国产替代加速，供应链重塑</h2>
+    <div class="shift-flow">
+      <div class="shift-side from">
+        <div class="shift-side-label">FROM</div>
+        <div class="shift-side-value">海外厂商</div>
+      </div>
+      <div class="shift-arrow">→</div>
+      <div class="shift-side to">
+        <div class="shift-side-label">TO</div>
+        <div class="shift-side-value">国产设备</div>
+      </div>
+    </div>
+    <div class="shift-drivers-box">
+      <div class="shift-drivers-title">SHIFT DRIVERS</div>
+      <div class="shift-drivers-list">
+        <div class="shift-driver-item">出口管制催生自主可控需求</div>
+        <div class="shift-driver-item">头部晶圆厂主动测试国产替代</div>
+        <div class="shift-driver-item">补贴 + 大基金推动产业链共振</div>
+      </div>
+    </div>
+    <div class="shift-result-box">
+      <div class="shift-result-text">国产化率从 5% 抬升到 35%，仍有翻倍空间。</div>
+    </div>
+    <div class="bottom-note">看国产化率与重复订单的双重兑现</div>
+  </article>
+</body>
+</html>

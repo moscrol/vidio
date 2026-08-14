@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Serif SC"; font-weight: 900; font-style: normal;
+        src: url("shared/fonts/noto-serif-sc-chinese-simplified-900-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #EDE2CB; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #33291C; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+      .or { color: #E8590C; }
+
+      /* 全片共享质感层：做旧纸张（色调统一的物理保证） */
+      .grain {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.16; z-index: 80;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+        background-size: 240px 240px;
+      }
+      .vign {
+        position: absolute; inset: 0; pointer-events: none; z-index: 81;
+        background: radial-gradient(ellipse 112% 82% at 50% 42%, transparent 46%, rgba(96,70,40,0.46) 100%);
+      }
+      /* 摄影层：前景虚焦光斑 / 扫光 / 转场遮挡卡（镜头语言，不是版式元素） */
+      .bokeh {
+        position: absolute; border-radius: 50%; pointer-events: none; z-index: 76;
+        filter: blur(34px);
+      }
+      #lightband {
+        position: absolute; top: -400px; bottom: -400px; width: 560px; left: -700px;
+        pointer-events: none; z-index: 77; transform: rotate(14deg);
+        background: linear-gradient(90deg, transparent, rgba(255,252,240,0.16) 45%, rgba(255,252,240,0.16) 55%, transparent);
+        mix-blend-mode: screen;
+      }
+      #sweeper {
+        position: absolute; left: -160px; right: -160px; height: 980px; top: 0;
+        pointer-events: none; z-index: 78; transform: translateY(2400px) rotate(-7deg);
+        background: linear-gradient(180deg, rgba(243,229,203,0.0), rgba(238,220,188,0.72) 40%, rgba(230,206,164,0.78) 60%, rgba(243,229,203,0.0));
+        filter: blur(26px);
+      }
+      .cam { position: absolute; inset: 0; }
+      /* 纸张陈渍 + 供毛玻璃折射的暖色斑 */
+      .glowbed {
+        position: absolute; inset: 0; pointer-events: none; z-index: 0;
+        background:
+          radial-gradient(640px 560px at 84% 4%, rgba(196,152,86,0.22), transparent 60%),
+          radial-gradient(760px 700px at 4% 100%, rgba(180,132,70,0.18), transparent 58%),
+          radial-gradient(420px 420px at 20% 22%, rgba(232,89,12,0.10), transparent 60%),
+          radial-gradient(520px 520px at 78% 74%, rgba(232,89,12,0.08), transparent 62%);
+      }
+      .blob { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
+      .hudbar {
+        position: absolute; top: 44px; left: 70px; right: 70px; z-index: 70;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 22px;
+        letter-spacing: 4px; color: rgba(51,41,28,0.6);
+      }
+      .footbar {
+        position: absolute; bottom: 52px; left: 70px; right: 70px; z-index: 70;
+        display: flex; justify-content: space-between;
+        font-family: "JetBrains Mono", monospace; font-size: 20px;
+        letter-spacing: 3px; color: rgba(51,41,28,0.52);
+      }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; }
+      #s1,#s2,#s3,#s4,#s5,#s6,#s7 { transform: translateY(1920px); }
+
+      .hero {
+        font-family: "Noto Serif SC", serif; font-weight: 900;
+        letter-spacing: 2px; line-height: 1.22;
+        color: #33291C;
+        text-shadow: 0 1px 0 rgba(255,252,240,0.55);
+      }
+      .h96 { font-size: 100px; }
+      .h88 { font-size: 92px; }
+      .hero.or { color: #E8590C; }
+      .ghostchar {
+        position: absolute; pointer-events: none; z-index: 2;
+        font-family: "Noto Serif SC", serif; font-weight: 900;
+        color: rgba(84,62,35,0.075); line-height: 1;
+        filter: blur(9px); /* 景深：底纹字恒在焦外 */
+      }
+      .kicker {
+        display: inline-block; background: #33291C; color: #F2ECD9;
+        font-size: 30px; font-weight: 700; letter-spacing: 6px;
+        padding: 10px 26px;
+      }
+      /* 字体声部二：细体铺垫词（与巨衬线对撞） */
+      .t-light {
+        font-family: "Noto Sans SC", sans-serif; font-weight: 400;
+        color: #4A3B28; letter-spacing: 5px;
+        text-shadow: 0 1px 0 rgba(255,252,240,0.45);
+      }
+      /* 声部三：竖排注记 */
+      .vtext {
+        position: absolute; writing-mode: vertical-rl;
+        font-family: "JetBrains Mono", monospace; font-size: 27px;
+        letter-spacing: 14px; color: rgba(51,41,28,0.55);
+      }
+      .inkstroke path { stroke: #E8590C; stroke-linecap: round; fill: none; }
+      .sub {
+        font-size: 42px; color: rgba(51,41,28,0.72); letter-spacing: 3px;
+        text-shadow: 0 1px 0 rgba(255,252,240,0.45);
+      }
+
+      /* 毛玻璃组件配方（全片组件统一质感） */
+      .glass {
+        background: rgba(255,251,242,0.42);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        border: 1.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 20px 46px rgba(84,62,35,0.20), inset 0 1px 0 rgba(255,255,255,0.85);
+      }
+      .plate {
+        display: inline-block; padding: 22px 38px; border-radius: 20px;
+        background: rgba(255,251,242,0.5);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        border: 1.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 20px 46px rgba(84,62,35,0.2);
+      }
+
+      /* B-roll 融合处理：截图统一暖调 + 纸面 multiply 罩（读作贴在纸上的旧照片） */
+      .shotimg { filter: sepia(0.16) saturate(0.9) contrast(0.95) brightness(0.99); }
+      .warmwash {
+        position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(158deg, rgba(240,224,196,0.10) 0%, rgba(206,166,108,0.20) 100%);
+        mix-blend-mode: multiply;
+      }
+      .tape {
+        position: absolute; width: 150px; height: 44px; z-index: 5;
+        background: rgba(250,242,224,0.72);
+        box-shadow: 0 4px 10px rgba(84,62,35,0.18);
+        border-left: 1px dashed rgba(84,62,35,0.12);
+        border-right: 1px dashed rgba(84,62,35,0.12);
+      }
+
+      /* S0 品牌开场 */
+      #s0 .brandstack {
+        position: absolute; left: 0; right: 0; top: 720px;
+        display: flex; flex-direction: column; align-items: center; gap: 44px;
+      }
+      #s0 .wordmark { font-size: 200px; font-weight: 700; letter-spacing: 4px; color: #33291C; text-shadow: 0 2px 0 rgba(255,252,240,0.6); }
+      #s0 .rule { width: 0; height: 4px; background: #E8590C; }
+      #s0 .tag { font-size: 44px; color: rgba(51,41,28,0.7); letter-spacing: 8px; }
+
+      /* S1 单主角：桌面真 UI */
+      #s1 .stage { position: absolute; inset: 0; perspective: 1700px; }
+      #s1 .shotwrap {
+        position: absolute; left: 50%; top: 44%;
+        width: 1560px; height: 1950px;
+        transform: translate(-50%, -50%) rotateX(7deg) rotateY(-6deg) scale(0.74);
+        transform-style: preserve-3d;
+      }
+      #s1 .shot {
+        position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+        border: 12px solid rgba(255,251,242,0.55);
+        box-shadow: 0 50px 130px rgba(84,62,35,0.35), inset 0 0 0 1px rgba(255,255,255,0.7);
+        background: #fff;
+      }
+      #s1 .shot img { display: block; width: 1560px; height: auto; }
+      #s1 .cap { position: absolute; left: 70px; top: 1520px; z-index: 60; }
+
+      /* S2 聚：时间线轨道 + 信源芯片嵌入 */
+      #s2 .rail {
+        position: absolute; left: 539px; top: 300px; width: 6px; height: 0;
+        background: linear-gradient(180deg, #E8590C, rgba(232,89,12,0.2));
+        z-index: 5;
+      }
+      #s2 .slot {
+        position: absolute; left: 50%; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 22px; z-index: 10;
+      }
+      #s2 .dot { width: 22px; height: 22px; border-radius: 50%; background: #E8590C; flex: none; }
+      #s2 .chipbig {
+        color: #E8590C;
+        background: rgba(255,251,242,0.42);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        border: 1.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 20px 46px rgba(84,62,35,0.2), inset 0 1px 0 rgba(255,255,255,0.85);
+        padding: 18px 44px; font-size: 44px; font-weight: 700; letter-spacing: 3px;
+        border-radius: 999px; white-space: nowrap;
+      }
+      #s2 .cap { position: absolute; left: 70px; top: 1500px; z-index: 60; }
+
+      /* S3 滤：移动真 UI 全幅 */
+      #s3 .mshot { position: absolute; left: 50%; top: 50%; width: 1080px; height: 1920px; transform: translate(-50%, -50%); }
+      #s3 .mshot img { display: block; width: 1080px; height: 1920px; }
+      #s3 .dim {
+        position: absolute; inset: 0; z-index: 20;
+        background: linear-gradient(180deg, rgba(237,226,203,0.35) 0%, rgba(237,226,203,0) 28%, rgba(237,226,203,0) 50%, rgba(237,226,203,0.94) 82%);
+      }
+      #s3 .scorebar {
+        position: absolute; left: 0; top: 260px; width: 10px; height: 320px;
+        background: #E8590C; z-index: 24;
+        transform: scaleY(0); transform-origin: top center;
+      }
+      #s3 .cap { position: absolute; left: 70px; bottom: 386px; z-index: 60; }
+      #s3 .capsub { position: absolute; left: 70px; bottom: 296px; z-index: 60; }
+
+      /* S4 呼吸字卡 */
+      #s4 .cardstack {
+        position: absolute; left: 0; right: 0; top: 810px;
+        display: flex; flex-direction: column; align-items: center; gap: 46px;
+      }
+      #s4 .rule { width: 0; height: 3px; background: #E8590C; }
+
+      /* S5 懂查：条目详情横向 pan */
+      #s5 .stage { position: absolute; inset: 0; perspective: 1700px; }
+      #s5 .wideshotwrap {
+        position: absolute; left: 50%; top: 40%;
+        width: 2400px; height: 1358px;
+        transform: translate(-50%, -50%) rotateX(6deg) rotateY(5deg) scale(0.62);
+        transform-style: preserve-3d;
+      }
+      #s5 .wideshot {
+        position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+        border: 12px solid rgba(255,251,242,0.55);
+        box-shadow: 0 50px 130px rgba(84,62,35,0.35), inset 0 0 0 1px rgba(255,255,255,0.7);
+        background: #fff;
+      }
+      #s5 .wideshot img { display: block; width: 2400px; height: auto; }
+      #s5 .featrow {
+        position: absolute; left: 70px; right: 70px; top: 1330px; z-index: 60;
+        display: flex; gap: 20px; flex-wrap: wrap;
+      }
+      #s5 .fchip {
+        color: #E8590C;
+        background: rgba(255,251,242,0.42);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        border: 1.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 20px 46px rgba(84,62,35,0.2), inset 0 1px 0 rgba(255,255,255,0.85);
+        padding: 14px 32px; font-size: 38px; font-weight: 700; letter-spacing: 2px;
+        border-radius: 999px; white-space: nowrap;
+      }
+      #s5 .cap { position: absolute; left: 70px; top: 1520px; z-index: 60; }
+
+      /* S6 发布会合影 */
+      #s6 .stagelight {
+        position: absolute; left: 50%; top: 46%; width: 1500px; height: 1500px;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(232,89,12,0.16) 0%, transparent 58%);
+        z-index: 1;
+      }
+      #s6 .word { position: absolute; left: 0; right: 0; top: 866px; text-align: center; font-size: 172px; font-weight: 700; letter-spacing: 4px; z-index: 20; color: #33291C; text-shadow: 0 2px 0 rgba(255,252,240,0.6); }
+      #s6 .memberwrap { position: absolute; inset: 0; z-index: 10; }
+      #s6 .member {
+        position: absolute; border-radius: 18px;
+        border: 8px solid rgba(255,251,242,0.55);
+        box-shadow: 0 26px 64px rgba(84,62,35,0.30), inset 0 0 0 1px rgba(255,255,255,0.7);
+        background: #fff;
+      }
+      #s6 .member img { display: block; width: 100%; border-radius: 10px; }
+      #s6 .member .warmwash { border-radius: 10px; }
+      #s6 .mchip {
+        position: absolute; z-index: 12;
+        color: #E8590C;
+        background: rgba(255,251,242,0.42);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        border: 1.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 20px 46px rgba(84,62,35,0.2), inset 0 1px 0 rgba(255,255,255,0.85);
+        padding: 14px 34px; font-size: 40px; font-weight: 700;
+        border-radius: 999px; white-space: nowrap;
+      }
+
+      /* S7 CTA */
+      #s7 .ctastack {
+        position: absolute; left: 0; right: 0; top: 700px;
+        display: flex; flex-direction: column; align-items: center; gap: 52px;
+        text-align: center;
+      }
+      #s7 .chipfinal {
+        color: #E8590C;
+        background: rgba(255,251,242,0.42);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        border: 1.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 20px 46px rgba(84,62,35,0.2), inset 0 1px 0 rgba(255,255,255,0.85);
+        border-radius: 999px;
+        padding: 24px 56px; font-size: 40px; font-weight: 700; letter-spacing: 4px;
+      }
+      #s7 .disc {
+        position: absolute; bottom: 52px; right: 70px; z-index: 70;
+        font-family: "JetBrains Mono", monospace; font-size: 20px;
+        letter-spacing: 3px; color: rgba(51,41,28,0.52);
+      }
+      #flash {
+        position: absolute; inset: 0; z-index: 90; pointer-events: none;
+        background: #F2F0EB; opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+      <div class="glowbed" data-layout-ignore></div>
+      <div class="blob" data-layout-ignore style="left:-140px; top:180px; width:460px; height:460px; background: radial-gradient(circle, rgba(232,89,12,0.20), transparent 68%);"></div>
+      <div class="blob" data-layout-ignore style="right:-160px; top:1180px; width:540px; height:540px; background: radial-gradient(circle, rgba(196,152,86,0.26), transparent 66%);"></div>
+      <div class="blob" data-layout-ignore style="left:240px; bottom:-200px; width:520px; height:520px; background: radial-gradient(circle, rgba(232,89,12,0.12), transparent 66%);"></div>
+
+      <!-- S0 品牌开场 0–3.145 -->
+      <div id="s0" class="scene">
+        <div class="hudbar"><span>FINHOT</span><span>OPEN</span></div>
+        <div class="cam" id="cam0">
+          <div class="ghostchar" data-layout-ignore style="font-size: 980px; right: -220px; top: 320px;">热</div>
+          <div class="brandstack">
+            <div class="wordmark" id="wm0">Fin<span class="or">Hot</span></div>
+            <div class="rule" id="rule0"></div>
+            <div class="tag" id="tag0">本地优先的金融信息流</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S1 单主角 3.145–8.002 -->
+      <div id="s1" class="scene">
+        <div class="hudbar"><span>FINHOT · FEED</span><span>真实界面</span></div>
+        <div class="cam" id="cam1">
+        <div class="stage">
+          <div class="shotwrap" id="s1wrap">
+            <div class="shot">
+              <img id="s1img" class="shotimg" src="assets/d-feed.png" alt="" />
+              <div class="warmwash" data-layout-ignore></div>
+            </div>
+            <div class="tape" data-layout-ignore style="left: -50px; top: -16px; transform: rotate(-38deg);"></div>
+            <div class="tape" data-layout-ignore style="right: -46px; top: 30px; transform: rotate(34deg);"></div>
+          </div>
+        </div>
+        <div class="cap" style="right: 70px;">
+          <div class="plate" id="s1cap">
+            <div class="t-light" style="font-size: 58px;">一条时间线</div>
+            <div style="display: flex; align-items: baseline; gap: 18px; margin-top: 6px;">
+              <span class="hero or" style="font-size: 185px; line-height: 1;">21</span>
+              <span class="hero" style="font-size: 66px;">个信源</span>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="footbar"><span>ONE TIMELINE</span><span>内容来自公开信源</span></div>
+      </div>
+
+      <!-- S2 聚 8.002–12.002 -->
+      <div id="s2" class="scene">
+        <div class="hudbar"><span>FINHOT · AGGREGATE</span><span>信源</span></div>
+        <div class="cam" id="cam2">
+          <div class="ghostchar" data-layout-ignore style="font-size: 900px; left: -180px; top: 560px;">聚</div>
+          <div class="rail" id="rail"></div>
+          <div class="slot" id="sl1" style="top: 356px;"><span class="dot"></span><span class="chipbig">RSS</span></div>
+          <div class="slot" id="sl2" style="top: 546px;"><span class="dot"></span><span class="chipbig">微博</span></div>
+          <div class="slot" id="sl3" style="top: 736px;"><span class="dot"></span><span class="chipbig">雪球</span></div>
+          <div class="slot" id="sl4" style="top: 926px;"><span class="dot"></span><span class="chipbig">公众号</span></div>
+          <div class="slot" id="sl5" style="top: 1116px;"><span class="dot"></span><span class="chipbig">X</span></div>
+          <div class="cap">
+            <div id="s2cap" style="display: flex; align-items: baseline; gap: 10px;">
+              <span class="t-light" style="font-size: 72px;">全都</span>
+              <span class="hero or" style="font-size: 168px; line-height: 1;">聚</span>
+              <span class="hero" style="font-size: 98px; position: relative;">成一条流<svg class="inkstroke" data-layout-ignore width="420" height="40" viewBox="0 0 420 40" style="position:absolute; left:-6px; bottom:-30px;"><path id="u2" d="M8,24 C90,10 180,30 260,18 C330,9 380,20 412,14" stroke-width="7" stroke-dasharray="520" stroke-dashoffset="520"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="footbar"><span>AGGREGATE</span><span>RSS · 微博 · 雪球 · 公众号 · X</span></div>
+      </div>
+
+      <!-- S3 滤 12.002–16.002 -->
+      <div id="s3" class="scene">
+        <div class="cam" id="cam3">
+          <div class="mshot" id="s3shot">
+            <img class="shotimg" src="assets/m-feed.png" alt="" />
+            <div class="warmwash" data-layout-ignore></div>
+            <div class="scorebar" id="scorebar" data-layout-ignore></div>
+          </div>
+          <div class="dim" data-layout-ignore></div>
+          <div class="cap"><div class="plate" id="s3cap"><span class="t-light" style="font-size: 66px;">高信号</span><span class="hero or" style="font-size: 124px; line-height: 1.05; margin-left: 8px;">浮上来</span></div></div>
+          <div class="capsub"><div class="sub" id="s3sub">质量打分 · 噪音下沉</div></div>
+        </div>
+        <div class="hudbar"><span>FINHOT · RANK</span><span>真实界面</span></div>
+        <div class="footbar"><span>SIGNAL FIRST</span><span>内容来自公开信源</span></div>
+      </div>
+
+      <!-- S4 呼吸字卡 16.002–17.716 -->
+      <div id="s4" class="scene">
+        <div class="hudbar"><span>FINHOT · SOURCE</span><span>查</span></div>
+        <div class="cam" id="cam4">
+          <div class="ghostchar" id="g4" data-layout-ignore style="font-size: 1150px; left: -140px; top: 380px;">源</div>
+          <div class="cardstack">
+            <div class="kicker" id="s4k">立场</div>
+            <div id="s4cap" style="text-align: center;">
+              <div style="display: flex; align-items: baseline; gap: 14px; justify-content: center;">
+                <span class="t-light" style="font-size: 82px;">先看</span>
+                <span class="hero or" style="font-size: 190px; line-height: 1;">源头</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 14px; justify-content: center; margin-top: 22px;">
+                <span class="t-light" style="font-size: 82px;">再看</span>
+                <span class="hero" style="font-size: 112px;">热闹</span>
+              </div>
+            </div>
+            <div class="rule" id="rule4"></div>
+          </div>
+          <div class="vtext" id="s4v" style="right: 84px; top: 660px;">公告 · 互动易 · 问询函</div>
+        </div>
+      </div>
+
+      <!-- S5 懂查 17.716–22.002 -->
+      <div id="s5" class="scene">
+        <div class="hudbar"><span>FINHOT · READ</span><span>真实界面</span></div>
+        <div class="cam" id="cam5">
+        <div class="ghostchar" data-layout-ignore style="font-size: 860px; right: -160px; bottom: -120px;">读</div>
+        <div class="stage">
+          <div class="wideshotwrap" id="s5wrap">
+            <div class="wideshot">
+              <img id="s5img" class="shotimg" src="assets/entry-detail.png" alt="" />
+              <div class="warmwash" data-layout-ignore></div>
+            </div>
+            <div class="tape" data-layout-ignore style="left: 46%; top: -20px; transform: rotate(-4deg); width: 210px;"></div>
+          </div>
+        </div>
+        <div class="featrow">
+          <span class="fchip" id="fc1">AI 摘要</span>
+          <span class="fchip" id="fc2">外文中译</span>
+          <span class="fchip" id="fc3">回到披露源头</span>
+        </div>
+        <div class="cap"><div id="s5cap" style="display: flex; align-items: baseline; gap: 8px;">
+          <span class="hero" style="font-size: 148px; line-height: 1;">读</span><span class="t-light" style="font-size: 68px;">得懂，</span>
+          <span class="hero or" style="font-size: 148px; line-height: 1;">查</span><span class="t-light" style="font-size: 68px;">得到</span>
+        </div></div>
+        </div>
+        <div class="footbar"><span>TRACEABLE</span><span>公告 · 互动易 · 问询函</span></div>
+      </div>
+
+      <!-- S6 发布会合影 22.002–26.859 -->
+      <div id="s6" class="scene">
+        <div class="hudbar"><span>FINHOT</span><span>ALL TOGETHER</span></div>
+        <div class="cam" id="cam6">
+        <div class="stagelight" data-layout-ignore></div>
+        <div class="memberwrap" data-layout-allow-overflow>
+          <div class="member" id="m1" style="left: 84px; top: 420px; width: 380px;"><img class="shotimg" src="assets/d-feed.png" alt="" /><div class="warmwash" data-layout-ignore></div><div class="tape" data-layout-ignore style="left:-34px; top:-14px; width:110px; height:34px; transform: rotate(-36deg);"></div></div>
+          <div class="member" id="m2" style="right: 84px; top: 330px; width: 280px;"><img class="shotimg" src="assets/m-feed.png" alt="" /><div class="warmwash" data-layout-ignore></div><div class="tape" data-layout-ignore style="right:-30px; top:-12px; width:104px; height:32px; transform: rotate(32deg);"></div></div>
+          <div class="member" id="m3" style="left: 130px; top: 1250px; width: 430px;"><img class="shotimg" src="assets/entry-detail.png" alt="" /><div class="warmwash" data-layout-ignore></div><div class="tape" data-layout-ignore style="left:36%; top:-16px; width:120px; height:34px; transform: rotate(-3deg);"></div></div>
+          <span class="mchip" id="m4" style="right: 120px; top: 1290px;">质量打分</span>
+          <span class="mchip" id="m5" style="right: 190px; top: 1420px;">AI 摘要</span>
+          <span class="mchip" id="m6" style="left: 120px; top: 300px;">21 个信源</span>
+        </div>
+        <div class="word" id="wm6">Fin<span class="or">Hot</span></div>
+        </div>
+        <div class="footbar"><span>OPEN SOURCE</span><span>AGPL-3.0</span></div>
+      </div>
+
+      <!-- S7 CTA 26.859–30 -->
+      <div id="s7" class="scene">
+        <div class="hudbar"><span>FINHOT</span><span>YOUR MOVE</span></div>
+        <div class="cam" id="cam7">
+          <div class="ghostchar" data-layout-ignore style="font-size: 960px; right: -200px; top: 900px;">盯</div>
+          <div class="ctastack">
+            <div id="s7cap" style="text-align: center;">
+              <div class="t-light" style="font-size: 76px;">你最想让它</div>
+              <div class="hero or" style="font-size: 164px; line-height: 1.1; position: relative; margin-top: 10px;">盯什么？<svg class="inkstroke" data-layout-ignore width="760" height="300" viewBox="0 0 760 300" style="position:absolute; left:-50px; top:-52px;"><path id="c7" d="M110,150 C130,52 620,30 680,110 C730,180 600,262 340,268 C140,270 62,214 96,140" stroke-width="9" stroke-dasharray="1800" stroke-dashoffset="1800"/></svg></div>
+            </div>
+            <div class="sub" id="s7sub">开源 · 本地优先<br />数据在你自己机器上</div>
+            <div class="chipfinal" id="s7chip">FinHot · 本地优先的金融信息流</div>
+          </div>
+        </div>
+        <div class="disc">演示画面 · 不构成投资建议</div>
+      </div>
+
+      <div class="bokeh" id="bk1" data-layout-ignore style="left:-120px; top:1200px; width:300px; height:300px; background: rgba(232,120,40,0.30);"></div>
+      <div class="bokeh" id="bk2" data-layout-ignore style="right:-140px; top:200px; width:230px; height:230px; background: rgba(255,214,150,0.34);"></div>
+      <div id="lightband" data-layout-ignore></div>
+      <div id="sweeper" data-layout-ignore></div>
+      <div id="flash" data-layout-ignore></div>
+      <div class="grain" data-layout-ignore></div>
+      <div class="vign" data-layout-ignore></div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/tonight-hiphop.mp3" data-volume="0.38"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* 全片唯一转场：信息流式竖推。加长 + 柔缓动 + 进场余量沉降，去生硬 */
+      function push(t, oldId, newId) {
+        tl.to(oldId, { y: -1920, duration: 0.72, ease: "power2.inOut" }, t - 0.36);
+        tl.fromTo(newId, { y: 1980 }, { y: 0, duration: 0.78, ease: "power2.out" }, t - 0.34);
+      }
+
+      /* S0 品牌压印：镜头对焦开场（虚→实）+ hold ≥1s（R1） */
+      tl.fromTo("#wm0", { scale: 1.24, opacity: 0, y: 26, filter: "blur(18px)" },
+        { scale: 1, opacity: 1, y: 0, filter: "blur(0px)", duration: 1.05, ease: "power2.out" }, 0.3);
+      tl.fromTo("#rule0", { width: 0 }, { width: 480, duration: 0.85, ease: "sine.inOut" }, 0.75);
+      tl.fromTo("#tag0", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.75, ease: "sine.out" }, 1.05);
+      /* 1.8–3.145 静止呼吸 */
+      push(3.145, "#s0", "#s1");
+
+      /* S1 单主角完整弧：焦外入场拉实(1.15)→缓推近→落字时焦点让给字幕 */
+      tl.fromTo("#s1wrap",
+        { y: 240, rotateX: 10, rotateY: -8.5, scale: 0.69, opacity: 0, filter: "blur(16px)" },
+        { y: 0, rotateX: 7, rotateY: -6, scale: 0.74, opacity: 1, filter: "blur(0px)", duration: 1.15, ease: "power2.out" }, 3.25);
+      tl.to("#s1wrap", { scale: 0.82, rotateY: -4, duration: 3.1, ease: "sine.inOut" }, 4.45);
+      tl.to("#s1img", { y: -360, duration: 3.3, ease: "sine.inOut" }, 4.35);
+      /* 拉焦：字幕入焦、卡片退到浅焦外 */
+      tl.fromTo("#s1cap", { y: 60, opacity: 0, rotation: -1.2, filter: "blur(9px)" },
+        { y: 0, opacity: 1, rotation: -0.6, filter: "blur(0px)", duration: 0.8, ease: "power2.out" }, 5.35);
+      tl.to("#s1wrap", { filter: "blur(2.6px)", duration: 0.8, ease: "sine.inOut" }, 5.45);
+      push(8.002, "#s1", "#s2");
+
+      /* S2 芯片飘入嵌进轨道槽位（Q9），间隔加速但缓动放柔（R2），满板呼吸 */
+      tl.fromTo("#rail", { height: 0 }, { height: 920, duration: 0.95, ease: "sine.inOut" }, 8.2);
+      const slots = [["#sl1", 8.62, -520, -3], ["#sl2", 9.02, 520, 3], ["#sl3", 9.36, -520, -2.5], ["#sl4", 9.63, 520, 2.5], ["#sl5", 9.84, -520, -2]];
+      slots.forEach(([id, t, x0, r0]) => {
+        tl.fromTo(id, { x: x0, opacity: 0, rotation: r0 },
+          { x: 0, opacity: 1, rotation: 0, duration: 0.6, ease: "power2.out" }, t);
+      });
+      tl.fromTo("#s2cap", { y: 60, opacity: 0, filter: "blur(8px)" },
+        { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "power2.out" }, 10.45);
+      /* 马克笔下划线：字落定后手写扫过 */
+      tl.to("#u2", { attr: { "stroke-dashoffset": 0 }, duration: 0.55, ease: "power2.inOut" }, 11.15);
+      push(12.002, "#s2", "#s3");
+
+      /* S3 移动真 UI：缓推 + 打分条柔点亮 */
+      tl.fromTo("#s3shot", { scale: 1.0 }, { scale: 1.09, duration: 3.5, ease: "sine.inOut" }, 12.05);
+      tl.fromTo("#s3shot", { y: 0 }, { y: -110, duration: 3.5, ease: "sine.inOut" }, 12.05);
+      tl.fromTo("#scorebar", { scaleY: 0 }, { scaleY: 1, duration: 0.8, ease: "sine.inOut" }, 12.6);
+      /* 拉焦：字幕入焦、信息流退浅焦外 */
+      tl.fromTo("#s3cap", { y: 60, opacity: 0, rotation: 1.0, filter: "blur(9px)" },
+        { y: 0, opacity: 1, rotation: 0.5, filter: "blur(0px)", duration: 0.8, ease: "power2.out" }, 12.95);
+      tl.to("#s3shot .shotimg", { filter: "sepia(0.16) saturate(0.9) contrast(0.95) brightness(0.99) blur(2.4px)", duration: 0.9, ease: "sine.inOut" }, 13.05);
+      tl.fromTo("#s3sub", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" }, 13.6);
+      push(16.002, "#s3", "#s4");
+
+      /* S4 特写字卡：巨型底纹字 + 衬线大字（柔入 1.7s 静） */
+      tl.fromTo("#s4k", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 16.15);
+      tl.fromTo("#s4cap", { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" }, 16.3);
+      tl.fromTo("#rule4", { width: 0 }, { width: 420, duration: 0.7, ease: "sine.inOut" }, 16.6);
+      tl.fromTo("#g4", { scale: 1.08, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "sine.out" }, 16.1);
+      tl.fromTo("#s4v", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "sine.out" }, 16.75);
+      push(17.716, "#s4", "#s5");
+
+      /* S5 条目详情：焦外入场拉实 → 横向 pan → 落字让焦 */
+      tl.fromTo("#s5wrap",
+        { y: 200, opacity: 0, rotateY: 8.5, filter: "blur(15px)" },
+        { y: 0, opacity: 1, rotateY: 5, filter: "blur(0px)", duration: 1.05, ease: "power2.out" }, 17.9);
+      tl.to("#s5img", { x: -560, duration: 3.6, ease: "sine.inOut" }, 18.5);
+      const fchips = [["#fc1", 19.1], ["#fc2", 19.45], ["#fc3", 19.8]];
+      fchips.forEach(([id, t]) => {
+        tl.fromTo(id, { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 0.62, ease: "back.out(1.15)" }, t);
+      });
+      tl.fromTo("#s5cap", { y: 60, opacity: 0, filter: "blur(9px)" },
+        { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "power2.out" }, 20.35);
+      tl.to("#s5wrap", { filter: "blur(2.4px)", duration: 0.8, ease: "sine.inOut" }, 20.45);
+      push(22.002, "#s5", "#s6");
+
+      /* S6 发布会合影：字标柔立，成员飘入落定带纸片微倾（Q8） */
+      tl.fromTo("#wm6", { scale: 1.28, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.85, ease: "power2.out" }, 22.2);
+      const members = [
+        ["#m1", 22.9, -760, -240, -1.6], ["#m2", 23.22, 760, -240, 1.8], ["#m3", 23.5, -760, 420, -1.2],
+        ["#m4", 23.78, 760, 340, 1.4], ["#m5", 24.02, 580, 580, -1.5], ["#m6", 24.2, -580, -580, 1.3],
+      ];
+      members.forEach(([id, t, x0, y0, rEnd], i) => {
+        /* 焦外飞入、落位入焦；底排两张落定后留浅焦外（深度分层） */
+        const restBlur = (id === "#m3" || id === "#m5") ? 1.6 : 0;
+        tl.fromTo(id, { x: x0, y: y0, opacity: 0, rotation: rEnd * 5, filter: "blur(12px)" },
+          { x: 0, y: 0, opacity: 1, rotation: rEnd, filter: `blur(${restBlur}px)`, duration: 0.78, ease: "power2.out" }, t);
+      });
+      tl.to("#wm6", { scale: 1.05, duration: 1.7, ease: "sine.inOut" }, 25.0);
+      /* 26.859 收束拍：全片唯一白闪（收柔一档） */
+      tl.set("#flash", { opacity: 0.65 }, 26.859);
+      tl.to("#flash", { opacity: 0, duration: 0.18, ease: "sine.out" }, 26.892);
+      push(26.859, "#s6", "#s7");
+
+      /* S7 CTA sign-off：对焦收尾 + 柔钉住（hold ≥1s） */
+      tl.fromTo("#s7cap", { y: 44, opacity: 0, filter: "blur(12px)" },
+        { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "power2.out" }, 27.15);
+      /* 手绘圈注：全片唯一一次，圈住 CTA 关键词 */
+      tl.to("#c7", { attr: { "stroke-dashoffset": 0 }, duration: 0.75, ease: "power2.inOut" }, 27.85);
+      tl.fromTo("#s7sub", { opacity: 0 }, { opacity: 1, duration: 0.65, ease: "sine.out" }, 27.8);
+      tl.fromTo("#s7chip", { scale: 0.9, opacity: 0, y: 18 }, { scale: 1, opacity: 1, y: 0, duration: 0.65, ease: "back.out(1.1)" }, 28.2);
+
+      /* ---------- 摄影层：镜头永不静止（解决「解说感」） ---------- */
+      /* 每镜整体缓移（HUD 固定如取景器），方向交替避免匀速感 */
+      tl.fromTo("#cam0", { scale: 1.0 },  { scale: 1.045, duration: 3.4, ease: "sine.inOut" }, 0);
+      tl.fromTo("#cam1", { scale: 1.05, y: 24 }, { scale: 1.0, y: 0, duration: 5.2, ease: "sine.inOut" }, 3.0);
+      tl.fromTo("#cam2", { scale: 1.0, y: 0 },  { scale: 1.06, y: -26, duration: 4.3, ease: "sine.inOut" }, 7.8);
+      tl.fromTo("#cam3", { scale: 1.06 }, { scale: 1.0, duration: 4.4, ease: "sine.inOut" }, 11.7);
+      tl.fromTo("#cam4", { scale: 1.0 },  { scale: 1.08, duration: 2.1, ease: "sine.in" }, 15.8);
+      tl.fromTo("#cam5", { scale: 1.04, y: 18 }, { scale: 1.0, y: 0, duration: 4.6, ease: "sine.inOut" }, 17.5);
+      tl.fromTo("#cam6", { scale: 1.0 },  { scale: 1.055, duration: 5.1, ease: "sine.inOut" }, 21.8);
+      tl.fromTo("#cam7", { scale: 1.06 }, { scale: 1.0, duration: 3.4, ease: "sine.out" }, 26.6);
+
+      /* 前景虚焦光斑：全片慢漂（景深暗示） */
+      tl.fromTo("#bk1", { x: 0, y: 0 },   { x: 260, y: -420, duration: 30, ease: "none" }, 0);
+      tl.fromTo("#bk2", { x: 0, y: 0 },   { x: -300, y: 520, duration: 30, ease: "none" }, 0);
+
+      /* 扫光两趟（screen 混合，纸面光泽） */
+      tl.fromTo("#lightband", { x: 0 },    { x: 2400, duration: 8.5, ease: "sine.inOut" }, 0.6);
+      tl.fromTo("#lightband", { x: 0 },    { x: 2400, duration: 9.5, ease: "sine.inOut" }, 16.4);
+
+      /* 转场遮挡卡：虚焦纸片扫过镜头（四次，错开节奏） */
+      [3.145, 8.002, 12.002, 22.002].forEach((t) => {
+        tl.fromTo("#sweeper", { y: 2400 }, { y: -2400, duration: 0.9, ease: "power2.inOut" }, t - 0.45);
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "slug": "jimeng-semiconductor-test",
+  "generatedAt": "2026-06-16T06:10:23.245Z",
+  "sources": {
+    "arollPath": "../../finished/JimengXiaoyanBrollTestV1/media/aroll.mp4",
+    "transcriptPath": "../../finished/JimengXiaoyanBrollTestV1/transcript.json"
+  },
+  "duration": 28.833,
+  "strategy": {
+    "openingArollSeconds": 4.5,
+    "closingArollSeconds": 2.5,
+    "maxBrollSeconds": 7,
+    "minBrollSeconds": 4,
+    "components": [
+      "XiaoyanGateLens",
+      "XiaoyanRiskDomino",
+      "XiaoyanValidationScroll"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "aroll-1",
+      "type": "aroll",
+      "start": 0,
+      "end": 5.911
+    },
+    {
+      "id": "xiaoyan-1",
+      "type": "xiaoyan",
+      "component": "XiaoyanGateLens",
+      "start": 5.911,
+      "end": 10.767,
+      "reason": "validation-gate",
+      "captions": [
+        "beat-3"
+      ]
+    },
+    {
+      "id": "xiaoyan-2",
+      "type": "xiaoyan",
+      "component": "XiaoyanGateLens",
+      "start": 10.767,
+      "end": 16.878,
+      "reason": "validation-gate",
+      "captions": [
+        "beat-4",
+        "beat-5"
+      ]
+    },
+    {
+      "id": "aroll-4",
+      "type": "aroll",
+      "start": 16.878,
+      "end": 18.133
+    },
+    {
+      "id": "xiaoyan-3",
+      "type": "xiaoyan",
+      "component": "XiaoyanRiskDomino",
+      "start": 18.133,
+      "end": 22.989,
+      "reason": "risk-chain",
+      "captions": [
+        "beat-7"
+      ]
+    },
+    {
+      "id": "aroll-6",
+      "type": "aroll",
+      "start": 22.989,
+      "end": 28.833
+    }
+  ],
+  "captions": [
+    {
+      "start": 3.056,
+      "end": 6.111,
+      "text": "国产化就是把设备造出",
+      "id": "beat-2"
+    },
+    {
+      "start": 6.111,
+      "end": 9.167,
+      "text": "来但真正的门砍不再",
+      "id": "beat-3"
+    },
+    {
+      "start": 9.167,
+      "end": 12.222,
+      "text": "发布会也不再实验室样",
+      "id": "beat-4"
+    },
+    {
+      "start": 12.222,
+      "end": 15.278,
+      "text": "机而在晶圆厂敢不敢",
+      "id": "beat-5"
+    },
+    {
+      "start": 15.278,
+      "end": 18.333,
+      "text": "用为什么因为芯片制",
+      "id": "beat-6"
+    },
+    {
+      "start": 18.333,
+      "end": 21.389,
+      "text": "造不是普通工厂一台设",
+      "id": "beat-7"
+    },
+    {
+      "start": 21.389,
+      "end": 24.444,
+      "text": "备只要不稳定就可能造",
+      "id": "beat-8"
+    }
+  ],
+  "stats": {
+    "wordCount": 94,
+    "captionBeatCount": 10,
+    "xiaoyanSceneCount": 3,
+    "xiaoyanSeconds": 15.823
+  }
+}

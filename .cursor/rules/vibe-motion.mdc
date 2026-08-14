@@ -1,0 +1,17 @@
+---
+description: vidio 仓库总调度 — 做视频前先走 vibe-director
+alwaysApply: true
+---
+
+这是 vibe motion 工作区。用户给想法，你组装已安装的技能做成片。
+
+硬规则：
+
+- 先加载 `.agents/skills/vibe-director/SKILL.md`。会出画面的请求先做导演读戏（`seedance-20/references/directors-read.md`），再按适配说明 `.agents/skills/vibe-director/references/seedance-adapter.md` 选引擎。
+- 不要加载 `ra-video-production-director`、`tts-skill`、`heygen-digital-avatar`（除非用户明确自备了对应资源）。
+- 不要创建 `01-内容生产/`、`05-视频组件/`。项目写到 `projects/<日期-slug>/`，组件沉淀到 `library/`。
+- Seedance 默认交付可粘贴提示词包，不代跑 API。
+- 默认无人出镜：画面不出现真人/人物角色，叙事由物件、屏幕、光标、环境承载；用户点名才解禁。
+- OpenMontage（`vendor/openmontage`）只当工具箱：需要实拍素材、WhisperX、多家 TTS、免费配乐、参考片拆解、即梦代跑时加载 `openmontage-adapter`。禁止加载它的 Rule Zero / pipelines / onboarding / Backlot。
+- 默认直接制作；只有用户说先存着才走选题卡。
+- 少问多做：能填默认值就写进 `brief.md` 开工。

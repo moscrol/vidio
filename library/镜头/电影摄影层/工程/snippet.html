@@ -1,0 +1,60 @@
+<!-- 电影摄影层（来源 finhot-film v12 R12/R13）：镜头缓移 + 景深 + 光斑 + 扫光 + 转场遮挡卡 -->
+<!-- 结构约定：每镜 <div class="scene"><div class="hudbar">…</div><div class="cam" id="camN">内容</div></div> -->
+<style>
+  .cam { position: absolute; inset: 0; }
+  .bokeh { position: absolute; border-radius: 50%; pointer-events: none; z-index: 76; filter: blur(34px); }
+  #lightband {
+    position: absolute; top: -400px; bottom: -400px; width: 560px; left: -700px;
+    pointer-events: none; z-index: 77; transform: rotate(14deg);
+    background: linear-gradient(90deg, transparent, rgba(255,252,240,0.16) 45%, rgba(255,252,240,0.16) 55%, transparent);
+    mix-blend-mode: screen;
+  }
+  #sweeper {
+    position: absolute; left: -160px; right: -160px; height: 980px; top: 0;
+    pointer-events: none; z-index: 78; transform: translateY(2400px) rotate(-7deg);
+    background: linear-gradient(180deg, rgba(243,229,203,0), rgba(238,220,188,0.72) 40%, rgba(230,206,164,0.78) 60%, rgba(243,229,203,0));
+    filter: blur(26px);
+  }
+  .ghostchar { filter: blur(9px); } /* 巨型底纹字恒在焦外 */
+</style>
+
+<div class="bokeh" id="bk1" data-layout-ignore style="left:-120px; top:1200px; width:300px; height:300px; background: rgba(232,120,40,0.30);"></div>
+<div class="bokeh" id="bk2" data-layout-ignore style="right:-140px; top:200px; width:230px; height:230px; background: rgba(255,214,150,0.34);"></div>
+<div id="lightband" data-layout-ignore></div>
+<div id="sweeper" data-layout-ignore></div>
+
+<script>
+/* ===== GSAP 段（贴进主 timeline；tl 为 paused 主时间线） =====
+
+// 1) 镜头永不静止：每镜 cam 整体缓移，方向交替避免匀速感
+tl.fromTo("#cam0", { scale: 1.0 },        { scale: 1.045, duration: 3.4, ease: "sine.inOut" }, 0);
+tl.fromTo("#cam1", { scale: 1.05, y: 24 }, { scale: 1.0, y: 0, duration: 5.2, ease: "sine.inOut" }, 3.0);
+// …逐镜交替 推近 / 拉远 / 带位移
+
+// 2) 景深三式
+// 开镜对焦：
+tl.fromTo("#wm0", { filter: "blur(18px)", opacity: 0 }, { filter: "blur(0px)", opacity: 1, duration: 1.05, ease: "power2.out" }, 0.3);
+// 落字拉焦（字幕入焦、B-roll 同拍退浅焦外）：
+tl.fromTo("#cap", { filter: "blur(9px)", opacity: 0 }, { filter: "blur(0px)", opacity: 1, duration: 0.8 }, T);
+tl.to("#broll",   { filter: "blur(2.6px)", duration: 0.8, ease: "sine.inOut" }, T + 0.1);
+// 深度分层（合影后排落定留浅焦）：
+tl.fromTo("#member", { filter: "blur(12px)" }, { filter: "blur(1.6px)", duration: 0.78 }, T);
+
+// 3) 光斑慢漂 + 扫光两趟
+tl.fromTo("#bk1", { x: 0, y: 0 }, { x: 260, y: -420, duration: 30, ease: "none" }, 0);
+tl.fromTo("#bk2", { x: 0, y: 0 }, { x: -300, y: 520, duration: 30, ease: "none" }, 0);
+tl.fromTo("#lightband", { x: 0 }, { x: 2400, duration: 8.5, ease: "sine.inOut" }, 0.6);
+tl.fromTo("#lightband", { x: 0 }, { x: 2400, duration: 9.5, ease: "sine.inOut" }, 16.4);
+
+// 4) 转场遮挡卡（虚焦纸片扫过，钉在竖推转场中心，全片 ≤4 次）
+[T1, T2, T3, T4].forEach((t) => {
+  tl.fromTo("#sweeper", { y: 2400 }, { y: -2400, duration: 0.9, ease: "power2.inOut" }, t - 0.45);
+});
+
+// 5) 全片唯一转场：信息流式竖推（0.72s power2 + 重叠）
+function push(t, oldId, newId) {
+  tl.to(oldId, { y: -1920, duration: 0.72, ease: "power2.inOut" }, t - 0.36);
+  tl.fromTo(newId, { y: 1980 }, { y: 0, duration: 0.78, ease: "power2.out" }, t - 0.34);
+}
+===== */
+</script>

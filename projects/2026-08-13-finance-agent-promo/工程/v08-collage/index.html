@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 400; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Sans SC"; font-weight: 700; font-style: normal;
+        src: url("shared/fonts/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Noto Serif SC"; font-weight: 900; font-style: normal;
+        src: url("shared/fonts/noto-serif-sc-chinese-simplified-900-normal.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #E8DCC8; }
+      body { font-family: "Noto Sans SC", sans-serif; color: #33291C; }
+      .serif { font-family: "Noto Serif SC", serif; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      .scene { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; background: #E8DCC8; }
+      #k2,#k3,#k4,#k5 { opacity: 0; }
+
+      .halftone {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+        background-image: radial-gradient(rgba(51,41,28,0.22) 2px, transparent 2px);
+        background-size: 26px 26px;
+      }
+      .grain {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.4;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+        background-size: 260px 260px;
+      }
+      .sticker {
+        position: absolute; background: #FBF6EA;
+        border: 2.5px solid #33291C; padding: 24px 30px;
+        box-shadow: 8px 8px 0 rgba(51,41,28,0.85);
+        font-size: 30px; line-height: 1.5;
+      }
+      .sticker b { color: #D9481C; }
+      .tape {
+        position: absolute; width: 170px; height: 46px;
+        background: rgba(122,157,178,0.65); transform: rotate(-4deg);
+        left: 50%; margin-left: -85px; top: -24px;
+        box-shadow: 0 2px 6px rgba(51,41,28,0.2);
+      }
+      .headline { font-family: "Noto Serif SC", serif; font-weight: 900; font-size: 104px; line-height: 1.32; }
+      .headline .rd { color: #D9481C; }
+      .kick {
+        display: inline-block; background: #33291C; color: #FBF6EA;
+        padding: 10px 26px; font-size: 28px; letter-spacing: 6px; transform: rotate(-2deg);
+      }
+      .foot {
+        position: absolute; bottom: 50px; left: 76px; right: 76px;
+        display: flex; justify-content: space-between;
+        font-size: 20px; color: rgba(51,41,28,0.6); letter-spacing: 2px;
+      }
+      .doodle { position: absolute; pointer-events: none; }
+      .badge-round {
+        position: absolute; width: 210px; height: 210px; border-radius: 50%;
+        background: #D9481C; color: #FBF6EA; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 2px;
+        font-weight: 700; transform: rotate(8deg);
+        box-shadow: 7px 7px 0 rgba(51,41,28,0.85);
+      }
+      /* K3 便签任务 */
+      .note {
+        position: absolute; width: 430px; padding: 26px 26px 30px;
+        font-size: 29px; line-height: 1.5; box-shadow: 7px 7px 0 rgba(51,41,28,0.55);
+      }
+      .note .ck { font-weight: 700; color: #33291C; }
+      /* K4 索引卡 */
+      .index-card {
+        position: absolute; left: 76px; right: 76px; background: #FBF6EA;
+        border: 2.5px solid #33291C; box-shadow: 10px 10px 0 rgba(51,41,28,0.85);
+        padding: 36px 40px;
+      }
+      .index-card .row { display: flex; gap: 18px; padding: 22px 0; border-bottom: 2px dashed rgba(51,41,28,0.4); font-size: 32px; line-height: 1.5; align-items: baseline; }
+      .index-card .row:last-child { border-bottom: none; }
+      .index-card .num { font-family: "Noto Serif SC", serif; font-weight: 900; color: #D9481C; font-size: 38px; }
+      .srcchip {
+        display: inline-block; background: #7A9DB2; color: #FBF6EA;
+        font-size: 22px; padding: 4px 14px; transform: rotate(-1.5deg); white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+
+      <!-- K1 封面 -->
+      <div id="k1" class="scene">
+        <div class="halftone"></div>
+        <div style="position:absolute; left:76px; top:300px; right:76px;">
+          <span class="kick" id="k1-k">今日手账 · DEMO</span>
+          <div class="headline" style="margin-top: 56px;" id="k1-h">盯盘一整天<br />研报<span class="rd">看不完</span></div>
+        </div>
+        <div class="sticker" id="k1-s1" style="top: 900px; left: 76px; transform: rotate(-3deg);"><div class="tape"></div><b>快讯</b>｜政策窗口临近</div>
+        <div class="sticker" id="k1-s2" style="top: 1030px; left: 320px; transform: rotate(2deg);"><div class="tape" style="transform: rotate(5deg);"></div><b>公告</b>｜股东减持计划</div>
+        <div class="sticker" id="k1-s3" style="top: 1160px; left: 120px; transform: rotate(-1.5deg);"><div class="tape"></div><b>研报</b>｜第 47 页 / 96</div>
+        <!-- 手绘圈住「靠感觉」 -->
+        <div style="position:absolute; left:76px; top:1420px;">
+          <div style="font-size: 56px; font-weight: 700;" id="k1-gut">下单那一刻，还是 <span class="serif" style="font-size: 72px; color:#D9481C; position: relative;">靠感觉<svg class="doodle" width="360" height="140" viewBox="0 0 360 140" style="left:-40px; top:-24px;"><path id="circ1" d="M40,70 C60,18 300,10 330,55 C355,95 300,128 160,130 C60,131 18,105 40,66" fill="none" stroke="#33291C" stroke-width="5" stroke-linecap="round" stroke-dasharray="860" stroke-dashoffset="860"/></svg></span></div>
+        </div>
+        <div class="foot"><span>V08 · COLLAGE</span><span>DEMO · 画面为模拟示例</span></div>
+        <div class="grain"></div>
+      </div>
+
+      <!-- K2 极限 -->
+      <div id="k2" class="scene">
+        <div class="halftone"></div>
+        <div style="position:absolute; left:76px; top:300px;"><span class="kick">现象</span></div>
+        <div class="headline" style="position:absolute; left:76px; right:76px; top:420px;" id="k2-h">信息量早就<br />超过<span class="rd">极限</span></div>
+        <div class="sticker" id="k2-s1" style="top: 850px; left: 90px; transform: rotate(-2deg);"><b>异动</b>｜5 分钟拉升 +3.2%</div>
+        <div class="sticker" id="k2-s2" style="top: 970px; left: 380px; transform: rotate(1.8deg);"><b>数据</b>｜北向净流入转负</div>
+        <div class="sticker" id="k2-s3" style="top: 1090px; left: 140px; transform: rotate(-1deg);"><b>评论</b>｜「利好落地就是利空？」</div>
+        <div class="badge-round" id="k2-badge" style="top: 1240px; right: 110px;">
+          <span style="font-size: 54px;">99+</span><span style="font-size: 26px;">未读</span>
+        </div>
+        <!-- 涂鸦箭头 -->
+        <svg class="doodle" id="k2-arrow" width="260" height="220" viewBox="0 0 260 220" style="top: 1300px; left: 130px;">
+          <path id="arr1" d="M30,30 C60,120 130,170 205,175 M205,175 L160,150 M205,175 L175,205"
+            fill="none" stroke="#D9481C" stroke-width="6" stroke-linecap="round" stroke-dasharray="420" stroke-dashoffset="420"/>
+        </svg>
+        <div class="foot"><span>OVERLOAD</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="grain"></div>
+      </div>
+
+      <!-- K3 便签任务 -->
+      <div id="k3" class="scene">
+        <div class="halftone"></div>
+        <div style="position:absolute; left:76px; top:290px;"><span class="kick">解法</span></div>
+        <div class="headline" style="position:absolute; left:76px; right:76px; top:400px; font-size: 96px;" id="k3-h">把活贴给<br /><span class="rd">问盘</span></div>
+        <div class="sticker" id="k3-cmd" style="top: 850px; left: 76px; right: 76px; font-size: 34px; transform: rotate(-1deg);">
+          <div class="tape"></div>「查一下今天新能源板块异动的原因」<div style="font-size: 24px; color: rgba(51,41,28,0.6); margin-top: 8px;">—— 你只需要写这一张便签</div>
+        </div>
+        <div class="note" id="n1" style="background:#F7E8A4; top: 1080px; left: 76px; transform: rotate(-2.5deg);"><span class="ck">✓</span> 检索公告快讯</div>
+        <div class="note" id="n2" style="background:#BFD8C2; top: 1080px; right: 76px; width: 430px; transform: rotate(2deg);"><span class="ck">✓</span> 拉取板块行情</div>
+        <div class="note" id="n3" style="background:#F3C5AC; top: 1250px; left: 76px; transform: rotate(1.5deg);"><span class="ck">✓</span> 交叉对比研报</div>
+        <div class="note" id="n4" style="background:#C9CEE8; top: 1250px; right: 76px; width: 430px; transform: rotate(-2deg);"><span class="ck">✓</span> 生成结论清单</div>
+        <div style="position:absolute; left:76px; top:1520px; font-size: 42px; font-weight: 700;" id="k3-sub">一句话，它自己去查。</div>
+        <div class="foot"><span>ONE NOTE</span><span>DEMO · 占位界面</span></div>
+        <div class="grain"></div>
+      </div>
+
+      <!-- K4 索引卡结论 -->
+      <div id="k4" class="scene">
+        <div class="halftone"></div>
+        <div style="position:absolute; left:76px; top:290px;"><span class="kick">结论卡</span></div>
+        <div class="headline" style="position:absolute; left:76px; right:76px; top:400px; font-size: 96px;" id="k4-h">每个判断<br />都有<span class="rd">来源</span></div>
+        <div class="index-card" id="k4-card" style="top: 850px;">
+          <div class="row" id="kr1"><span class="num">壹</span><span>拉升与产能调整公告时间吻合 <span class="srcchip">来源：公告</span></span></div>
+          <div class="row" id="kr2"><span class="num">贰</span><span>领涨的是上游材料，不是整车 <span class="srcchip">来源：行情</span></span></div>
+          <div class="row" id="kr3"><span class="num">叁</span><span>两份研报上周已提示这条主线 <span class="srcchip">来源：研报</span></span></div>
+        </div>
+        <div class="badge-round" id="k4-time" style="top: 1400px; right: 100px; transform: rotate(-7deg);">
+          <span style="font-size: 46px;" class="mono">1'42"</span><span style="font-size: 24px;">到结论</span>
+        </div>
+        <div class="foot"><span>TRACEABLE</span><span>DEMO · 数据为占位示例</span></div>
+        <div class="grain"></div>
+      </div>
+
+      <!-- K5 对比 + CTA -->
+      <div id="k5" class="scene">
+        <div class="halftone"></div>
+        <div style="position:absolute; left:76px; top:280px;"><span class="kick">对比</span></div>
+        <div class="sticker" id="k5-l" style="top: 400px; left: 76px; width: 440px; transform: rotate(-2deg); font-size: 28px;">
+          <div class="tape"></div><b>聊天机器人</b><br />第 5 次追问中…<br />答案还差一半
+        </div>
+        <div class="sticker" id="k5-r" style="top: 400px; right: 76px; width: 440px; transform: rotate(2deg); font-size: 28px; border-color:#D9481C;">
+          <div class="tape" style="background: rgba(217,72,28,0.5);"></div><b>问盘</b><br />活已干完 ✓<br />结论带来源
+        </div>
+        <div class="headline" style="position:absolute; left:76px; right:76px; top:760px; font-size: 96px;" id="k5-h">它不等你追问<br /><span class="rd" style="position:relative;">自己干完<svg class="doodle" width="520" height="60" viewBox="0 0 520 60" style="left:0; bottom:-46px;"><path id="scrib" d="M10,28 C90,8 150,44 230,26 C310,10 370,46 450,28 C480,22 500,26 512,24" fill="none" stroke="#33291C" stroke-width="6" stroke-linecap="round" stroke-dasharray="620" stroke-dashoffset="620"/></svg></span></div>
+        <div style="position:absolute; left:76px; right:76px; top:1240px;">
+          <div class="headline" style="font-size: 84px;" id="k5-cta">你最想让它<span class="rd">盯什么？</span></div>
+          <div style="font-size: 34px; margin-top: 36px; line-height: 1.6;" id="k5-sub">评论区告诉我，拿真实数据跑给你看。</div>
+          <div class="sticker" id="k5-chip" style="position: static; display: inline-block; margin-top: 44px; transform: rotate(-1.5deg);">问盘 WENPAN · 金融 Agent</div>
+        </div>
+        <div class="foot"><span>V08 · COLLAGE</span><span>演示画面 · 不构成投资建议</span></div>
+        <div class="grain"></div>
+      </div>
+
+      <audio id="bgm" data-start="0" data-duration="30" data-track-index="2"
+        src="shared/bgm/cat-walk.mp3" data-volume="0.38"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 纸片抛掷式推移
+      function toss(tOut, oldId, newId) {
+        tl.to(oldId, { x: -1180, rotation: -5, duration: 0.5, ease: "power3.in" }, tOut);
+        tl.fromTo(newId, { x: 1180, rotation: 4, opacity: 1 }, { x: 0, rotation: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, tOut + 0.18);
+      }
+
+      /* K1 0–6.6 */
+      tl.fromTo("#k1-k", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 0.25);
+      tl.fromTo("#k1-h", { y: 54, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.5);
+      const k1s = [["#k1-s1", 1.4, -6], ["#k1-s2", 1.75, 5], ["#k1-s3", 2.1, -4]];
+      k1s.forEach(([id, t, r0]) => {
+        tl.fromTo(id, { y: -60, opacity: 0, rotation: r0 }, { y: 0, opacity: 1, rotation: r0 / 2.2, duration: 0.45, ease: "back.out(1.6)" }, t);
+      });
+      tl.fromTo("#k1-gut", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "sine.out" }, 3.0);
+      tl.to("#circ1", { attr: { "stroke-dashoffset": 0 }, duration: 0.9, ease: "power2.inOut" }, 3.7);
+      toss(6.6, "#k1", "#k2");
+
+      /* K2 6.8–11.4 */
+      tl.fromTo("#k2-h", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 7.3);
+      const k2s = [["#k2-s1", 8.0], ["#k2-s2", 8.3], ["#k2-s3", 8.6]];
+      k2s.forEach(([id, t]) => {
+        tl.fromTo(id, { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, t);
+      });
+      tl.fromTo("#k2-badge", { scale: 0, opacity: 0, rotation: 40 }, { scale: 1, opacity: 1, rotation: 8, duration: 0.45, ease: "back.out(2.2)" }, 9.2);
+      tl.to("#arr1", { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power2.inOut" }, 9.7);
+      toss(11.4, "#k2", "#k3");
+
+      /* K3 11.6–17.8 便签 */
+      tl.fromTo("#k3-h", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 12.1);
+      tl.fromTo("#k3-cmd", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" }, 12.8);
+      const notes = [["#n1", 13.7, -2.5], ["#n2", 14.15, 2], ["#n3", 14.6, 1.5], ["#n4", 15.05, -2]];
+      notes.forEach(([id, t, r]) => {
+        tl.fromTo(id, { scale: 0.6, opacity: 0, rotation: r * 4 }, { scale: 1, opacity: 1, rotation: r, duration: 0.42, ease: "back.out(1.9)" }, t);
+      });
+      tl.fromTo("#k3-sub", { opacity: 0, x: -36 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 16.2);
+      toss(17.8, "#k3", "#k4");
+
+      /* K4 18–23.2 索引卡 */
+      tl.fromTo("#k4-h", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 18.5);
+      tl.fromTo("#k4-card", { y: 70, opacity: 0, rotation: 2 }, { y: 0, opacity: 1, rotation: 0, duration: 0.5, ease: "power3.out" }, 19.1);
+      const krs = [["#kr1", 19.7], ["#kr2", 20.3], ["#kr3", 20.9]];
+      krs.forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, x: -34 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, t);
+      });
+      tl.fromTo("#k4-time", { scale: 0, opacity: 0, rotation: -40 }, { scale: 1, opacity: 1, rotation: -7, duration: 0.45, ease: "back.out(2.2)" }, 21.7);
+      toss(23.2, "#k4", "#k5");
+
+      /* K5 23.4–30 对比 + CTA */
+      tl.fromTo("#k5-l", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "back.out(1.6)" }, 23.9);
+      tl.fromTo("#k5-r", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "back.out(1.9)" }, 24.2);
+      tl.fromTo("#k5-h", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 24.8);
+      tl.to("#scrib", { attr: { "stroke-dashoffset": 0 }, duration: 0.7, ease: "power2.inOut" }, 25.6);
+      tl.fromTo("#k5-cta", { y: 44, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 26.5);
+      tl.fromTo("#k5-sub", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "sine.out" }, 27.2);
+      tl.fromTo("#k5-chip", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 27.7);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

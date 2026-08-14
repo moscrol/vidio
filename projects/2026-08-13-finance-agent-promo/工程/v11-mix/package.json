@@ -1,0 +1,11 @@
+{
+  "name": "v11-mix",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.7.107 preview",
+    "check": "npx --yes hyperframes@0.7.107 check",
+    "render": "npx --yes hyperframes@0.7.107 render",
+    "assemble": "bash assemble.sh"
+  }
+}

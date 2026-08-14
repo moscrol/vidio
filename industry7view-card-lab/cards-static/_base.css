@@ -1,0 +1,171 @@
+/* ================================================================
+ * Industry 7View Card Library — Shared Base
+ * 编辑这个文件会影响所有卡片的设计令牌、卡片底盘、品牌条、底部注脚。
+ * 单卡微调请到对应卡片 HTML 内的 <style> 块。
+ * ================================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700&display=swap");
+
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --text: #111827;
+  --muted: #5f6b7a;
+  --line: #e5e7eb;
+  --navy: #0f2747;
+  --blue: #174ea6;
+  --blue-deep: #103a82;
+  --gold: #b8832d;
+  --soft-blue: #eef4ff;
+  --data-bg: #fff7e6;
+  --data-border: #f0c46c;
+  --risk: #e53935;
+  --paper: #fbfaf7;
+  --shadow: 0 28px 80px rgba(15, 39, 71, 0.10);
+  --font-sans: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(184, 131, 45, 0.10), transparent 34%),
+    linear-gradient(180deg, #eef2f7 0%, #dfe6ef 100%);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 80px;
+}
+
+.page-header {
+  margin: 0 0 28px;
+  text-align: center;
+}
+
+.page-header h1 {
+  color: var(--navy);
+  font-size: 28px;
+  margin: 0 0 6px;
+}
+
+.page-header p {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.page-header .nav {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.page-header .nav a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+/* ============== Card Frame ============== */
+
+.video-card {
+  background: var(--paper);
+  border: 1px solid rgba(15, 39, 71, 0.12);
+  border-radius: 0;
+  box-shadow: var(--shadow);
+  height: 640px;
+  overflow: hidden;
+  position: relative;
+  transform-origin: top center;
+  width: 360px;
+}
+
+.video-card::before {
+  background-image:
+    linear-gradient(rgba(15, 39, 71, 0.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 39, 71, 0.052) 1px, transparent 1px);
+  background-size: 36px 36px;
+  content: "";
+  inset: 0;
+  opacity: 0.78;
+  pointer-events: none;
+  position: absolute;
+}
+
+.video-card::after {
+  background: linear-gradient(180deg, var(--gold), rgba(184, 131, 45, 0.08));
+  bottom: 78px;
+  content: "";
+  left: 28px;
+  position: absolute;
+  top: 92px;
+  width: 2px;
+  z-index: 1;
+}
+
+.brand-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  left: 28px;
+  position: absolute;
+  right: 28px;
+  top: 26px;
+  z-index: 3;
+}
+
+.tag {
+  align-items: center;
+  background: var(--navy);
+  border: 1px solid var(--navy);
+  border-radius: 0;
+  color: #fff;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 8px 11px;
+}
+
+.brand {
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 39, 71, 0.13);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.bottom-note {
+  bottom: 26px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  left: 26px;
+  line-height: 1.45;
+  position: absolute;
+  right: 26px;
+  border-top: 1px solid rgba(15, 39, 71, 0.14);
+  padding-top: 12px;
+  z-index: 3;
+}
+
+.small-label {
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
