@@ -8,6 +8,8 @@ alwaysApply: true
 硬规则：
 
 - 先加载 `.agents/skills/vibe-director/SKILL.md`。会出画面的请求先做导演读戏（`seedance-20/references/directors-read.md`），再按适配说明 `.agents/skills/vibe-director/references/seedance-adapter.md` 选引擎。
+- 动效手感：HyperFrames/GSAP 只负责「怎么渲」。曲线、时长、该不该动，走 `emil-design-eng` + `animate`；成片动效默认过 `review-animations`。点名才用 `improve-animations` / `find-animation-opportunities` / `animation-vocabulary` / `apple-design`。
+- 不要默认加载 `animate-expo`、`ask-sonner`、`pick-ui-library`。本仓 `prototype` 是 Emil 的 UI 多版本切换器。
 - 不要加载 `ra-video-production-director`、`tts-skill`、`heygen-digital-avatar`（除非用户明确自备了对应资源）。
 - 不要创建 `01-内容生产/`、`05-视频组件/`。项目写到 `projects/<日期-slug>/`，组件沉淀到 `library/`。
 - Seedance 默认交付可粘贴提示词包，不代跑 API。

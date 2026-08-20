@@ -12,3 +12,5 @@
 
 - 成片 / 大媒体（`*.mp4`、`*.mp3`、批量帧图）不进 PR、不入库：走 GitHub Release 资产或外部存储，仓里只留指针与代表帧（质检每轮保留 1-2 张）。
 - 跨仓 skill 以 `skills-lock.json` 钉扎版本，不把技能树整树 vendor 入仓；权威源在 agent-memory 仓与本机技能目录，新环境用 `npx skills` 按锁恢复。
+- 动效手感走 Emil Kowalski 官方包（`.agents/skills/emil-design-eng` + `animate` / `review-animations`），来源 `emilkowalski/skills`，不要再用 uitripled 转抄。HyperFrames/GSAP 只负责把已经定好的曲线和时长渲成片。
+- 本仓 `.claude/skills/prototype` 是 Emil 的 UI 多版本切换器（显式调用才跑）；不要把它当成全局那个「状态模型/一次性 HTML 原型」skill。`animate-expo` / `ask-sonner` / `pick-ui-library` 只在对应场景加载。

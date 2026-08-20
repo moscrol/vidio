@@ -7,10 +7,22 @@
       "skillPath": "skills/ai-jian-koubo/SKILL.md",
       "computedHash": "f1093851a8a08a6fbd79bd86c9d5f93c9c695edcaf6347d7396a846d3ecf283f"
     },
-    "animation-vocabulary": {
-      "source": "moumen-soliman/uitripled",
+    "animate": {
+      "source": "emilkowalski/skills",
       "sourceType": "github",
-      "skillPath": ".agents/skills/animation-vocabulary/SKILL.md",
+      "skillPath": "skills/animate/SKILL.md",
+      "computedHash": "609e30351bf518b21a8cfe87cd1111554855527075d6563605bafe61963252f7"
+    },
+    "animate-expo": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animate-expo/SKILL.md",
+      "computedHash": "c9eaf6603b97ca61b05c7561e1045b2f58b6d84cdf8d67565bff23a9ff94ce8a"
+    },
+    "animation-vocabulary": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animation-vocabulary/SKILL.md",
       "computedHash": "39319fc9a33c15be08666b3685f58666f042ff36bb902b7814c0834a5ba99df4"
     },
     "animejs": {
@@ -18,6 +30,18 @@
       "sourceType": "github",
       "skillPath": "skills/animejs/SKILL.md",
       "computedHash": "314c655fbc0df7eacc6f3853435ff8b03c2a771fad7435a58e2c4489a780d1b7"
+    },
+    "apple-design": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/apple-design/SKILL.md",
+      "computedHash": "8b94db67cb9edaad5f1501010804caa610131f1d2dfda0a27664b2e858deade3"
+    },
+    "ask-sonner": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/ask-sonner/SKILL.md",
+      "computedHash": "23f724e97247b2003ccc479f3a9b3af8e4191a0e133b94ee6b73f8405349687f"
     },
     "chengfeng-videocut-skills:剪口播": {
       "source": "Pluviobyte/rnskill",
@@ -200,10 +224,16 @@
       "computedHash": "adbe71fccc58e377510a2f9856e0ba4f92edfa66a46e29ef9f190856109cefe9"
     },
     "emil-design-eng": {
-      "source": "moumen-soliman/uitripled",
+      "source": "emilkowalski/skills",
       "sourceType": "github",
-      "skillPath": ".agents/skills/emil-design-eng/SKILL.md",
-      "computedHash": "8bdf9e4e6de7a4969147bf4828a4ad2c5aacd9fba4b690b250a85e0467ca387d"
+      "skillPath": "skills/emil-design-eng/SKILL.md",
+      "computedHash": "41b0a4dc1a27164fe297845a6c6850a39e9242c42c9be999967fcee9df2c5974"
+    },
+    "find-animation-opportunities": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-animation-opportunities/SKILL.md",
+      "computedHash": "8fb8492eb8fbed1313cb430b5831d925d9b8964ca24f3c41a6244cbd1fd98732"
     },
     "gsap": {
       "source": "heygen-com/hyperframes",
@@ -247,6 +277,12 @@
       "skillPath": "skills/ian-xiaohei-illustrations/SKILL.md",
       "computedHash": "db90e8707135fe2ea3acf0fe8c4710c51c63baf1f39c54d0c485740c5987da39"
     },
+    "improve-animations": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/improve-animations/SKILL.md",
+      "computedHash": "eeb219a407e325b687af88db25771cc3018e3148245604112f5ac6990b6fd79c"
+    },
     "lottie": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
@@ -258,6 +294,18 @@
       "sourceType": "github",
       "skillPath": ".agents/skills/make-interfaces-feel-better/SKILL.md",
       "computedHash": "54b6e221bbe4e2d1a8461c3f9ecabe69daf891f964e9ee5e699c323daa018f2e"
+    },
+    "pick-ui-library": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pick-ui-library/SKILL.md",
+      "computedHash": "f8d4d2cf4677bf54b14f35f62a741add93541bfcb67863315a40164365161b49"
+    },
+    "prototype": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/prototype/SKILL.md",
+      "computedHash": "f246d1f47566481d9207e1aa574bdee5454257d862919a6591283e9af2f57eab"
     },
     "ra-audio-to-subtitles": {
       "source": "Pluviobyte/rnskill",
@@ -354,6 +402,12 @@
       "sourceType": "github",
       "skillPath": "skills/remotion-to-hyperframes/SKILL.md",
       "computedHash": "ee04c5eca6113d5a3a8aeee9e78792451da57f06450bd034486950142ee05766"
+    },
+    "review-animations": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/review-animations/SKILL.md",
+      "computedHash": "b9f669af5ae280c19a592a94611520335a81de25c88f225bf60ae4b2d66c8c7c"
     },
     "rn-bw-text-opener": {
       "source": "Pluviobyte/rnskill",

@@ -24,7 +24,7 @@
      ├── 建项目 projects/<日期-主题>/（brief.md 契约 + 状态流转）
      ├── 查 library/ + video-shotcraft 镜头卡，能复用的直接复用
      ├── 按形态路由技能链：
-     │     动效视频    rn-motion-director → hyperframes
+     │     动效视频    emil-design-eng / animate → rn-motion-director → hyperframes → review-animations
      │     产品宣传片  video-shotcraft（UI 电影感）；生活场景拆给 Seedance
      │     生成影像    seedance-20（即梦/Seedance 提示词包，默认可粘贴不代跑）
      │     数字人口播  rachel-digital-human-production
@@ -48,8 +48,9 @@
 | [video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | 电影感产品视频：152 张镜头卡、209 个动效预览、Remotion 实现、Ink Press 模板、BGM/SFX 库 |
 | [rachel-digital-human-production](https://github.com/Jingyi-Wu-Richael/rachel-digital-human-production) | 数字人口播：MiniMax 声音克隆 + HeyGen 图生视频，15 秒预览门控 |
 | [rnskill](https://github.com/Pluviobyte/rnskill)（54 个） | 内容生产全链：选题、洗稿、去 AI 味、配音、数字人、剪辑、字幕、封面、图文、动效导演、dbs 商业诊断 |
-| [hyperframes](https://github.com/heygen-com/hyperframes) 全家桶 | HTML 视频合成：字幕、TTS 配音、转场、音频响应动画、网站转视频，及 gsap/animejs/lottie/three/waapi/css-animations/typegpu/tailwind 适配层 |
-| 设计工程组（来自 [uitripled](https://github.com/moumen-soliman/uitripled) / [transitions.dev](https://github.com/jakubantalik/transitions.dev)） | `make-interfaces-feel-better`、`emil-design-eng`、`animation-vocabulary`、`transitions-dev`、`transitions-polish` — 演示界面手感、动效词汇、21 个成品 CSS 转场；uitripled 组件库本体按需 clone 用于搭产品演示页 |
+| [hyperframes](https://github.com/heygen-com/hyperframes) 全家桶 | HTML 视频合成：字幕、TTS 配音、转场、音频响应动画、网站转视频，及 gsap/animejs/lottie/three/waapi/css-animations/typegpu/tailwind 适配层。负责「怎么渲」，不负责动效手感 |
+| [emilkowalski/skills](https://github.com/emilkowalski/skills)（11，MIT） | 动效品味基线（官方源；替换 uitripled 对 `emil-design-eng` / `animation-vocabulary` 的转抄）。成片默认：`emil-design-eng` → `animate` → `review-animations`。点名再用：`improve-animations`、`find-animation-opportunities`、`animation-vocabulary`、`apple-design`。不默认加载：`animate-expo`（RN/Expo）、`ask-sonner`、`pick-ui-library`、`prototype`（本仓是 UI 多版本切换器，会盖住全局那个 prototype skill） |
+| 设计工程组（来自 [uitripled](https://github.com/moumen-soliman/uitripled) / [transitions.dev](https://github.com/jakubantalik/transitions.dev)） | `make-interfaces-feel-better`、`transitions-dev`、`transitions-polish` — 演示界面手感、21 个成品 CSS 转场；uitripled 组件库本体按需 clone 用于搭产品演示页 |
 | [OpenMontage](https://github.com/calesthio/OpenMontage)（工具供给层） | `openmontage-adapter` — 只取它的 102 个 Python 工具，不用它的调度：实拍素材检索（Pexels/Pixabay）、WhisperX 逐词字幕、豆包/DashScope/Piper 等多家 TTS、免费配乐检索、参考片拆解、场景切分、画质增强、即梦代跑。本体 clone 到 `vendor/openmontage`（不入库，commit 锁在适配器技能里） |
 
 ## 目录结构
