@@ -1,8 +1,8 @@
 # Vidio Design Language Contract — Design Specification
 
-**Date:** 2026-08-22  
-**Status:** Approved for implementation  
-**Branch:** `feat/design-language-contract`  
+**Date:** 2026-08-22
+**Status:** Approved for implementation
+**Branch:** `feat/design-language-contract`
 **Upstream:** stacked on `feat/awesome-design-md-distillation`
 
 ## Objective
