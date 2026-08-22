@@ -167,6 +167,7 @@ Emil source + pinned commit
 ```
 
 契约描述意图和可审查事实，不复制渲染器代码。具体选择器和 GSAP 语句仍留在 composition 内。
+`entry.fromScale` 表示相对最终静止尺寸的归一化比例，而不是元素为适配画布而长期携带的 CSS layout scale；例如从 `0.72` 到 `0.78` 的实际相对入场比例是 `0.923`。
 
 ## 混合门
 
