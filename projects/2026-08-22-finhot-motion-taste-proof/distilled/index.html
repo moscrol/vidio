@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1080, height=1920">
+    <title>FinHot motion taste — distilled</title>
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC";
+        font-style: normal;
+        font-weight: 400;
+        src: url("assets/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Noto Sans SC";
+        font-style: normal;
+        font-weight: 700 900;
+        src: url("assets/noto-sans-sc-chinese-simplified-700-normal.woff2") format("woff2");
+      }
+
+      :root {
+        --ink: #f5f2ec;
+        --muted: #c4c0b8;
+        --faint: #aaa59c;
+        --canvas: #0d0f14;
+        --orange: #ff7a29;
+        --blue: #3878ff;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--canvas);
+      }
+
+      body {
+        color: var(--ink);
+        font-family: "Noto Sans SC", sans-serif;
+      }
+
+      #root,
+      #timeline,
+      .scene,
+      .canvas-bg {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+      }
+
+      #root {
+        position: relative;
+      }
+
+      .canvas-bg {
+        background:
+          radial-gradient(circle at 84% 12%, rgba(255, 122, 41, 0.2), transparent 33%),
+          radial-gradient(circle at 16% 88%, rgba(56, 120, 255, 0.15), transparent 36%),
+          var(--canvas);
+      }
+
+      .scene {
+        isolation: isolate;
+      }
+
+      #p2 {
+        opacity: 0;
+      }
+
+      .noise {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        pointer-events: none;
+        opacity: 0.08;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+        background-size: 240px 240px;
+      }
+
+      .safe-frame {
+        position: absolute;
+        inset: 26px;
+        z-index: 50;
+        border: 1px solid rgba(245, 242, 236, 0.12);
+        border-radius: 28px;
+        pointer-events: none;
+      }
+
+      .hud,
+      .foot {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        z-index: 32;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--muted);
+        font-family: "Noto Sans SC", sans-serif;
+        letter-spacing: 3px;
+      }
+
+      .hud {
+        top: 36px;
+        min-height: 58px;
+        padding: 10px 18px;
+        border: 1px solid rgba(245, 242, 236, 0.14);
+        border-radius: 999px;
+        background: rgba(13, 15, 20, 0.92);
+        font-size: 21px;
+      }
+
+      .foot {
+        bottom: 58px;
+        color: var(--faint);
+        font-size: 18px;
+      }
+
+      .hud strong {
+        color: var(--orange);
+        font-weight: 700;
+      }
+
+      .desktop-stage {
+        position: absolute;
+        inset: 145px 0 250px;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        perspective: 1600px;
+      }
+
+      .desktop-layout {
+        flex: 0 0 auto;
+        width: 1560px;
+        height: 1950px;
+        transform: rotateX(5deg) rotateY(-4deg) scale(0.54);
+        transform-style: preserve-3d;
+      }
+
+      #desktop-motion {
+        width: 1560px;
+        height: 1950px;
+        transform-style: preserve-3d;
+      }
+
+      .desktop-screen {
+        width: 1560px;
+        height: 1950px;
+        overflow: hidden;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow:
+          0 62px 170px rgba(0, 0, 0, 0.68),
+          0 0 0 2px rgba(245, 242, 236, 0.14);
+      }
+
+      #desktop-scroll {
+        display: block;
+        width: 1936px;
+        height: 2420px;
+        margin-left: -188px;
+        object-fit: cover;
+        object-position: center top;
+      }
+
+      .srcchips {
+        position: absolute;
+        top: 1418px;
+        left: 70px;
+        right: 70px;
+        z-index: 33;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .srcchip {
+        display: inline-flex;
+        min-width: 92px;
+        min-height: 58px;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 24px;
+        border: 2px solid rgba(255, 122, 41, 0.9);
+        border-radius: 999px;
+        background: rgba(13, 15, 20, 0.9);
+        color: var(--orange);
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.26);
+      }
+
+      .headline {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        z-index: 34;
+        max-width: 940px;
+        font-size: 92px;
+        font-weight: 800;
+        line-height: 1.12;
+        letter-spacing: -3px;
+        text-shadow: 0 5px 34px rgba(0, 0, 0, 0.78);
+      }
+
+      .headline .accent {
+        color: var(--orange);
+      }
+
+      #cap1 {
+        top: 1548px;
+      }
+
+      .mobile-layout,
+      #mobile-motion,
+      .mobile-screen {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+      }
+
+      .mobile-screen img {
+        display: block;
+        width: 1080px;
+        height: 1920px;
+        object-fit: cover;
+      }
+
+      .mobile-dim {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background:
+          linear-gradient(180deg, rgba(13, 15, 20, 0.64) 0%, rgba(13, 15, 20, 0.46) 55%, rgba(13, 15, 20, 0.96) 88%),
+          linear-gradient(90deg, rgba(13, 15, 20, 0.25), transparent 45%);
+      }
+
+      .focus-window {
+        position: absolute;
+        top: 310px;
+        left: 58px;
+        z-index: 24;
+        width: 964px;
+        height: 420px;
+        border: 2px solid rgba(255, 122, 41, 0.4);
+        border-radius: 22px;
+        box-shadow: inset 0 0 80px rgba(255, 122, 41, 0.08);
+      }
+
+      #scorebar {
+        position: absolute;
+        top: 342px;
+        left: 74px;
+        z-index: 27;
+        display: block;
+        width: 10px;
+        height: 352px;
+        border-radius: 999px;
+        background: var(--orange);
+        transform-origin: center top;
+        box-shadow: 0 0 32px rgba(255, 122, 41, 0.7);
+      }
+
+      #signal-dot {
+        position: absolute;
+        top: 320px;
+        left: 58px;
+        z-index: 28;
+        width: 42px;
+        height: 42px;
+        border: 9px solid var(--canvas);
+        border-radius: 50%;
+        background: var(--orange);
+        box-shadow: 0 0 0 2px var(--orange), 0 0 42px rgba(255, 122, 41, 0.85);
+      }
+
+      #cap2 {
+        bottom: 344px;
+      }
+
+      #cap2sub {
+        position: absolute;
+        bottom: 242px;
+        left: 70px;
+        right: 70px;
+        z-index: 34;
+        color: #d7d2c8;
+        font-size: 34px;
+        font-weight: 600;
+        line-height: 1.45;
+        letter-spacing: 2px;
+        text-shadow: 0 4px 26px rgba(0, 0, 0, 0.8);
+      }
+
+      .bridge-layout {
+        position: absolute;
+        top: 915px;
+        left: 50%;
+        z-index: 60;
+        width: 820px;
+        margin-left: -410px;
+        text-align: center;
+        pointer-events: none;
+      }
+
+      #bridge-token {
+        display: inline-flex;
+        min-height: 76px;
+        align-items: center;
+        gap: 20px;
+        padding: 14px 30px;
+        border: 2px solid rgba(245, 242, 236, 0.78);
+        border-radius: 999px;
+        background: rgba(13, 15, 20, 0.95);
+        color: var(--ink);
+        font-family: "Noto Sans SC", sans-serif;
+        font-size: 25px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        opacity: 0;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.52);
+      }
+
+      #bridge-token .arrow {
+        color: var(--orange);
+        font-size: 34px;
+      }
+
+      #bridge-wash {
+        position: absolute;
+        top: 948px;
+        left: 0;
+        z-index: 55;
+        display: block;
+        width: 1080px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent 6%, var(--orange) 50%, transparent 94%);
+        opacity: 0;
+        transform-origin: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-qx25" id="root" data-composition-id="finhot-motion-taste-distilled" data-start="0" data-duration="8" data-width="1080" data-height="1920">
+      <section data-hf-id="hf-i5rk" id="timeline" class="clip" data-start="0" data-duration="8" data-track-index="1">
+        <div data-hf-id="hf-void" class="canvas-bg" data-layout-ignore=""></div>
+
+        <section data-hf-id="hf-3wha" id="p1" class="scene" data-layout-allow-overlap="" data-layout-allow-overflow="">
+          <div data-hf-id="hf-cnyb" class="hud"><span data-hf-id="hf-q4vy"><strong data-hf-id="hf-jinm">FINHOT</strong> · FEED</span><span data-hf-id="hf-h6x2">真实界面</span></div>
+          <div data-hf-id="hf-ggih" class="desktop-stage">
+            <div data-hf-id="hf-l6u7" class="desktop-layout">
+              <div data-hf-id="hf-3fja" id="desktop-motion">
+                <div data-hf-id="hf-236x" class="desktop-screen">
+                  <img data-hf-id="hf-pm5n" id="desktop-scroll" src="assets/d-feed.png" alt="" data-layout-allow-overflow="">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div data-hf-id="hf-lasm" class="srcchips" data-layout-allow-overflow="">
+            <span data-hf-id="hf-6i0r" class="srcchip" id="ch1">RSS</span>
+            <span data-hf-id="hf-5koe" class="srcchip" id="ch2">微博</span>
+            <span data-hf-id="hf-xclg" class="srcchip" id="ch3">雪球</span>
+            <span data-hf-id="hf-6zyw" class="srcchip" id="ch4">X</span>
+            <span data-hf-id="hf-hnf1" class="srcchip" id="ch5">公众号</span>
+          </div>
+          <div data-hf-id="hf-40h0" class="headline" id="cap1">全都<span data-hf-id="hf-ihcx" class="accent">聚成一条流</span></div>
+          <div data-hf-id="hf-mlgk" class="foot"><span data-hf-id="hf-tgfg">AGGREGATE</span><span data-hf-id="hf-sp9l">内容来自公开信源</span></div>
+        </section>
+
+        <section data-hf-id="hf-zyd9" id="p2" class="scene" data-layout-allow-overlap="" data-layout-allow-overflow="">
+          <div data-hf-id="hf-jw45" class="mobile-layout">
+            <div data-hf-id="hf-lpki" id="mobile-motion">
+              <div data-hf-id="hf-xra3" class="mobile-screen"><img data-hf-id="hf-nmkx" src="assets/m-feed.png" alt=""></div>
+            </div>
+          </div>
+          <div data-hf-id="hf-oorm" class="mobile-dim" data-layout-ignore=""></div>
+          <div data-hf-id="hf-oyeo" class="focus-window" data-layout-ignore=""></div>
+          <span data-hf-id="hf-i3ii" id="scorebar" data-layout-ignore=""></span>
+          <span data-hf-id="hf-ecw5" id="signal-dot" data-layout-ignore=""></span>
+          <div data-hf-id="hf-9tqb" class="hud"><span data-hf-id="hf-jv7k"><strong data-hf-id="hf-ynee">FINHOT</strong> · RANK</span><span data-hf-id="hf-ekay">真实界面</span></div>
+          <div data-hf-id="hf-ft1o" class="headline" id="cap2">高信号<span data-hf-id="hf-iqwi" class="accent">浮上来</span></div>
+          <div data-hf-id="hf-z9iv" id="cap2sub">质量打分 · 噪音下沉 · AI 摘要中译</div>
+          <div data-hf-id="hf-3ly4" class="foot"><span data-hf-id="hf-b3nn">SIGNAL FIRST</span><span data-hf-id="hf-yh25">内容来自公开信源</span></div>
+        </section>
+
+        <div data-hf-id="hf-59w7" class="bridge-layout" data-layout-ignore="">
+          <div data-hf-id="hf-iby2" id="bridge-token"><span data-hf-id="hf-tphl">多源聚合</span><span data-hf-id="hf-v68i" class="arrow">→</span><span data-hf-id="hf-2te7">质量排序</span></div>
+        </div>
+        <span data-hf-id="hf-58j8" id="bridge-wash" data-layout-ignore=""></span>
+        <div data-hf-id="hf-2ztv" class="noise" data-layout-ignore=""></div>
+        <div data-hf-id="hf-sea6" class="safe-frame" data-layout-ignore=""></div>
+      </section>
+    </div>
+
+    <script>
+      const root = document.querySelector("[data-composition-id]");
+      const compositionId = root.dataset.compositionId;
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+      tl.addLabel("orientFeed", 0);
+      tl.fromTo(
+        "#desktop-motion",
+        { y: 82, scale: 0.94, rotationY: -1.5, opacity: 0 },
+        { y: 0, scale: 1, rotationY: 0, opacity: 1, duration: 0.4 },
+        "orientFeed+=0.04",
+      );
+      tl.fromTo(
+        "#desktop-scroll",
+        { y: 0 },
+        { y: -310, duration: 2.1, ease: "sine.inOut" },
+        "orientFeed+=0.52",
+      );
+
+      tl.addLabel("sequenceSources", 0.66);
+      tl.fromTo(
+        ".srcchip",
+        { y: 30, opacity: 0, scale: 0.94 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.34, ease: "power3.out", stagger: 0.067 },
+        "sequenceSources",
+      );
+
+      tl.addLabel("explainAggregation", 1.72);
+      tl.fromTo(
+        "#cap1",
+        { y: 52, opacity: 0, scale: 0.96 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.4 },
+        "explainAggregation",
+      );
+
+      tl.addLabel("causalBridge", 3.04);
+      tl.fromTo(
+        "#bridge-wash",
+        { scaleX: 0.2, opacity: 0 },
+        { scaleX: 1, opacity: 0.9, duration: 0.34, ease: "power4.out" },
+        "causalBridge",
+      );
+      tl.fromTo(
+        "#bridge-token",
+        { y: 38, scale: 0.94, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.34, ease: "power4.out" },
+        "causalBridge+=0.08",
+      );
+      tl.to(
+        "#p1",
+        { y: -92, opacity: 0, duration: 0.58, ease: "power3.inOut" },
+        "causalBridge+=0.32",
+      );
+      tl.fromTo(
+        "#p2",
+        { y: 92, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.58, ease: "power3.inOut" },
+        "causalBridge+=0.42",
+      );
+      tl.fromTo(
+        "#mobile-motion",
+        { y: 52, scale: 1.04, opacity: 0.7 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" },
+        "causalBridge+=0.48",
+      );
+      tl.to(
+        "#bridge-token",
+        { y: -54, scale: 0.96, opacity: 0, duration: 0.34, ease: "power3.in" },
+        "causalBridge+=0.76",
+      );
+      tl.to(
+        "#bridge-wash",
+        { scaleX: 0.55, opacity: 0, duration: 0.3, ease: "power3.in" },
+        "causalBridge+=0.78",
+      );
+
+      tl.addLabel("explainRank", 4.42);
+      tl.fromTo(
+        "#scorebar",
+        { scaleY: 0, opacity: 0 },
+        { scaleY: 1, opacity: 1, duration: 0.34 },
+        "explainRank",
+      );
+      tl.fromTo(
+        "#signal-dot",
+        { scale: 0.74, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.34, ease: "power3.out" },
+        "explainRank+=0.08",
+      );
+
+      tl.addLabel("rankLockup", 5.16);
+      tl.fromTo(
+        "#cap2",
+        { y: 52, opacity: 0, scale: 0.96 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.4 },
+        "rankLockup",
+      );
+      tl.fromTo(
+        "#cap2sub",
+        { y: 26, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.34, ease: "power2.out" },
+        "rankLockup+=0.38",
+      );
+      tl.fromTo(
+        "#signal-dot",
+        { scale: 1 },
+        { scale: 1.1, duration: 0.22, ease: "power2.out", yoyo: true, repeat: 1 },
+        "rankLockup+=0.82",
+      );
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[compositionId] = tl;
+    </script>
+  </body>
+</html>

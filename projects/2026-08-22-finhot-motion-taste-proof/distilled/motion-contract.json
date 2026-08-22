@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "composition": {
+    "id": "finhot-motion-taste-distilled",
+    "fps": 30,
+    "durationFrames": 240,
+    "personality": "crisp editorial product motion",
+    "primaryAudience": "mobile finance-research users"
+  },
+  "beats": [
+    {
+      "id": "establish-feed",
+      "range": [0, 20],
+      "purpose": "orient",
+      "focus": "desktop feed screenshot",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power3.out",
+        "durationFrames": 12,
+        "fromScale": 0.94
+      },
+      "holdFrames": 36,
+      "motionRole": "camera",
+      "exit": {
+        "mode": "cede-focus-to-sources",
+        "properties": ["opacity"],
+        "easing": "power2.out",
+        "durationFrames": 8
+      }
+    },
+    {
+      "id": "sequence-sources",
+      "range": [20, 50],
+      "purpose": "explain",
+      "focus": "five source chips in reading order",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power3.out",
+        "durationFrames": 10,
+        "fromScale": 0.94
+      },
+      "staggerFrames": 2,
+      "holdFrames": 42,
+      "exit": {
+        "mode": "feed-causal-bridge",
+        "properties": ["opacity"],
+        "easing": "power2.inOut",
+        "durationFrames": 10
+      }
+    },
+    {
+      "id": "explain-aggregation",
+      "range": [52, 88],
+      "purpose": "emphasize",
+      "focus": "aggregation headline",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power3.out",
+        "durationFrames": 12,
+        "fromScale": 0.96
+      },
+      "holdFrames": 36,
+      "exit": {
+        "mode": "feed-causal-bridge",
+        "properties": ["transform", "opacity"],
+        "easing": "power3.inOut",
+        "durationFrames": 10
+      }
+    },
+    {
+      "id": "feed-to-rank-bridge",
+      "range": [92, 126],
+      "purpose": "bridge",
+      "focus": "shared aggregation-to-ranking token",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power4.out",
+        "durationFrames": 10,
+        "fromScale": 0.94
+      },
+      "holdFrames": 24,
+      "exit": {
+        "mode": "resolve-into-ranked-feed",
+        "properties": ["transform", "opacity"],
+        "easing": "power3.in",
+        "durationFrames": 10
+      }
+    },
+    {
+      "id": "settle-ranked-feed",
+      "range": [106, 134],
+      "purpose": "orient",
+      "focus": "mobile ranked feed screenshot",
+      "salience": "medium",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power3.out",
+        "durationFrames": 15,
+        "fromScale": 0.96
+      },
+      "holdFrames": 36,
+      "motionRole": "camera",
+      "persistsThroughScene": true
+    },
+    {
+      "id": "reveal-score-rail",
+      "range": [134, 154],
+      "purpose": "explain",
+      "focus": "quality score rail",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power3.out",
+        "durationFrames": 10,
+        "fromScale": 0.95
+      },
+      "holdFrames": 42,
+      "persistsThroughScene": true
+    },
+    {
+      "id": "final-rank-lockup",
+      "range": [156, 240],
+      "purpose": "confirm",
+      "focus": "rank headline and rationale",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "power3.out",
+        "durationFrames": 12,
+        "fromScale": 0.96
+      },
+      "holdFrames": 48,
+      "persistsThroughScene": true
+    }
+  ]
+}

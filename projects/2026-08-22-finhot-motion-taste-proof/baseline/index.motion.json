@@ -1,0 +1,11 @@
+{
+  "duration": 8,
+  "assertions": [
+    { "kind": "appearsBy", "selector": "#desktop-motion", "bySec": 0.6 },
+    { "kind": "before", "a": "#ch1", "b": "#cap1" },
+    { "kind": "before", "a": "#scorebar", "b": "#cap2" },
+    { "kind": "staysInFrame", "selector": ".srcchips" },
+    { "kind": "staysInFrame", "selector": "#cap2" },
+    { "kind": "keepsMoving", "withinSelector": "#timeline", "maxStaticSec": 1.9 }
+  ]
+}

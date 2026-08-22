@@ -1,0 +1,12 @@
+{
+  "name": "finhot-motion-taste-distilled",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "npx --yes hyperframes@0.8.8 lint",
+    "check": "npx --yes hyperframes@0.8.8 check --samples 13 --at-transitions",
+    "snapshot": "npx --yes hyperframes@0.8.8 snapshot --at 0.4,1.4,3.4,4.4,5.6,7.4",
+    "preview": "npx --yes hyperframes@0.8.8 preview --background",
+    "render": "npx --yes hyperframes@0.8.8 render --fps 30 --quality high"
+  }
+}
