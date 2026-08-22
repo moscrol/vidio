@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "name": "vidio-editorial-base",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "backgroundRole": "background"
+  },
+  "identity": {
+    "voice": ["editorial", "restrained", "evidence-led"],
+    "hierarchyPrinciple": "One claim leads; evidence and product proof follow in sequence.",
+    "distinctiveMove": "A narrow evidence rail connects the claim to supporting observations.",
+    "brandImitation": false,
+    "inspirationMode": "original"
+  },
+  "palette": {
+    "background": "#F4F0E7",
+    "surface": "#FFFFFF",
+    "textPrimary": "#142634",
+    "textMuted": "#53616B",
+    "accent": "#A66F16",
+    "warning": "#A53B2A",
+    "maxAccentCoveragePct": 12
+  },
+  "typography": {
+    "families": {
+      "display": { "family": "Noto Serif SC", "fallback": ["serif"] },
+      "body": { "family": "Noto Sans SC", "fallback": ["sans-serif"] },
+      "data": { "family": "Noto Sans Mono", "fallback": ["monospace"] },
+      "label": { "family": "Noto Sans SC", "fallback": ["sans-serif"] }
+    },
+    "scale": {
+      "hero": { "sizePx": 92, "lineHeight": 1.04, "weight": 800, "maxLines": 3 },
+      "title": { "sizePx": 44, "lineHeight": 1.15, "weight": 700, "maxLines": 2 },
+      "body": { "sizePx": 30, "lineHeight": 1.45, "weight": 450, "maxLines": 5 },
+      "label": { "sizePx": 24, "lineHeight": 1.3, "weight": 650, "maxLines": 2 },
+      "source": { "sizePx": 21, "lineHeight": 1.35, "weight": 450, "maxLines": 3 }
+    }
+  },
+  "layout": {
+    "safeAreaPx": { "top": 96, "right": 72, "bottom": 112, "left": 72 },
+    "gridColumns": 6,
+    "gutterPx": 24,
+    "readingOrder": ["kicker", "headline", "evidence", "product", "source"],
+    "maxFocalElements": 1,
+    "maxPanels": 3
+  },
+  "surfaces": {
+    "radiusScalePx": [0, 12, 24],
+    "borderStrategy": "One-pixel ink rules separate evidence and surfaces.",
+    "shadowStrategy": "none",
+    "effects": [
+      {
+        "name": "paper-grain",
+        "purpose": "Keep large quiet fields tactile without adding a focal point.",
+        "maxCoveragePct": 100
+      }
+    ]
+  },
+  "media": {
+    "sourcePolicy": "owned-or-verified",
+    "treatment": "Product UI remains literal, high contrast, and visually subordinate to the claim.",
+    "cropPolicy": "Crop only outside decision-relevant labels, values, dates, and state."
+  },
+  "components": [
+    {
+      "name": "evidence-rail",
+      "purpose": "Connect one claim to three supporting observations.",
+      "priority": 1,
+      "geometry": "Narrow vertical rule with aligned evidence rows."
+    }
+  ],
+  "guardrails": {
+    "do": [
+      "Keep one dominant claim.",
+      "Use the accent only for evidence or action.",
+      "Preserve literal product details."
+    ],
+    "avoid": [
+      "Do not imitate a named brand.",
+      "Do not stack decorative effects.",
+      "Do not create competing focal panels."
+    ]
+  },
+  "accessibility": {
+    "minContrastRatio": 4.5,
+    "minBodyPxAt1080": 28,
+    "minLabelPxAt1080": 22,
+    "minSourcePxAt1080": 20
+  }
+}

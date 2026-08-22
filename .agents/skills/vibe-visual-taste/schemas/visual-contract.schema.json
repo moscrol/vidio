@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vidio.local/schemas/visual-contract.schema.json",
+  "title": "Vidio Visual Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "name",
+    "canvas",
+    "identity",
+    "palette",
+    "typography",
+    "layout",
+    "surfaces",
+    "media",
+    "components",
+    "guardrails",
+    "accessibility"
+  ],
+  "properties": {
+    "version": { "const": "1.0" },
+    "name": { "type": "string", "minLength": 1 },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height", "fps", "backgroundRole"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "backgroundRole": { "type": "string", "minLength": 1 }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "voice",
+        "hierarchyPrinciple",
+        "distinctiveMove",
+        "brandImitation",
+        "inspirationMode"
+      ],
+      "properties": {
+        "voice": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "hierarchyPrinciple": { "type": "string", "minLength": 1 },
+        "distinctiveMove": { "type": "string", "minLength": 1 },
+        "brandImitation": { "const": false },
+        "inspirationMode": { "enum": ["method-only", "original"] }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "background",
+        "surface",
+        "textPrimary",
+        "textMuted",
+        "accent",
+        "warning",
+        "maxAccentCoveragePct"
+      ],
+      "properties": {
+        "background": { "$ref": "#/$defs/hex" },
+        "surface": { "$ref": "#/$defs/hex" },
+        "textPrimary": { "$ref": "#/$defs/hex" },
+        "textMuted": { "$ref": "#/$defs/hex" },
+        "accent": { "$ref": "#/$defs/hex" },
+        "warning": { "$ref": "#/$defs/hex" },
+        "maxAccentCoveragePct": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["families", "scale"],
+      "properties": {
+        "families": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["display", "body", "data", "label"],
+          "properties": {
+            "display": { "$ref": "#/$defs/fontRole" },
+            "body": { "$ref": "#/$defs/fontRole" },
+            "data": { "$ref": "#/$defs/fontRole" },
+            "label": { "$ref": "#/$defs/fontRole" }
+          }
+        },
+        "scale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hero", "title", "body", "label", "source"],
+          "properties": {
+            "hero": { "$ref": "#/$defs/typeToken" },
+            "title": { "$ref": "#/$defs/typeToken" },
+            "body": { "$ref": "#/$defs/typeToken" },
+            "label": { "$ref": "#/$defs/typeToken" },
+            "source": { "$ref": "#/$defs/typeToken" }
+          }
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "safeAreaPx",
+        "gridColumns",
+        "gutterPx",
+        "readingOrder",
+        "maxFocalElements",
+        "maxPanels"
+      ],
+      "properties": {
+        "safeAreaPx": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["top", "right", "bottom", "left"],
+          "properties": {
+            "top": { "type": "number", "minimum": 0 },
+            "right": { "type": "number", "minimum": 0 },
+            "bottom": { "type": "number", "minimum": 0 },
+            "left": { "type": "number", "minimum": 0 }
+          }
+        },
+        "gridColumns": { "type": "integer", "minimum": 1 },
+        "gutterPx": { "type": "number", "minimum": 0 },
+        "readingOrder": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "maxFocalElements": { "type": "integer", "minimum": 1 },
+        "maxPanels": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "surfaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["radiusScalePx", "borderStrategy", "shadowStrategy", "effects"],
+      "properties": {
+        "radiusScalePx": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "borderStrategy": { "type": "string", "minLength": 1 },
+        "shadowStrategy": { "type": "string", "minLength": 1 },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "purpose": { "type": "string", "minLength": 1 },
+              "maxCoveragePct": { "type": "number", "minimum": 0, "maximum": 100 }
+            }
+          }
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourcePolicy", "treatment", "cropPolicy"],
+      "properties": {
+        "sourcePolicy": { "type": "string", "minLength": 1 },
+        "treatment": { "type": "string", "minLength": 1 },
+        "cropPolicy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "purpose", "priority", "geometry"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "purpose": { "type": "string", "minLength": 1 },
+          "priority": { "type": "integer", "minimum": 1 },
+          "geometry": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "guardrails": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do", "avoid"],
+      "properties": {
+        "do": { "$ref": "#/$defs/rules" },
+        "avoid": { "$ref": "#/$defs/rules" }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minContrastRatio",
+        "minBodyPxAt1080",
+        "minLabelPxAt1080",
+        "minSourcePxAt1080"
+      ],
+      "properties": {
+        "minContrastRatio": { "type": "number", "minimum": 4.5 },
+        "minBodyPxAt1080": { "type": "number", "minimum": 28 },
+        "minLabelPxAt1080": { "type": "number", "minimum": 22 },
+        "minSourcePxAt1080": { "type": "number", "minimum": 20 }
+      }
+    }
+  },
+  "$defs": {
+    "hex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "fontRole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "fallback"],
+      "properties": {
+        "family": { "type": "string", "minLength": 1 },
+        "fallback": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "typeToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sizePx", "lineHeight", "weight", "maxLines"],
+      "properties": {
+        "sizePx": { "type": "number", "exclusiveMinimum": 0 },
+        "lineHeight": { "type": "number", "exclusiveMinimum": 0 },
+        "weight": { "type": "number", "minimum": 1, "maximum": 1000 },
+        "maxLines": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

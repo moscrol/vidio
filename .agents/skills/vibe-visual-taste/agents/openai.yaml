@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Visual Taste"
+  short_description: "Turn visual intent into enforceable design contracts"
+  default_prompt: "Use $vibe-visual-taste to define and validate this project's visual system before rendering."

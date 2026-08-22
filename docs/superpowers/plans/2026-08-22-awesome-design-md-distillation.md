@@ -61,7 +61,7 @@ git commit -m "docs: record awesome design md source"
 Run:
 
 ```bash
-python /Users/a77/.codex/skills/.system/skill-creator/scripts/init_skill.py vibe-visual-taste \
+python3 /Users/a77/.codex/skills/.system/skill-creator/scripts/init_skill.py vibe-visual-taste \
   --path .agents/skills \
   --resources scripts,references \
   --interface display_name="Vibe Visual Taste" \
@@ -140,7 +140,7 @@ Expected: `0 error(s), 0 warning(s)`.
 Run:
 
 ```bash
-python /Users/a77/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+python3 /Users/a77/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
   .agents/skills/vibe-visual-taste
 ```
 
@@ -277,7 +277,7 @@ node .agents/skills/vibe-visual-taste/scripts/lint-visual-contract.mjs \
   projects/2026-08-22-finhot-visual-taste-proof/baseline
 node .agents/skills/vibe-visual-taste/scripts/lint-visual-contract.mjs \
   projects/2026-08-22-finhot-visual-taste-proof/distilled
-python /Users/a77/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+python3 /Users/a77/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
   .agents/skills/vibe-visual-taste
 node --check studio/server.mjs
 git diff --check HEAD~4..HEAD
