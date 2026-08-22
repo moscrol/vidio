@@ -117,6 +117,12 @@ function parseBrief(brief, errors) {
       }
     }
 
+    const rawHasH2Marker = /^##(?!#)\s+/u.test(rawLine);
+    const rawHasH3Marker = /^###\s+/u.test(rawLine);
+    const rawSourceField = rawLine.match(
+      /^- (Layer|Status|Target|Borrow|Exclude|Retrieved|Evidence): +/u,
+    );
+
     const commentResult = stripHtmlComments(rawLine, insideHtmlComment);
     insideHtmlComment = commentResult.insideComment;
     const line = commentResult.visible;
@@ -127,7 +133,7 @@ function parseBrief(brief, errors) {
       continue;
     }
 
-    const h2 = line.match(/^##(?!#)\s+(.+?)\s*$/);
+    const h2 = rawHasH2Marker ? line.match(/^##(?!#)\s+(.+?)\s*$/) : null;
     if (h2) {
       currentSection = h2[1].trim().toLocaleLowerCase("und");
       sections.add(currentSection);
@@ -139,7 +145,9 @@ function parseBrief(brief, errors) {
       sectionsWithContent.add(currentSection);
     }
 
-    const h3 = line.match(/^###\s+(REF-\d{3})\s+(?:—|-)\s+(.+?)\s*$/);
+    const h3 = rawHasH3Marker
+      ? line.match(/^###\s+(REF-\d{3})\s+(?:—|-)\s+(.+?)\s*$/)
+      : null;
     if (h3) {
       activeSource = null;
       if (currentSection === "sources") {
@@ -153,10 +161,12 @@ function parseBrief(brief, errors) {
     }
 
     if (!activeSource) continue;
-    const field = line.match(
-      /^- (Layer|Status|Target|Borrow|Exclude|Retrieved|Evidence): +(\S(?:.*\S)?)\s*$/,
-    );
-    if (!field) continue;
+    const field = rawSourceField
+      ? line.match(
+          /^- (Layer|Status|Target|Borrow|Exclude|Retrieved|Evidence): +(\S(?:.*\S)?)\s*$/,
+        )
+      : null;
+    if (!field || field[1] !== rawSourceField[1]) continue;
     if (activeSource.fields.has(field[1])) {
       errors.push(
         finding(

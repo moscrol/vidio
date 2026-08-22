@@ -325,6 +325,32 @@ test("HTML comment removal preserves Markdown token boundaries", () => {
   assert.match(splicedWord.output, /Objective/);
 });
 
+test("HTML comments cannot synthesize required Markdown structural whitespace", () => {
+  const adjacentH2 = runCli({
+    brief: validBrief.replace("## Objective", "##<!----> Objective"),
+  });
+  assert.equal(adjacentH2.status, 1, adjacentH2.output);
+  assert.match(adjacentH2.output, /VDL002/);
+  assert.match(adjacentH2.output, /Objective/);
+
+  const adjacentH3 = runCli({
+    brief: validBrief.replace("### REF-001 —", "###<!----> REF-001 —"),
+  });
+  assert.equal(adjacentH3.status, 1, adjacentH3.output);
+  assert.match(adjacentH3.output, /VDL002/);
+  assert.match(adjacentH3.output, /VDL005/);
+
+  const adjacentField = runCli({
+    brief: validBrief.replace(
+      "- Layer: project-evidence",
+      "- Layer:<!----> project-evidence",
+    ),
+  });
+  assert.equal(adjacentField.status, 1, adjacentField.output);
+  assert.match(adjacentField.output, /VDL002/);
+  assert.match(adjacentField.output, /Layer/);
+});
+
 test("VDL002 rejects duplicate source fields without overwriting the first value", () => {
   const brief = validBrief.replace(
     "- Status: SUPPLIED",
