@@ -22,7 +22,7 @@
     "render": "成品/"
   },
   "reuse": {
-    "requires": ["vibe-motion-taste"],
-    "instructions": "Copy the component, update its motion contract, and rerun renderer and visual QC."
+    "requires": ["vibe-design-language", "vibe-visual-taste", "vibe-motion-taste"],
+    "instructions": "Copy the component, update its language, visual, and motion contracts, and rerun every applicable gate plus renderer and hybrid QC."
   }
 }

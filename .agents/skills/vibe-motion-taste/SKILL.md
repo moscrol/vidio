@@ -9,7 +9,7 @@ Turn motion judgment into one project contract, then hold the renderer and revie
 
 ## Workflow
 
-1. **Read the project.** Read `brief.md`, the current composition, and any audio or cut timing. If no project contract exists, route through `vibe-director` first. Completion: audience, duration, fps, narrative purpose, constraints, and renderer are explicit.
+1. **Read the upstream contracts.** Read `brief.md`, the current composition, any audio or cut timing, `reference-brief.md`, `design-vocabulary.json`, `DESIGN.md`, and `visual-contract.json` before naming motion purposes or relationships. If an authored-design project lacks either upstream pair or a zero-error language/visual gate, route through `vibe-director`, then `vibe-design-language` and `vibe-visual-taste`. Pure supplied footage with no authored overlay is outside this authored-design path and may skip all three design gates. Completion: audience, duration, fps, narrative purpose, canonical terms, static constraints, and renderer are explicit.
 2. **Gate the motion.** Inventory visible changes and assign one purpose to each: `orient`, `explain`, `emphasize`, `bridge`, `confirm`, or rare `delight`. Delete motion with no named purpose. Completion: each surviving beat has one focus and one purpose.
 3. **Design in frames.** Read [references/motion-language.md](references/motion-language.md) completely before writing or changing a timeline. Choose the frame band, path, curve, settle, hold, and exit. Completion: text and data have stable reading windows; repeated or ambient movement stays subordinate.
 4. **Write the contract.** Copy [templates/motion-contract.json](templates/motion-contract.json) into the composition root and describe intent, not selectors or renderer code. Keep `entry.fromScale` normalized to the final resting size. Completion: every beat is bounded by the composition duration and matches the intended timeline.
@@ -25,8 +25,8 @@ Turn motion judgment into one project contract, then hold the renderer and revie
 
 ## Contract boundary
 
-- Keep project state in `brief.md` and `motion-contract.json`; keep reusable judgment here.
-- Let `vibe-director` select the video lane and renderer. This skill owns only motion purpose, timing, spatial continuity, and review.
+- Keep project state in `brief.md` and time-based values in `motion-contract.json`; consume language and visual artifacts without copying their truth here.
+- Let `vibe-director` select the video lane and renderer. Let `vibe-design-language` own reference boundaries and canonical vocabulary, and `vibe-visual-taste` own static numeric values. This skill owns only motion purpose, timing, easing, spatial continuity, and review.
 - Keep external source history in `docs/sources/emilkowalski-skills.md`. Update this skill by deliberate translation; do not install or copy the upstream skill tree into the repository.
 - Prefer deleting, reducing, or sequencing motion before adding polish.
 

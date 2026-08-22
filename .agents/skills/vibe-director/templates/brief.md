@@ -48,11 +48,14 @@ facts_status: 待核验
 - 工程：`工程/`
 - 成片：`成片/`（不入 Git）
 - 质检：`质检/`
+- 参考简报：`工程/<variant>/reference-brief.md`
+- 设计词汇：`工程/<variant>/design-vocabulary.json`
 - 动效契约：`工程/<variant>/motion-contract.json`
 
 # 验收
 
 - 规格：比例、分辨率、帧率、时长与编码正确。
 - 内容：所有事实可追溯，演示数据已标注。
+- 设计语言：两份语言产物同目录，linter verdict 为 `APPROVE`（0 errors）；warnings 已逐条交给下游。
 - 动效：contract 0 errors，渲染检查通过，人工 verdict 为 `APPROVE`。
 - 画面：手机尺寸可读，无裁切、重叠、溢出或未授权人物。

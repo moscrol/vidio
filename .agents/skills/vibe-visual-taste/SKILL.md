@@ -5,7 +5,7 @@ description: "Define, implement, or review the static visual language for a vide
 
 # Vibe Visual Taste
 
-Turn a vague aesthetic request into one original visual thesis, a human-readable rationale, and a machine-checkable contract before rendering.
+Turn an approved design-language contract into one original visual thesis, a human-readable rationale, and a machine-checkable static contract before rendering.
 
 ## Own these decisions
 
@@ -14,25 +14,27 @@ Turn a vague aesthetic request into one original visual thesis, a human-readable
 - Type roles, scale, density, geometry, surfaces, and depth strategy.
 - Media treatment, component purpose, safe area, and static-frame review.
 
+This skill owns all static numeric design values. It consumes canonical language and source boundaries from `vibe-design-language`; it does not redefine them.
+
 Do not own timeline, shot rhythm, easing, transitions, camera moves, or sound. If the output moves, finish this workflow first and then invoke `vibe-motion-taste`.
 
 ## Produce both artifacts
 
 Create these in the project or variant directory:
 
-- `DESIGN.md`: intent, trade-offs, evidence boundary, examples, and review notes. Do not duplicate hex values, sizes, or spacing.
+- `DESIGN.md`: intent, static trade-offs, canonical term IDs, examples, and review notes. Link to the language artifacts for vocabulary and source truth; do not duplicate them or any hex values, sizes, or spacing.
 - `visual-contract.json`: the sole numeric source of truth consumed by renderers and the linter.
 
 Start from `templates/`, then make project-specific decisions. Never route by named-brand imitation. Use `identity.inspirationMode: "method-only"` when studying references or `"original"` when no reference corpus is needed; `brandImitation` remains `false`.
 
 ## Workflow
 
-1. Read the brief, actual copy, source media, existing brand assets, renderer constraints, and target canvas. Do not invent product evidence.
+1. Read the brief, actual copy, source media, existing brand assets, renderer constraints, target canvas, `reference-brief.md`, and `design-vocabulary.json` before writing the thesis. If either language artifact is missing or the language gate does not pass with zero errors, read and follow `vibe-design-language` first. Carry its warnings downstream and do not invent product evidence. Completion: the project language gate has passed and every canonical term used here resolves upstream.
 2. Write one falsifiable visual thesis: who should notice what first, what proof follows, and what the frame should feel like.
 3. Choose one distinctive static move. It must clarify identity or evidence, not merely decorate the frame.
 4. Lock reading order and component purposes before styling. One frame gets one dominant focal element by default.
 5. Define semantic tokens and budgets in `visual-contract.json`. Read `references/visual-language.md` when choosing depth, palette, type, media, or geometry.
-6. Explain the rationale and evidence boundary in `DESIGN.md`, referring to semantic token names rather than copying their numeric values.
+6. Explain the rationale and static trade-offs in `DESIGN.md`. Reference upstream canonical term and source IDs, and refer to semantic token names rather than copying vocabulary, evidence records, or numeric values.
 7. Run the hard gate:
 
    ```bash
@@ -47,6 +49,7 @@ Start from `templates/`, then make project-specific decisions. Never route by na
 
 - Do not copy a brand's wordmark, proprietary font, distinctive page composition, photo, marketing copy, or exact token set merely because a reference is public.
 - Do not use “Apple-like”, “Nike-like”, “Linear-like”, or another brand name as the design mechanism. Translate references into cross-brand principles, then make an original choice.
+- Do not duplicate or silently rename the canonical vocabulary, source statuses, or borrow/exclude boundaries from `reference-brief.md` and `design-vocabulary.json`.
 - Do not open with effects. First decide hierarchy, content dominance, and the source of depth.
 - Do not hide unknown provenance. State whether media is owned, verified, generated, or a placeholder.
 - Do not approve from source code or a contract alone. Review the rendered pixels.

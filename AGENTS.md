@@ -4,9 +4,11 @@
 
 **每次接到做视频、做内容、洗稿、数字人、宣传片、动效、即梦或 Seedance 请求，先完整读取并遵循** `.agents/skills/vibe-director/SKILL.md`。它负责读戏、建 brief、选车道、样片门和最终质检。
 
-**任何自主设计的单帧画面、封面、图文卡、UI 演示、数据图或宣传片视觉底座，完整读取并遵循** `.agents/skills/vibe-visual-taste/SKILL.md`。先写并通过项目级 `DESIGN.md` 与 `visual-contract.json`，再进入 renderer；Stitch、HyperFrames、GSAP 与 Remotion 不自行发明风格。
+**任何自主设计的单帧画面、封面、图文卡、UI 演示、数据图、排版帧或宣传片视觉底座，必须先完整读取并遵循** `.agents/skills/vibe-design-language/SKILL.md`。先写并通过项目级 `reference-brief.md` 与 `design-vocabulary.json`，钉住来源边界和规范词汇，再进入视觉或运动设计。
 
-**任何合成动效、UI 运动、转场、运镜或 kinetic type，完整读取并遵循** `.agents/skills/vibe-motion-taste/SKILL.md`。有设计画面的完整活动链只有一条：`vibe-director → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。视觉合同负责“单帧该长什么样”，运动合同负责“它如何随时间变化”。
+**语言门禁通过后，任何自主设计画面完整读取并遵循** `.agents/skills/vibe-visual-taste/SKILL.md`。它消费语言产物，写项目级 `DESIGN.md` 与数值单一事实源 `visual-contract.json`；不得重写来源或规范词汇，Stitch、HyperFrames、GSAP 与 Remotion 也不自行发明风格。
+
+**任何合成动效、UI 运动、转场、运镜或 kinetic type，完整读取并遵循** `.agents/skills/vibe-motion-taste/SKILL.md`。有自主设计画面的完整链只有一条：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言合同负责来源边界与规范词汇，视觉合同负责静态数值，运动合同负责时间与缓动；无自主叠加设计的纯供应素材可跳过三道设计门禁。
 
 项目落在 `projects/<YYYY-MM-DD>-<slug>/`，事实源是 `brief.md`；可复用组件落在 `library/`。本地 GUI：`cd studio && npm install && npm start`（→ localhost:4700）。
 

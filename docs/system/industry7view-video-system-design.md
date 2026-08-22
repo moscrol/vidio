@@ -4,19 +4,29 @@
 > 核心原则：不要每条视频随机设计，而是用固定的 Design Token、组件、模板和装配规则生产图文卡与 B-roll。  
 > 适用场景：产业研究、A股题材拆解、技术趋势科普、风险提示、跟踪清单。
 
-## 0. 视觉与运动合同接入（2026-08-22）
+## 0. 设计语言、视觉与运动合同接入（2026-08-22）
 
 这是一份仓库级系统设计文档，负责长期品牌定位、组件语义和历史决策；它不再直接充当每条视频的渲染参数文件。
 
 | 层级 | 权威来源 | 责任 |
 | --- | --- | --- |
 | 仓库品牌默认值 | 本文与 `industry7view-card-lab/DESIGN_TOKENS.md` | 长期定位、默认 token、组件语义 |
-| 项目视觉理由 | 项目级 `DESIGN.md` | 意图、层级、取舍、媒体证据与正反约束 |
+| 项目参考边界 | 项目级 `reference-brief.md` | 精确参考目标、来源状态、借用/排除边界与观察证据 |
+| 项目规范词汇 | 项目级 `design-vocabulary.json` | 规范名、别名、相邻概念边界、状态与可观察验收 |
+| 项目视觉理由 | 项目级 `DESIGN.md` | 意图、层级、静态取舍与规范词汇到视觉决策的映射 |
 | 项目渲染数值 | 项目级 `visual-contract.json` | 画布、语义色、字体、网格、安全区、焦点与效果预算 |
 | 项目运动数值 | `motion-contract.json` | 帧级节拍、缓动、空间连续性与 reduced motion |
 | renderer | HTML / Remotion / HyperFrames / Stitch 转译层 | 消费合同，不自行选择品牌风格或动画手感 |
 
-项目 `visual-contract.json` 是数值单一事实源。本文中的 hex、字号、间距和 motion token 是迁移前的默认资产；被具体项目采用时，要写入相应合同，不允许在提示词、CSS 和组件里继续维护平行副本。
+自主设计采用唯一规范链：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言层拥有参考边界与规范词汇，视觉层拥有静态数值，运动层拥有时间与缓动；无自主叠加设计的纯供应素材可跳过三道设计门禁。
+
+项目 `visual-contract.json` 仍是静态数值单一事实源。本文中的 hex、字号、间距和 motion token 是迁移前的默认资产；被具体项目采用时，要写入相应合同，不允许在提示词、CSS 和组件里继续维护平行副本。
+
+通用语言门禁：
+
+```bash
+node .agents/skills/vibe-design-language/scripts/lint-design-language.mjs <project-or-variant-dir>
+```
 
 通用视觉门禁：
 
@@ -52,11 +62,13 @@ speech-to-shorts：生成抖音短视频组
   ↓
 storyboard-decision：生成分镜执行表
   ↓
+vibe-design-language：生成 reference-brief.md + design-vocabulary.json，并通过 hard gate
+  ↓
 vibe-visual-taste：生成 DESIGN.md + visual-contract.json，并通过 hard gate
   ↓
-video-visual-system：按视觉合同匹配组件 + 生成图文卡 prompt + B-roll prompt
-  ↓
 vibe-motion-taste：需要运动时生成 motion-contract.json
+  ↓
+video-visual-system：按三层合同匹配组件 + 生成图文卡 prompt + B-roll prompt
   ↓
 Remotion / HyperFrame / Figma / 剪映模板：生成图文卡与动态图表
   ↓
@@ -1451,7 +1463,7 @@ titleHtml 是否包含未允许标签
 output 是否包含 6 张 PNG
 ```
 
-#### 缺口 F：视觉/运动品味 Skill 已补，组件装配 Skills 仍待拆分
+#### 缺口 F：设计语言/视觉/运动品味 Skill 已补，组件装配 Skills 仍待拆分
 
 参考文章建议沉淀四类 Skill。对应到当前视频系统，应该是：
 
@@ -1469,7 +1481,7 @@ output 是否包含 6 张 PNG
    判断问题属于文案过长、组件变体不足、布局缺陷，还是单条剪辑问题。
 ```
 
-当前已有 `vibe-visual-taste` 和 `vibe-motion-taste` 负责跨组件的视觉与运动门禁；上面四类里，组件选择和视频装配仍需从真实项目积累触发条件与验收标准，不能与品味层重复所有权。
+当前已有 `vibe-design-language`、`vibe-visual-taste` 和 `vibe-motion-taste` 分别负责跨组件的参考/词汇、静态视觉与运动门禁；上面四类里，组件选择和视频装配仍需从真实项目积累触发条件与验收标准，不能与三层合同重复所有权。
 
 ### 16.3 优先级排序
 

@@ -18,6 +18,8 @@
 
 ## 工作流
 
+自主设计前必须完整读取 `.agents/skills/vibe-design-language/SKILL.md`。规范链只有一条：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。无自主叠加设计的纯供应素材可跳过三道设计门禁。
+
 ```text
 想法
  └→ vibe-director（导演兼制片：先读戏，再选引擎）
@@ -26,15 +28,16 @@
      ├── 建项目 projects/<日期-主题>/（brief.md 契约 + 状态流转）
      ├── 查 library/ + video-shotcraft 镜头卡，能复用的直接复用
      ├── 按形态路由技能链：
-     │     视觉底座    vibe-visual-taste → DESIGN.md + visual-contract.json → lint → static QC
-     │     动效视频    视觉合同 → vibe-motion-taste → motion-contract.json → HyperFrames/GSAP → hybrid QC
-     │     产品宣传片  vibe-visual-taste → video-shotcraft；生活场景拆给 Seedance
+     │     设计语言    vibe-design-language → reference-brief.md + design-vocabulary.json → lint
+     │     视觉底座    语言合同 → vibe-visual-taste → DESIGN.md + visual-contract.json → lint → static QC
+     │     动效视频    语言 + 视觉合同 → vibe-motion-taste → motion-contract.json → HyperFrames/GSAP → hybrid QC
+     │     产品宣传片  vibe-design-language → vibe-visual-taste → video-shotcraft；生活场景拆给 Seedance
      │     生成影像    seedance-20（即梦/Seedance 提示词包，默认可粘贴不代跑）
      │     数字人口播  rachel-digital-human-production
      │     口播成片    ra-人话/ra-hook/ra-video-title → Kokoro 配音 → 字幕
      │     二创        ra-video-download → 逐字稿 → ra-洗稿 → 制作
      │     实拍混剪    openmontage-adapter（免费 stock 检索 → 拼装 → 质检）
-     │     封面图文    vibe-visual-taste → rn-cover-skill / editorial-dot-cover / xhs-article-to-images
+     │     封面图文    vibe-design-language → vibe-visual-taste → rn-cover-skill / editorial-dot-cover / xhs-article-to-images
      ├── 样片门（本地渲 8–10s；付费 API / Seedance 必须等人确认）
      ├── 质检（ffprobe + 关键帧 + Anti-PPT / 读戏载体）
      └── 沉淀：通过质检的可复用片段问一次，进 library/ 登记
@@ -46,7 +49,7 @@
 
 | 来源 | 内容 |
 | --- | --- |
-| 本仓库自有 | `vibe-director` — 总调度；`vibe-visual-taste` — 视觉意图、语义 token、层级预算、`visual-contract.json` 与静帧 QC；`vibe-motion-taste` — 动效目的、帧级节拍、空间连续性、`motion-contract.json` 与混合 QC |
+| 本仓库自有 | `vibe-director` — 总调度；`vibe-design-language` — 来源边界、规范词汇、`reference-brief.md` 与 `design-vocabulary.json`；`vibe-visual-taste` — 视觉意图、静态数值、`visual-contract.json` 与静帧 QC；`vibe-motion-taste` — 动效目的、帧级节拍、空间连续性、`motion-contract.json` 与混合 QC |
 | [seedance-20](https://github.com/Emily2040/seedance-2.0) | Seedance 2.0 导演操作系统：Director's Read、提示词编译、序列续拍、即梦/方舟等多表面 |
 | [video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | 电影感产品视频：152 张镜头卡、209 个动效预览、Remotion 实现、Ink Press 模板、BGM/SFX 库 |
 | [rachel-digital-human-production](https://github.com/Jingyi-Wu-Richael/rachel-digital-human-production) | 数字人口播：MiniMax 声音克隆 + HeyGen 图生视频，15 秒预览门控 |
@@ -84,5 +87,5 @@ vidio/
 ## 约定
 
 - 项目渲染产物（`成片/`、`*.mp4`）不入库；组件库 `library/` 内的成品和技能自带素材例外。
-- CLI 管理的外部技能不手工改动，升级用 `npx skills add`；`vibe-director`、`vibe-visual-taste` 与 `vibe-motion-taste` 是本仓库自有技能，可直接迭代。
+- CLI 管理的外部技能不手工改动，升级用 `npx skills add`；`vibe-director`、`vibe-design-language`、`vibe-visual-taste` 与 `vibe-motion-taste` 是本仓库自有技能，可直接迭代，不加入 `skills-lock.json`。
 - 部分环节需要 API 凭据（MiniMax / HeyGen / 火山 ASR / TikHub），缺了 agent 会提示去 Cloud Agents Secrets 添加。

@@ -4,17 +4,19 @@
 
 ## 0. 合同所有权（2026-08-22）
 
-本文件保留 Industry 7View 的长期品牌意图和组件语义，不再作为每个项目的数值权威。生产项目采用两层视觉合同，再按需进入运动合同：
+本文件保留 Industry 7View 的长期品牌意图和组件语义，不再作为每个项目的数值权威。生产项目先建立语言合同，再建立静态视觉合同，并按需进入运动合同：
 
 | 决策 | 权威文件 |
 | --- | --- |
 | 品牌长期定位、固定组件语义 | 本文件与 `DESIGN_TOKENS.md` |
-| 项目视觉意图、取舍、证据边界 | 项目级 `DESIGN.md` |
+| 项目参考目标、来源状态、借用与排除边界 | 项目级 `reference-brief.md` |
+| 项目规范词汇、别名、边界与验收 | 项目级 `design-vocabulary.json` |
+| 项目视觉意图、静态取舍、规范词汇映射 | 项目级 `DESIGN.md` |
 | 画布、语义色、字号、安全区、预算 | 项目级 `visual-contract.json`（数值单一事实源） |
 | CSS / Remotion / Stitch 实现值 | 消费 `visual-contract.json`，不得自行另起 token |
 | 时间、缓动、转场、空间连续性 | `motion-contract.json` |
 
-执行顺序：`vibe-visual-taste → DESIGN.md + visual-contract.json → visual lint → renderer`；存在动画时再插入 `vibe-motion-taste → motion-contract.json`。`DESIGN_TOKENS.md` 是默认品牌输入，项目合同可以为具体画幅收紧它，但必须记录取舍。
+自主设计的执行顺序：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言层拥有来源边界与规范词汇，视觉层拥有静态数值，运动层拥有时间与缓动；无自主叠加设计的纯供应素材可跳过三道设计门禁。`DESIGN_TOKENS.md` 是默认品牌输入，项目合同可以为具体画幅收紧它，但必须记录取舍。
 
 ## 1. 定位
 
@@ -127,12 +129,14 @@ B-roll 不替代观点，而是补足场景。
 口播视频 / SRT
 → 语义段落
 → card intent
+→ reference-brief.md + design-vocabulary.json
+→ design language hard gate
 → DESIGN.md + visual-contract.json
 → visual contract hard gate
+→ motion-contract.json（需要运动时）
 → component strategy
 → cards.generated.js
 → timeline-rules.generated.json
-→ motion-contract.json（需要运动时）
 → Remotion render
 → static / motion hybrid QC
 → publish review
