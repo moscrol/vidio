@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://industry7view.local/schemas/vibe-motion-contract-v1.json",
+  "title": "Vidio motion contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "composition", "beats"],
+  "properties": {
+    "version": { "const": 1 },
+    "composition": { "$ref": "#/$defs/composition" },
+    "beats": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/beat" }
+    }
+  },
+  "$defs": {
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fps", "durationFrames", "personality", "primaryAudience"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "fps": { "type": "integer", "minimum": 1 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "personality": { "type": "string", "minLength": 1 },
+        "primaryAudience": { "type": "string", "minLength": 1 }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["properties", "easing", "durationFrames"],
+      "properties": {
+        "properties": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "easing": { "type": "string", "minLength": 1 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "fromScale": { "type": "number", "minimum": 0 }
+      }
+    },
+    "exit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "type": "string", "minLength": 1 },
+        "properties": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "easing": { "type": "string", "minLength": 1 },
+        "durationFrames": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "range", "purpose", "focus"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "range": {
+          "type": "array",
+          "prefixItems": [
+            { "type": "integer", "minimum": 0 },
+            { "type": "integer", "minimum": 1 }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "purpose": {
+          "enum": ["orient", "explain", "emphasize", "bridge", "confirm", "delight"]
+        },
+        "focus": { "type": "string", "minLength": 1 },
+        "salience": { "enum": ["low", "medium", "high"] },
+        "entry": { "$ref": "#/$defs/entry" },
+        "holdFrames": { "type": "integer", "minimum": 0 },
+        "exit": { "$ref": "#/$defs/exit" },
+        "persistsThroughScene": { "type": "boolean" },
+        "timingReason": { "type": "string", "minLength": 1 },
+        "physicalReason": { "type": "string", "minLength": 1 },
+        "delightReason": { "type": "string", "minLength": 1 },
+        "staggerFrames": { "type": "integer", "minimum": 0 },
+        "motionRole": { "enum": ["micro-accent", "entry", "explanation", "camera", "ambient"] },
+        "displayMode": { "type": "string", "minLength": 1 },
+        "secondaryMotion": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      },
+      "anyOf": [
+        { "required": ["exit"] },
+        {
+          "required": ["persistsThroughScene"],
+          "properties": { "persistsThroughScene": { "const": true } }
+        }
+      ]
+    }
+  }
+}

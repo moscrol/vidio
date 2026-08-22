@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "composition": {
+    "id": "replace-with-composition-id",
+    "fps": 30,
+    "durationFrames": 240,
+    "personality": "crisp-editorial",
+    "primaryAudience": "mobile"
+  },
+  "beats": [
+    {
+      "id": "establish-space",
+      "range": [0, 90],
+      "purpose": "orient",
+      "focus": "primary visual subject",
+      "salience": "high",
+      "entry": {
+        "properties": ["transform", "opacity"],
+        "easing": "ease-out-strong",
+        "durationFrames": 10,
+        "fromScale": 0.95
+      },
+      "holdFrames": 36,
+      "exit": {
+        "mode": "bridge-to-next-scene",
+        "properties": ["transform", "opacity"],
+        "easing": "ease-out-strong",
+        "durationFrames": 8
+      }
+    }
+  ]
+}
