@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "project": "vidio-design-language-template",
+  "terms": [
+    {
+      "id": "TERM-001",
+      "canonicalName": "evidence rail",
+      "kind": "component",
+      "aliases": ["proof rail"],
+      "definition": "A semantic component that connects one visible claim to its supporting observations.",
+      "notThis": ["A decorative divider without claim-to-proof meaning."],
+      "states": ["claim-only", "evidence-attached", "resolved"],
+      "acceptance": [
+        "Every evidence rail links one visible claim to at least one labeled supporting observation."
+      ],
+      "sourceRefs": ["REF-001"]
+    },
+    {
+      "id": "TERM-002",
+      "canonicalName": "literal product state",
+      "kind": "principle",
+      "aliases": [],
+      "definition": "Preserve decision-relevant labels and the product state shown by supplied project evidence.",
+      "notThis": ["A reconstructed state or claim that the source never showed."],
+      "states": [],
+      "acceptance": [
+        "Visible labels, values, and status agree with the supplied project evidence."
+      ],
+      "sourceRefs": ["REF-001"]
+    }
+  ],
+  "translations": [
+    {
+      "phrase": "高级 clean SaaS 感",
+      "replaceWith": ["TERM-001", "TERM-002"],
+      "acceptance": [
+        "The artifact leads with one claim, connects it to labeled proof, and preserves the shown product state."
+      ],
+      "sourceRefs": ["REF-001"]
+    }
+  ],
+  "openGaps": []
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Design Language"
+  short_description: "Turn references and vague taste into bounded design terms"
+  default_prompt: "Use $vibe-design-language to source and normalize this project's design language before visual or motion contracts."

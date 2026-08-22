@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vidio.local/schemas/design-vocabulary.schema.json",
+  "title": "Vidio Design Vocabulary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "project", "terms", "translations", "openGaps"],
+  "properties": {
+    "version": { "const": "1.0" },
+    "project": { "$ref": "#/$defs/nonEmptyString" },
+    "terms": { "type": "array", "items": { "$ref": "#/$defs/term" } },
+    "translations": { "type": "array", "items": { "$ref": "#/$defs/translation" } },
+    "openGaps": { "type": "array", "items": { "$ref": "#/$defs/openGap" } }
+  },
+  "$defs": {
+    "nonEmptyString": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "termId": { "type": "string", "pattern": "^TERM-[0-9]{3}$" },
+    "sourceRef": { "type": "string", "pattern": "^REF-[0-9]{3}$" },
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "canonicalName",
+        "kind",
+        "aliases",
+        "definition",
+        "notThis",
+        "states",
+        "acceptance",
+        "sourceRefs"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/termId" },
+        "canonicalName": { "$ref": "#/$defs/nonEmptyString" },
+        "kind": { "enum": ["component", "pattern", "motion", "principle", "visual-axis"] },
+        "aliases": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "definition": { "$ref": "#/$defs/nonEmptyString" },
+        "notThis": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "states": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "acceptance": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceRef" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "enum": ["component", "motion"] } },
+            "required": ["kind"]
+          },
+          "then": { "properties": { "states": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "translation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phrase", "replaceWith", "acceptance", "sourceRefs"],
+      "properties": {
+        "phrase": { "$ref": "#/$defs/nonEmptyString" },
+        "replaceWith": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/termId" }
+        },
+        "acceptance": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceRef" }
+        }
+      }
+    },
+    "openGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["term", "reason", "owner"],
+      "properties": {
+        "term": { "$ref": "#/$defs/nonEmptyString" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" },
+        "owner": {
+          "enum": [
+            "brief",
+            "visual-contract",
+            "motion-contract",
+            "component-contract",
+            "human"
+          ]
+        }
+      }
+    }
+  }
+}
