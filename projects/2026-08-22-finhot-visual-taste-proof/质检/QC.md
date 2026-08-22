@@ -11,6 +11,7 @@
 - 本轮只改语言/视觉合同与来源说明；锁定文案、共享截图字节、两版 HTML、全部质检 PNG 与对照板均未修改，历史像素判定继续有效。
 - 两版 `DESIGN.md` 与本 QC 消费 `TERM-001`、`TERM-002`、`TERM-003`、`TERM-004`、`TERM-005`：基线明确记录受控违反项，炼化版明确记录五项约束；visual-contract JSON 只拥有数值与媒体策略，不重定义词义。
 - `reference-brief.md` 将截图记为 `SUPPLIED`，只确认本地证明用途且不假设可再分发；两份 visual contract 的 `sourcePolicy: supplied-local-proof-only` 与该边界一致。
+- motion proof 修订后的 `THIRD_PARTY_NOTICES.md` 已取代历史所有权表述：两棵 proof 对同一截图均只记录仓库来源链与本地证明用途，不据此主张所有权或再分发许可。
 
 ## 当前复核命令
 
