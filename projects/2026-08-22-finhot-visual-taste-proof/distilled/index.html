@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1080, initial-scale=1" />
+    <title>FinHot visual taste distilled</title>
+    <style>
+      :root {
+        --background: #f2efe7;
+        --surface: #fcfbf7;
+        --text-primary: #14283a;
+        --text-muted: #58646d;
+        --accent: #a16d19;
+        --warning: #a53b2a;
+        --line: rgba(20, 40, 58, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        margin: 0;
+        overflow: hidden;
+        background: var(--background);
+      }
+
+      body {
+        color: var(--text-primary);
+        font-family: "PingFang SC", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .frame {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background-color: var(--background);
+        background-image:
+          linear-gradient(rgba(20, 40, 58, 0.033) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(20, 40, 58, 0.033) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+
+      .frame::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 72px;
+        width: 1px;
+        content: "";
+        background: rgba(161, 109, 25, 0.34);
+      }
+
+      .header {
+        position: absolute;
+        top: 88px;
+        right: 72px;
+        left: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--text-primary);
+      }
+
+      .kicker {
+        font-size: 24px;
+        font-weight: 650;
+        letter-spacing: 0.17em;
+      }
+
+      .header-mark {
+        width: 86px;
+        height: 10px;
+        background: var(--accent);
+      }
+
+      .hero {
+        position: absolute;
+        top: 188px;
+        right: 72px;
+        left: 72px;
+      }
+
+      h1 {
+        max-width: 910px;
+        margin: 0;
+        font-family: "Songti SC", STSong, serif;
+        font-size: 88px;
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.052em;
+      }
+
+      h1 .evidence-word {
+        position: relative;
+        white-space: nowrap;
+      }
+
+      h1 .evidence-word::after {
+        position: absolute;
+        right: 0;
+        bottom: -4px;
+        left: 0;
+        height: 7px;
+        content: "";
+        background: var(--accent);
+      }
+
+      .evidence {
+        position: absolute;
+        top: 502px;
+        right: 72px;
+        left: 72px;
+        padding-left: 36px;
+      }
+
+      .evidence::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 7px;
+        content: "";
+        background: var(--accent);
+      }
+
+      .evidence-row {
+        display: grid;
+        min-height: 108px;
+        grid-template-columns: 74px 1fr;
+        align-items: center;
+        border-top: 1px solid var(--line);
+      }
+
+      .evidence-row:last-child {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .index {
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
+      .evidence-row p {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 560;
+        line-height: 1.45;
+        letter-spacing: -0.02em;
+      }
+
+      .product {
+        position: absolute;
+        top: 878px;
+        right: 72px;
+        left: 72px;
+        height: 748px;
+        overflow: hidden;
+        border-top: 2px solid var(--text-primary);
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--text-primary);
+        border-left: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .product-head {
+        display: grid;
+        height: 74px;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        padding: 0 28px;
+        border-bottom: 1px solid var(--line);
+        font-size: 24px;
+        font-weight: 650;
+        letter-spacing: 0.04em;
+      }
+
+      .proof-rule {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        color: var(--text-muted);
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 18px;
+      }
+
+      .proof-rule::before {
+        width: 42px;
+        height: 4px;
+        content: "";
+        background: var(--accent);
+      }
+
+      .screen {
+        height: 674px;
+        overflow: hidden;
+        background: white;
+      }
+
+      .screen img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+      }
+
+      .footer {
+        position: absolute;
+        top: 1682px;
+        right: 72px;
+        left: 72px;
+        display: grid;
+        grid-template-columns: 0.88fr 1.48fr;
+        gap: 34px;
+        padding-top: 22px;
+        border-top: 1px solid var(--text-primary);
+      }
+
+      .source,
+      .disclaimer {
+        color: var(--text-muted);
+        font-size: 21px;
+        font-weight: 450;
+        line-height: 1.5;
+      }
+
+      .source strong,
+      .disclaimer strong {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="frame" aria-label="FinHot research desk visual system">
+      <header class="header">
+        <div class="kicker">FINHOT / SIGNAL WORKSPACE</div>
+        <span class="header-mark" aria-hidden="true"></span>
+      </header>
+
+      <section class="hero">
+        <h1>把一整天的公开信源，<br />压成<span class="evidence-word">可判断</span>的研究流</h1>
+      </section>
+
+      <section class="evidence" aria-label="FinHot evidence rail">
+        <article class="evidence-row">
+          <span class="index">01</span>
+          <p>多源聚合：雪球、微博、公众号与更多公开信源</p>
+        </article>
+        <article class="evidence-row">
+          <span class="index">02</span>
+          <p>质量排序：高信号内容先浮上来</p>
+        </article>
+        <article class="evidence-row">
+          <span class="index">03</span>
+          <p>原文可追：保留来源，不替你下结论</p>
+        </article>
+      </section>
+
+      <section class="product" aria-label="FinHot product proof">
+        <div class="product-head">
+          <span>真实界面 / 全部动态</span>
+          <span class="proof-rule" aria-hidden="true"></span>
+        </div>
+        <div class="screen">
+          <img src="../assets/d-feed.png" alt="FinHot 全部动态产品界面" />
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="source">
+          <strong>SOURCE</strong>
+          FinHot 产品界面（本地截图，2026-08-22）
+        </div>
+        <div class="disclaimer">
+          <strong>NOTICE</strong>
+          演示仅说明信息整理流程，不构成投资建议。内容来自公开信源，最终判断由用户完成。
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>

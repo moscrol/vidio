@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=2240, initial-scale=1" />
+    <title>FinHot visual taste comparison</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 2240px;
+        height: 2080px;
+        margin: 0;
+        overflow: hidden;
+        background: #0d1621;
+      }
+
+      body {
+        color: #f7f9ff;
+        font-family: Arial, sans-serif;
+      }
+
+      .header {
+        display: grid;
+        height: 140px;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .label {
+        display: flex;
+        align-items: baseline;
+        gap: 20px;
+        font-size: 42px;
+        font-weight: 800;
+        letter-spacing: 0.025em;
+      }
+
+      .label small {
+        color: #91a0b2;
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+      }
+
+      .label:first-child {
+        color: #ff7895;
+      }
+
+      .label:last-child {
+        color: #d2a34d;
+      }
+
+      .frames {
+        display: grid;
+        height: 1940px;
+        grid-template-columns: 1080px 1080px;
+        gap: 40px;
+        padding: 0 20px 20px;
+      }
+
+      figure {
+        width: 1080px;
+        height: 1920px;
+        margin: 0;
+        overflow: hidden;
+        background: #111;
+      }
+
+      figure:first-child {
+        outline: 4px solid #ff7895;
+        outline-offset: -4px;
+      }
+
+      figure:last-child {
+        outline: 4px solid #d2a34d;
+        outline-offset: -4px;
+      }
+
+      img {
+        display: block;
+        width: 1080px;
+        height: 1920px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="label">CONTROL <small>GENERIC AI-SAAS · 5 WARNINGS</small></div>
+      <div class="label">DISTILLED <small>RESEARCH DESK · 0 WARNINGS</small></div>
+    </header>
+    <main class="frames">
+      <figure><img src="baseline.png" alt="Generic AI SaaS baseline" /></figure>
+      <figure><img src="distilled.png" alt="Distilled FinHot research desk" /></figure>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,110 @@
+{
+  "version": "1.0",
+  "name": "finhot-research-desk",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "backgroundRole": "background"
+  },
+  "identity": {
+    "voice": ["precise", "restrained", "editorial", "evidence-led"],
+    "hierarchyPrinciple": "One claim leads; evidence rail, product proof, and provenance follow.",
+    "distinctiveMove": "A single evidence rail connects the promise to three observations and the real product feed.",
+    "brandImitation": false,
+    "inspirationMode": "method-only"
+  },
+  "palette": {
+    "background": "#F2EFE7",
+    "surface": "#FCFBF7",
+    "textPrimary": "#14283A",
+    "textMuted": "#58646D",
+    "accent": "#A16D19",
+    "warning": "#A53B2A",
+    "maxAccentCoveragePct": 9
+  },
+  "typography": {
+    "families": {
+      "display": { "family": "Songti SC", "fallback": ["STSong", "serif"] },
+      "body": { "family": "PingFang SC", "fallback": ["sans-serif"] },
+      "data": { "family": "ui-monospace", "fallback": ["SFMono-Regular", "monospace"] },
+      "label": { "family": "PingFang SC", "fallback": ["sans-serif"] }
+    },
+    "scale": {
+      "hero": { "sizePx": 88, "lineHeight": 1.08, "weight": 800, "maxLines": 3 },
+      "title": { "sizePx": 42, "lineHeight": 1.16, "weight": 700, "maxLines": 2 },
+      "body": { "sizePx": 30, "lineHeight": 1.45, "weight": 500, "maxLines": 4 },
+      "label": { "sizePx": 24, "lineHeight": 1.3, "weight": 650, "maxLines": 2 },
+      "source": { "sizePx": 21, "lineHeight": 1.4, "weight": 450, "maxLines": 3 }
+    }
+  },
+  "layout": {
+    "safeAreaPx": { "top": 88, "right": 72, "bottom": 104, "left": 72 },
+    "gridColumns": 6,
+    "gutterPx": 24,
+    "readingOrder": ["kicker", "headline", "evidence-rail", "product-proof", "provenance"],
+    "maxFocalElements": 1,
+    "maxPanels": 3
+  },
+  "surfaces": {
+    "radiusScalePx": [0, 16],
+    "borderStrategy": "Ink rules and one warm hairline separate content; no decorative border stack.",
+    "shadowStrategy": "none",
+    "effects": [
+      {
+        "name": "paper-grid",
+        "purpose": "Give the quiet research canvas a measured editorial texture without creating a focal point.",
+        "maxCoveragePct": 100
+      }
+    ]
+  },
+  "media": {
+    "sourcePolicy": "project-owned",
+    "treatment": "Keep the FinHot UI literal in a quiet proof window subordinate to the claim.",
+    "cropPolicy": "Preserve navigation, the active feed state, and first feed rows; crop only repeated lower rows."
+  },
+  "components": [
+    {
+      "name": "headline-block",
+      "purpose": "State one evidence-backed product promise.",
+      "priority": 1,
+      "geometry": "Left-aligned editorial title occupying the upper field."
+    },
+    {
+      "name": "evidence-rail",
+      "purpose": "Bind the three locked evidence statements into one sequential proof.",
+      "priority": 2,
+      "geometry": "One vertical accent rule with three aligned evidence rows."
+    },
+    {
+      "name": "product-proof",
+      "purpose": "Show the literal FinHot interface after the evidence claims.",
+      "priority": 3,
+      "geometry": "Wide cropped interface window with a straight editorial frame."
+    },
+    {
+      "name": "provenance-footer",
+      "purpose": "Keep source and financial disclaimer readable.",
+      "priority": 4,
+      "geometry": "Two-column footer inside the bottom safe area."
+    }
+  ],
+  "guardrails": {
+    "do": [
+      "Keep one dominant claim.",
+      "Use the accent only to connect evidence.",
+      "Preserve literal product state and provenance."
+    ],
+    "avoid": [
+      "Do not imitate a named brand.",
+      "Do not stack glow, glass, and gradient effects.",
+      "Do not crop decision-relevant product context."
+    ]
+  },
+  "accessibility": {
+    "minContrastRatio": 4.5,
+    "minBodyPxAt1080": 28,
+    "minLabelPxAt1080": 22,
+    "minSourcePxAt1080": 20
+  }
+}

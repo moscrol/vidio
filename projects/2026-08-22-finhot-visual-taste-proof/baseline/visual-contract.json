@@ -1,0 +1,119 @@
+{
+  "version": "1.0",
+  "name": "finhot-generic-ai-saas-baseline",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "backgroundRole": "background"
+  },
+  "identity": {
+    "voice": ["futuristic", "energetic", "promotional"],
+    "hierarchyPrinciple": "Headline, feature cards, and product panel all compete as hero modules.",
+    "distinctiveMove": "No single content move; identity is attempted through stacked effects.",
+    "brandImitation": false,
+    "inspirationMode": "original"
+  },
+  "palette": {
+    "background": "#07111F",
+    "surface": "#14213B",
+    "textPrimary": "#F7F9FF",
+    "textMuted": "#B8C3D9",
+    "accent": "#6EE7FF",
+    "warning": "#FF6B8A",
+    "maxAccentCoveragePct": 32
+  },
+  "typography": {
+    "families": {
+      "display": { "family": "Georgia", "fallback": ["PingFang SC", "serif"] },
+      "body": { "family": "Arial", "fallback": ["PingFang SC", "sans-serif"] },
+      "data": { "family": "Courier New", "fallback": ["monospace"] },
+      "label": { "family": "Trebuchet MS", "fallback": ["PingFang SC", "sans-serif"] }
+    },
+    "scale": {
+      "hero": { "sizePx": 82, "lineHeight": 1.08, "weight": 800, "maxLines": 3 },
+      "title": { "sizePx": 42, "lineHeight": 1.15, "weight": 700, "maxLines": 2 },
+      "body": { "sizePx": 30, "lineHeight": 1.4, "weight": 500, "maxLines": 4 },
+      "label": { "sizePx": 24, "lineHeight": 1.3, "weight": 700, "maxLines": 2 },
+      "source": { "sizePx": 21, "lineHeight": 1.35, "weight": 500, "maxLines": 3 }
+    }
+  },
+  "layout": {
+    "safeAreaPx": { "top": 84, "right": 64, "bottom": 96, "left": 64 },
+    "gridColumns": 6,
+    "gutterPx": 24,
+    "readingOrder": ["brand-chip", "headline", "features", "product", "source"],
+    "maxFocalElements": 3,
+    "maxPanels": 6
+  },
+  "surfaces": {
+    "radiusScalePx": [12, 24, 40, 999],
+    "borderStrategy": "Bright translucent borders surround every promotional module.",
+    "shadowStrategy": "Colored outer glows separate panels from the dark canvas.",
+    "effects": [
+      {
+        "name": "aurora-gradient",
+        "purpose": "Fill the background with ambient product energy.",
+        "maxCoveragePct": 100
+      },
+      {
+        "name": "glass-blur",
+        "purpose": "Separate multiple floating panels from the background.",
+        "maxCoveragePct": 68
+      },
+      {
+        "name": "neon-glow",
+        "purpose": "Make status chips, headline accents, and panels feel active.",
+        "maxCoveragePct": 38
+      },
+      {
+        "name": "noise-overlay",
+        "purpose": "Add synthetic texture across empty regions.",
+        "maxCoveragePct": 100
+      }
+    ]
+  },
+  "media": {
+    "sourcePolicy": "project-owned",
+    "treatment": "Keep the FinHot UI literal inside a glowing glass product panel.",
+    "cropPolicy": "Preserve the navigation and first feed rows; crop only lower repeated rows."
+  },
+  "components": [
+    {
+      "name": "hero-headline",
+      "purpose": "State the product promise.",
+      "priority": 1,
+      "geometry": "Large centered block with gradient-emphasis words."
+    },
+    {
+      "name": "feature-cluster",
+      "purpose": "Present the three locked evidence statements.",
+      "priority": 1,
+      "geometry": "Three floating rounded glass cards."
+    },
+    {
+      "name": "product-panel",
+      "purpose": "Show the real FinHot interface.",
+      "priority": 1,
+      "geometry": "Large rounded glass window with glow."
+    }
+  ],
+  "guardrails": {
+    "do": [
+      "Keep the exact locked copy.",
+      "Preserve the literal FinHot screenshot.",
+      "Keep source and disclaimer inside safe area."
+    ],
+    "avoid": [
+      "Do not reuse this warning-heavy baseline in production.",
+      "Do not imitate a named brand.",
+      "Do not add motion that changes the static experiment."
+    ]
+  },
+  "accessibility": {
+    "minContrastRatio": 4.5,
+    "minBodyPxAt1080": 28,
+    "minLabelPxAt1080": 22,
+    "minSourcePxAt1080": 20
+  }
+}
