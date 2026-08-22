@@ -123,6 +123,47 @@ test("valid artifacts pass the API and CLI with zero diagnostics", () => {
   assert.match(result.output, /0 error\(s\), 0 warning\(s\)/);
 });
 
+test("heading-only briefs and empty term sets are blocked", () => {
+  const brief = [
+    "## Objective",
+    "## Evidence Boundary",
+    "## Sources",
+    "## Synthesis",
+    "## Downstream Handoff",
+    "## Open Gaps",
+  ].join("\n");
+  const vocabulary = {
+    version: "1.0",
+    project: "empty-authored-design",
+    terms: [],
+    translations: [],
+    openGaps: [],
+  };
+
+  const result = runCli({ brief, vocabulary });
+  assert.equal(result.status, 1, result.output);
+  assert.match(result.output, /VDL002/);
+  assert.match(result.output, /VDL001/);
+
+  const proseOnlySources = [
+    "## Objective",
+    "Visible objective.",
+    "## Evidence Boundary",
+    "Visible boundary.",
+    "## Sources",
+    "A generic source note without a source record.",
+    "## Synthesis",
+    "Visible synthesis.",
+    "## Downstream Handoff",
+    "Visible handoff.",
+    "## Open Gaps",
+    "None.",
+  ].join("\n");
+  const proseResult = runCli({ brief: proseOnlySources });
+  assert.equal(proseResult.status, 1, proseResult.output);
+  assert.match(proseResult.output, /Sources must contain at least one complete REF-### source/);
+});
+
 test("VDL001 reports malformed, missing, and unsupported vocabulary shape", () => {
   const malformed = runCli({ rawVocabulary: "{not-json" });
   assert.equal(malformed.status, 1);
@@ -193,7 +234,7 @@ test("brief parsing ignores CommonMark fenced code", () => {
   for (const { label, open, mismatch, close } of [
     {
       label: "backtick",
-      open: "   ```markdown",
+      open: "   ```markdown <!-- fence info",
       mismatch: "~~~",
       close: "````",
     },
@@ -212,6 +253,7 @@ test("brief parsing ignores CommonMark fenced code", () => {
     const fencedSource = [
       open,
       mismatch,
+      "<!-- comment marker inside fenced code",
       "## Sources",
       "### REF-999 — Fenced source",
       "- Layer: principle",
@@ -232,6 +274,37 @@ test("brief parsing ignores CommonMark fenced code", () => {
       `${label}: ${visibleBrief.output}`,
     );
   }
+});
+
+test("HTML comments cannot supply brief structure, source fields, or body content", () => {
+  const commentedBrief = runCli({ brief: `<!--\n${validBrief}\n-->` });
+  assert.equal(commentedBrief.status, 1, commentedBrief.output);
+  assert.match(commentedBrief.output, /VDL002/);
+  assert.match(commentedBrief.output, /VDL005/);
+
+  const inlineComments = validBrief
+    .replace(
+      "Define the evidence-led language for the project.",
+      "<!-- Define the evidence-led language for the project. -->",
+    )
+    .replace(
+      "- Evidence: the frame shows one claim followed by a labeled evidence row",
+      "- Evidence: <!-- hidden evidence -->",
+    );
+  const inlineResult = runCli({ brief: inlineComments });
+  assert.equal(inlineResult.status, 1, inlineResult.output);
+  assert.match(inlineResult.output, /VDL002/);
+  assert.match(inlineResult.output, /Objective/);
+  assert.match(inlineResult.output, /Evidence/);
+
+  const visibleAroundComment = runCli({
+    brief: validBrief.replace(
+      "Define the evidence-led language for the project.",
+      "Define the evidence-led <!-- hidden note --> language for the project.",
+    ),
+  });
+  assert.equal(visibleAroundComment.status, 0, visibleAroundComment.output);
+  assert.match(visibleAroundComment.output, /0 error\(s\), 0 warning\(s\)/);
 });
 
 test("VDL002 rejects duplicate source fields without overwriting the first value", () => {

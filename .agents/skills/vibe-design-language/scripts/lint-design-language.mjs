@@ -62,18 +62,59 @@ function closesFence(line, fence) {
   );
 }
 
+function stripHtmlComments(line, startsInsideComment) {
+  let visible = "";
+  let cursor = 0;
+  let insideComment = startsInsideComment;
+
+  while (cursor < line.length) {
+    if (insideComment) {
+      const commentEnd = line.indexOf("-->", cursor);
+      if (commentEnd === -1) return { visible, insideComment: true };
+      insideComment = false;
+      cursor = commentEnd + 3;
+      continue;
+    }
+
+    const commentStart = line.indexOf("<!--", cursor);
+    if (commentStart === -1) {
+      visible += line.slice(cursor);
+      break;
+    }
+    visible += line.slice(cursor, commentStart);
+    insideComment = true;
+    cursor = commentStart + 4;
+  }
+
+  return { visible, insideComment };
+}
+
 function parseBrief(brief, errors) {
   const sections = new Set();
+  const sectionsWithContent = new Set();
   const sources = [];
   let currentSection = "";
   let activeSource = null;
   let activeFence = null;
+  let insideHtmlComment = false;
 
-  for (const line of brief.split(/\r?\n/)) {
+  for (const rawLine of brief.split(/\r?\n/)) {
     if (activeFence) {
-      if (closesFence(line, activeFence)) activeFence = null;
+      if (closesFence(rawLine, activeFence)) activeFence = null;
       continue;
     }
+
+    if (!insideHtmlComment) {
+      const rawOpeningFence = parseOpeningFence(rawLine);
+      if (rawOpeningFence) {
+        activeFence = rawOpeningFence;
+        continue;
+      }
+    }
+
+    const commentResult = stripHtmlComments(rawLine, insideHtmlComment);
+    insideHtmlComment = commentResult.insideComment;
+    const line = commentResult.visible;
 
     const openingFence = parseOpeningFence(line);
     if (openingFence) {
@@ -87,6 +128,10 @@ function parseBrief(brief, errors) {
       sections.add(currentSection);
       activeSource = null;
       continue;
+    }
+
+    if (currentSection && currentSection !== "sources" && line.trim().length > 0) {
+      sectionsWithContent.add(currentSection);
     }
 
     const h3 = line.match(/^###\s+(REF-\d{3})\s+(?:—|-)\s+(.+?)\s*$/);
@@ -121,16 +166,28 @@ function parseBrief(brief, errors) {
   }
 
   for (const section of REQUIRED_SECTIONS) {
-    if (!sections.has(section.toLocaleLowerCase("und"))) {
+    const normalizedSection = section.toLocaleLowerCase("und");
+    if (!sections.has(normalizedSection)) {
       errors.push(
         finding("VDL002", "reference-brief.md", `Missing required H2 section: ${section}.`),
+      );
+    } else if (normalizedSection !== "sources" && !sectionsWithContent.has(normalizedSection)) {
+      errors.push(
+        finding(
+          "VDL002",
+          `reference-brief.md#${normalizedSection.replaceAll(" ", "-")}`,
+          `Required H2 section has no visible content: ${section}.`,
+        ),
       );
     }
   }
 
+  let completeSources = 0;
   for (const source of sources) {
+    let complete = true;
     for (const field of SOURCE_FIELDS) {
       if (!hasText(source.fields.get(field))) {
+        complete = false;
         errors.push(
           finding(
             "VDL002",
@@ -140,6 +197,16 @@ function parseBrief(brief, errors) {
         );
       }
     }
+    if (complete) completeSources += 1;
+  }
+  if (completeSources === 0) {
+    errors.push(
+      finding(
+        "VDL002",
+        "reference-brief.md#sources",
+        "Sources must contain at least one complete REF-### source.",
+      ),
+    );
   }
 
   return { sources };
@@ -224,6 +291,9 @@ function validateTopLevel(vocabulary, errors) {
     if (!Array.isArray(vocabulary[key])) {
       errors.push(finding("VDL001", key, `${key} must be an array.`));
     }
+  }
+  if (Array.isArray(vocabulary.terms) && vocabulary.terms.length === 0) {
+    errors.push(finding("VDL001", "terms", "terms must contain at least one term."));
   }
   for (const key of Object.keys(vocabulary)) {
     if (!["version", "project", "terms", "translations", "openGaps"].includes(key)) {
