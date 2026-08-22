@@ -66,11 +66,15 @@ function stripHtmlComments(line, startsInsideComment) {
   let visible = "";
   let cursor = 0;
   let insideComment = startsInsideComment;
+  const preserveBoundary = () => {
+    if (visible.length === 0 || !/\s$/u.test(visible)) visible += " ";
+  };
 
   while (cursor < line.length) {
     if (insideComment) {
       const commentEnd = line.indexOf("-->", cursor);
       if (commentEnd === -1) return { visible, insideComment: true };
+      preserveBoundary();
       insideComment = false;
       cursor = commentEnd + 3;
       continue;
@@ -82,6 +86,7 @@ function stripHtmlComments(line, startsInsideComment) {
       break;
     }
     visible += line.slice(cursor, commentStart);
+    preserveBoundary();
     insideComment = true;
     cursor = commentStart + 4;
   }

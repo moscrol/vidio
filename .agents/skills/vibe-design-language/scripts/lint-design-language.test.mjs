@@ -307,6 +307,24 @@ test("HTML comments cannot supply brief structure, source fields, or body conten
   assert.match(visibleAroundComment.output, /0 error\(s\), 0 warning\(s\)/);
 });
 
+test("HTML comment removal preserves Markdown token boundaries", () => {
+  const splicedMarkers = validBrief
+    .replace("## Objective", "#<!----># Objective")
+    .replace("### REF-001 —", "#<!---->## REF-001 —");
+  const markerResult = runCli({ brief: splicedMarkers });
+  assert.equal(markerResult.status, 1, markerResult.output);
+  assert.match(markerResult.output, /VDL002/);
+  assert.match(markerResult.output, /VDL005/);
+  assert.match(markerResult.output, /Objective/);
+
+  const splicedWord = runCli({
+    brief: validBrief.replace("## Objective", "## Objec<!---->tive"),
+  });
+  assert.equal(splicedWord.status, 1, splicedWord.output);
+  assert.match(splicedWord.output, /VDL002/);
+  assert.match(splicedWord.output, /Objective/);
+});
+
 test("VDL002 rejects duplicate source fields without overwriting the first value", () => {
   const brief = validBrief.replace(
     "- Status: SUPPLIED",
