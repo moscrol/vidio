@@ -6,7 +6,8 @@ alwaysApply: true
 这是 vibe motion 工作区。
 
 - 视频、内容、洗稿、数字人、宣传片、动效、即梦与 Seedance 请求先完整加载 `.agents/skills/vibe-director/SKILL.md`。
-- 合成动效、UI 运动、转场、运镜和 kinetic type 再完整加载 `.agents/skills/vibe-motion-taste/SKILL.md`；先写并通过 `motion-contract.json`，再调用 HyperFrames、GSAP 或 Remotion。
+- 自主设计的封面、图文卡、UI、数据图和宣传片视觉底座再完整加载 `.agents/skills/vibe-visual-taste/SKILL.md`；先写并通过项目级 `DESIGN.md` 与 `visual-contract.json`。
+- 合成动效、UI 运动、转场、运镜和 kinetic type 再完整加载 `.agents/skills/vibe-motion-taste/SKILL.md`；视觉合同通过后写 `motion-contract.json`，再调用 HyperFrames、GSAP 或 Remotion。
 - 项目写到 `projects/<YYYY-MM-DD>-<slug>/`，组件写到 `library/`，事实与状态写进 `brief.md`。
 - 默认无人出镜；brief 明确授权后才加入真人、角色、倒影或可识别人脸。
 - 本地 8–10 秒样片可直接制作；付费 API、声音克隆、生成真人和外部发布先取得用户授权。

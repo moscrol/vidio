@@ -1,6 +1,6 @@
 ---
 name: stitch-to-video
-description: Sub-flow of storyboard workflow. Translates chart descriptions from 分镜执行表 into animated MP4 via enhance-prompt → Stitch design → Remotion component → render. Topic-aware visual style.
+description: Sub-flow of storyboard workflow. Translates chart descriptions from 分镜执行表 into animated MP4 via an approved visual contract → Stitch design → Remotion component → motion contract → render.
 allowed-tools:
   - "mcp__stitch*"
   - "Bash"
@@ -24,34 +24,34 @@ Invoke when the storyboard workflow (分镜工作流) produces chart specs marke
 
 ```
 分镜执行表 图表描述
-  ↓ Step 0: Identify topic → determine visual style
-  ↓ Step 1: enhance-prompt → translate description + topic style → Stitch prompt
+  ↓ Step 0: Load DESIGN.md + visual-contract.json → hard gate
+  ↓ Step 1: enhance-prompt → translate description + visual contract → Stitch prompt
   ↓ Step 2: Stitch generates design
   ↓ Step 3: Download HTML + screenshot
-  ↓ Step 4: Translate to Remotion component (structure reuses existing, visual follows Stitch)
-  ↓ Step 5: Register + render MP4
+  ↓ Step 4: Translate to Remotion component (structure may reuse; visual follows contract)
+  ↓ Step 5: Load motion-contract.json → register + render MP4
 ```
 
-**Key principle: Topic determines visual style, not the chart type.** The same "number card" chart for a robotics topic uses industrial aesthetics, while for a finance topic uses market dashboard aesthetics. Existing Remotion components provide structural templates; Stitch provides topic-specific visual design.
+**Key principle: the project visual contract determines style.** Topic supplies facts, media, and domain language; it does not automatically select a stereotyped palette, font, glass effect, or named-brand look. Existing Remotion components may provide structure, while Stitch explores one implementation of decisions already owned by the contract.
 
-## Step 0: Identify Topic & Visual Direction
+## Step 0: Resolve and validate visual direction
 
-Before generating anything, determine the visual direction based on the video topic:
+Resolve the current project or variant directory. It must contain both:
 
-| Topic Category | Visual Atmosphere | Color Mood | Typography Feel |
-|---|---|---|---|
-| 机器人/工业 | Precision engineering dashboard | Steel blue, amber, charcoal | Industrial, monospace data |
-| 金融/财经 | Market terminal, trading floor | Ruby red, gold, deep navy | Financial, high-contrast |
-| 科技/消费电子 | Clean product launch, Apple-style | White, slate, single accent | Minimalist, geometric |
-| 新能源/汽车 | Energy dashboard, EV interface | Green, electric blue, dark | Modern, sustainable |
-| 医药/生物 | Clinical, lab-grade precision | Teal, white, cool neutral | Scientific, clean |
-| 通用知识科普 | Balanced, approachable | Blue accent, warm gray | Friendly, readable |
+- `DESIGN.md` for intent, hierarchy, trade-offs, and evidence boundaries;
+- `visual-contract.json` for all numeric tokens and budgets.
 
-This topic→style mapping feeds into enhance-prompt (Step 1).
+If either artifact is absent, invoke `vibe-visual-taste` before continuing. Then run:
+
+```bash
+node .agents/skills/vibe-visual-taste/scripts/lint-visual-contract.mjs <project-or-variant-dir>
+```
+
+Stop on any error. Record warnings in project QC. Extract the identity thesis, distinctive move, semantic palette, type roles, reading order, safe area, surface strategy, media policy, component purpose, and `avoid` list for Step 1.
 
 ## Step 1: Enhance Prompt
 
-Translate the chart description from the storyboard into a Stitch-optimized prompt, injecting the topic's visual style.
+Translate the chart description into a Stitch-optimized prompt that cites the approved visual decisions. Do not invent a second design system inside the prompt.
 
 **Input** (from storyboard): chart type, data, purpose, animation notes
 **Output**: structured Stitch prompt with DESIGN SYSTEM section
@@ -59,15 +59,17 @@ Translate the chart description from the storyboard into a Stitch-optimized prom
 **Prompt template:**
 
 ```markdown
-A cinematic dark-themed [topic_category] data card for short video B-roll. Vertical mobile layout (390x844).
+A [content_purpose] data card for short-video B-roll. Vertical mobile design canvas (390x844); final implementation targets the contract canvas.
 
-DESIGN SYSTEM (REQUIRED):
-- Platform: Mobile, Dark theme
-- Atmosphere: [topic visual atmosphere from Step 0 table]
-- Background: [topic base color] with subtle gradient
-- Primary Accent: [topic primary color] for emphasis
-- Secondary Accent: [topic secondary color] for highlights
-- Surface: Translucent glass panels with backdrop-filter: blur(12px)
+PROJECT VISUAL CONTRACT (REQUIRED):
+- Visual thesis: [from DESIGN.md]
+- Distinctive move: [from identity.distinctiveMove]
+- Reading order: [from layout.readingOrder]
+- Semantic palette: [role names and exact values from palette]
+- Typography roles: [families and scale roles from typography]
+- Geometry and depth: [from surfaces and components]
+- Media treatment: [from media]
+- Avoid: [from guardrails.avoid]
 
 PAGE STRUCTURE:
 1. [Section 1 from storyboard chart description]
@@ -76,11 +78,12 @@ PAGE STRUCTURE:
 ```
 
 **Enhancement rules:**
-- Add UI/UX terminology the storyboard doesn't have (glassmorphism, backdrop-filter, gradient strokes)
-- Inject color values from the topic's visual direction
-- Structure into numbered sections with clear hierarchy
-- Add atmosphere keywords (e.g., "precision engineering", "market terminal")
+- Add only implementation terminology needed to express the contract; effects require a declared purpose and budget.
+- Inject semantic role values from `visual-contract.json`, never a topic stereotype or ad-hoc color.
+- Preserve the contract reading order and component purposes in numbered sections.
+- Include the visual thesis and distinctive move in plain language.
 - Include Chinese text labels where the storyboard specifies them
+- Include the `avoid` list so Stitch cannot silently drift into glass, glow, gradients, or brand imitation.
 
 ## Step 2: Generate Stitch Design
 
@@ -89,7 +92,7 @@ Use Stitch MCP to generate the visual design.
 **Default project:** `11811804841660798822` (has Nocturne design system)
 **Design system asset:** `assets/0e5efe3dd49e4eb1ad55885b5501fd52`
 
-For topics that need a different design system than Nocturne, create a new design system via `create_design_system` first.
+The Stitch project is a transport and exploration surface, not the style authority. If its default Nocturne system conflicts with the project contract, create or select a neutral design system that implements the contract; never inherit Nocturne values merely because they are available.
 
 Call `generate_screen_from_text` with:
 - `projectId`: the project ID
@@ -112,7 +115,7 @@ Review the screenshot. If quality is poor, refine prompt and regenerate.
 
 Create a `.tsx` file in `remotion-charts/src/components/`.
 
-**Structural reuse:** Check if an existing component's STRUCTURE matches the needed chart type. Reuse its layout pattern, animation timing, and shared components. But apply the topic-specific visual style from the Stitch design.
+**Structural reuse:** Check if an existing component's STRUCTURE matches the needed chart type. Reuse its data model and layout pattern when they preserve the contract. Visual tokens come from `visual-contract.json`; animation timing comes from `motion-contract.json`, not from the old component or Stitch screenshot.
 
 | Chart Structure | Existing Template | When to Use |
 |---|---|---|
@@ -125,7 +128,7 @@ Create a `.tsx` file in `remotion-charts/src/components/`.
 | Hub-and-spoke | `IndustryChainChart` | Any center+satellite structure |
 
 **When to create new vs. reuse:**
-- **Same structure, different topic**: Create a new component file that adapts the template's structure but applies the topic's visual style from Stitch. Name it `{Topic}{ChartType}.tsx` (e.g., `FinanceNumberCard.tsx`).
+- **Same structure, different project contract**: Create a component or theme variant that adapts the structure and consumes the approved tokens. Name new components by project and function, such as `{Project}{ChartType}.tsx`, not by a generic topic stereotype.
 - **New structure**: Full new component following Stitch's layout.
 
 **Mandatory patterns:**
@@ -133,14 +136,12 @@ Create a `.tsx` file in `remotion-charts/src/components/`.
 - Frame-based animations via `useCurrentFrame()` / `useVideoConfig()`
 - All data via props (never hardcoded)
 - Use shared atmosphere components from `./shared/`
-- Use theme constants from `../styles/theme` for base values, override with topic-specific colors
+- Generate or map theme constants from `visual-contract.json`; no anonymous color, radius, font, or effect values
+- Keep the final reading order, safe area, component purpose, and media crop consistent with the visual contract
 
 **Animation timing:**
-- Title reveal: 0.08–0.35s
-- Card/content reveal: 0.12–0.5s
-- Staggered reveals: `stagger(index, baseDelay, interval)`
-- Bar/data animations: `springProgress(t, delay, duration)`
-- Exit fade: last 12% of duration
+
+Load `vibe-motion-taste` and the project `motion-contract.json` before implementing any reveal, stagger, data animation, or exit. Use its frame ranges, purpose, continuity, easing, reduced-motion behavior, and density budget. If the motion contract is absent, stop and create it; do not fall back to canned reveal timings.
 
 ## Step 5: Register + Render
 
@@ -202,4 +203,4 @@ When processing a full 分镜执行表, extract all "代码生成" chart specs a
 | `defineConfig` error | Use `Config` from `@remotion/cli/config`, not `defineConfig` |
 | Component not found | Check import in Root.tsx and file path |
 | Blurry text | Use 1080x1920, not Stitch's 390x844 |
-| Visual style mismatch | Verify topic direction in Step 0; refine enhance-prompt |
+| Visual style mismatch | Compare rendered pixels with `DESIGN.md` and `visual-contract.json`; fix the prompt or implementation without changing the contract silently |

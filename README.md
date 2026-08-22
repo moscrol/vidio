@@ -26,14 +26,15 @@
      ├── 建项目 projects/<日期-主题>/（brief.md 契约 + 状态流转）
      ├── 查 library/ + video-shotcraft 镜头卡，能复用的直接复用
      ├── 按形态路由技能链：
-     │     动效视频    vibe-motion-taste → motion-contract.json → HyperFrames/GSAP → hybrid QC
-     │     产品宣传片  video-shotcraft（UI 电影感）；生活场景拆给 Seedance
+     │     视觉底座    vibe-visual-taste → DESIGN.md + visual-contract.json → lint → static QC
+     │     动效视频    视觉合同 → vibe-motion-taste → motion-contract.json → HyperFrames/GSAP → hybrid QC
+     │     产品宣传片  vibe-visual-taste → video-shotcraft；生活场景拆给 Seedance
      │     生成影像    seedance-20（即梦/Seedance 提示词包，默认可粘贴不代跑）
      │     数字人口播  rachel-digital-human-production
      │     口播成片    ra-人话/ra-hook/ra-video-title → Kokoro 配音 → 字幕
      │     二创        ra-video-download → 逐字稿 → ra-洗稿 → 制作
      │     实拍混剪    openmontage-adapter（免费 stock 检索 → 拼装 → 质检）
-     │     封面图文    rn-cover-skill / editorial-dot-cover / xhs-article-to-images
+     │     封面图文    vibe-visual-taste → rn-cover-skill / editorial-dot-cover / xhs-article-to-images
      ├── 样片门（本地渲 8–10s；付费 API / Seedance 必须等人确认）
      ├── 质检（ffprobe + 关键帧 + Anti-PPT / 读戏载体）
      └── 沉淀：通过质检的可复用片段问一次，进 library/ 登记
@@ -45,13 +46,14 @@
 
 | 来源 | 内容 |
 | --- | --- |
-| 本仓库自有 | `vibe-director` — 总调度：读戏、选引擎、项目契约、样片门、组件库；`vibe-motion-taste` — 动效目的、帧级节拍、空间连续性、contract 与混合 QC |
+| 本仓库自有 | `vibe-director` — 总调度；`vibe-visual-taste` — 视觉意图、语义 token、层级预算、`visual-contract.json` 与静帧 QC；`vibe-motion-taste` — 动效目的、帧级节拍、空间连续性、`motion-contract.json` 与混合 QC |
 | [seedance-20](https://github.com/Emily2040/seedance-2.0) | Seedance 2.0 导演操作系统：Director's Read、提示词编译、序列续拍、即梦/方舟等多表面 |
 | [video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | 电影感产品视频：152 张镜头卡、209 个动效预览、Remotion 实现、Ink Press 模板、BGM/SFX 库 |
 | [rachel-digital-human-production](https://github.com/Jingyi-Wu-Richael/rachel-digital-human-production) | 数字人口播：MiniMax 声音克隆 + HeyGen 图生视频，15 秒预览门控 |
 | [rnskill](https://github.com/Pluviobyte/rnskill)（54 个） | 内容生产全链：选题、洗稿、去 AI 味、配音、数字人、剪辑、字幕、封面、图文、动效导演、dbs 商业诊断 |
 | [hyperframes](https://github.com/heygen-com/hyperframes) 全家桶 | HTML 视频合成：字幕、TTS 配音、转场、音频响应动画、网站转视频，及 gsap/animejs/lottie/three/waapi/css-animations/typegpu/tailwind 适配层。负责「怎么渲」，不负责动效手感 |
 | [emilkowalski/skills](https://github.com/emilkowalski/skills)（MIT，知识来源） | 不作为运行时 skill 安装。适用于视频的动效判断已翻译进 `vibe-motion-taste`；审计 commit、取舍、更新方法与许可证见 `docs/sources/emilkowalski-skills.md` |
+| [VoltAgent/awesome-design-md](https://github.com/VoltAgent/awesome-design-md)（MIT，知识来源） | 不作为品牌皮肤或运行时 skill 安装。跨样本方法已重写进 `vibe-visual-taste`；固定 commit、格式漂移、品牌权利边界与更新方法见 `docs/sources/voltagent-awesome-design-md.md` |
 | 设计工程组（来自 [uitripled](https://github.com/moumen-soliman/uitripled) / [transitions.dev](https://github.com/jakubantalik/transitions.dev)） | `make-interfaces-feel-better`、`transitions-dev`、`transitions-polish` — 演示界面手感、21 个成品 CSS 转场；uitripled 组件库本体按需 clone 用于搭产品演示页 |
 | [OpenMontage](https://github.com/calesthio/OpenMontage)（工具供给层） | `openmontage-adapter` — 只取它的 102 个 Python 工具，不用它的调度：实拍素材检索（Pexels/Pixabay）、WhisperX 逐词字幕、豆包/DashScope/Piper 等多家 TTS、免费配乐检索、参考片拆解、场景切分、画质增强、即梦代跑。本体 clone 到 `vendor/openmontage`（不入库，commit 锁在适配器技能里） |
 
@@ -82,5 +84,5 @@ vidio/
 ## 约定
 
 - 项目渲染产物（`成片/`、`*.mp4`）不入库；组件库 `library/` 内的成品和技能自带素材例外。
-- CLI 管理的外部技能不手工改动，升级用 `npx skills add`；`vibe-director` 与 `vibe-motion-taste` 是本仓库自有技能，可直接迭代。
+- CLI 管理的外部技能不手工改动，升级用 `npx skills add`；`vibe-director`、`vibe-visual-taste` 与 `vibe-motion-taste` 是本仓库自有技能，可直接迭代。
 - 部分环节需要 API 凭据（MiniMax / HeyGen / 火山 ASR / TikHub），缺了 agent 会提示去 Cloud Agents Secrets 添加。

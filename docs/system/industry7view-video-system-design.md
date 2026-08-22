@@ -4,6 +4,26 @@
 > 核心原则：不要每条视频随机设计，而是用固定的 Design Token、组件、模板和装配规则生产图文卡与 B-roll。  
 > 适用场景：产业研究、A股题材拆解、技术趋势科普、风险提示、跟踪清单。
 
+## 0. 视觉与运动合同接入（2026-08-22）
+
+这是一份仓库级系统设计文档，负责长期品牌定位、组件语义和历史决策；它不再直接充当每条视频的渲染参数文件。
+
+| 层级 | 权威来源 | 责任 |
+| --- | --- | --- |
+| 仓库品牌默认值 | 本文与 `industry7view-card-lab/DESIGN_TOKENS.md` | 长期定位、默认 token、组件语义 |
+| 项目视觉理由 | 项目级 `DESIGN.md` | 意图、层级、取舍、媒体证据与正反约束 |
+| 项目渲染数值 | 项目级 `visual-contract.json` | 画布、语义色、字体、网格、安全区、焦点与效果预算 |
+| 项目运动数值 | `motion-contract.json` | 帧级节拍、缓动、空间连续性与 reduced motion |
+| renderer | HTML / Remotion / HyperFrames / Stitch 转译层 | 消费合同，不自行选择品牌风格或动画手感 |
+
+项目 `visual-contract.json` 是数值单一事实源。本文中的 hex、字号、间距和 motion token 是迁移前的默认资产；被具体项目采用时，要写入相应合同，不允许在提示词、CSS 和组件里继续维护平行副本。
+
+通用视觉门禁：
+
+```bash
+node .agents/skills/vibe-visual-taste/scripts/lint-visual-contract.mjs <project-or-variant-dir>
+```
+
 ---
 
 ## 1. 设计目标
@@ -32,7 +52,11 @@ speech-to-shorts：生成抖音短视频组
   ↓
 storyboard-decision：生成分镜执行表
   ↓
-video-visual-system：匹配视觉组件 + 生成图文卡 prompt + B-roll prompt
+vibe-visual-taste：生成 DESIGN.md + visual-contract.json，并通过 hard gate
+  ↓
+video-visual-system：按视觉合同匹配组件 + 生成图文卡 prompt + B-roll prompt
+  ↓
+vibe-motion-taste：需要运动时生成 motion-contract.json
   ↓
 Remotion / HyperFrame / Figma / 剪映模板：生成图文卡与动态图表
   ↓
@@ -1357,9 +1381,9 @@ BusinessLoopCardProps:
 
 这个缺口优先级很高，因为它直接影响后续换主题是否稳定。
 
-#### 缺口 C：Token 还没有同时映射到代码和提示词
+#### 缺口 C：通用合同层已补，renderer 适配仍需逐步完成
 
-当前文档有 Token，HTML 里也有 CSS 变量，但还没有一张“Token 映射表”。
+`vibe-visual-taste` 已把项目数值集中到 `visual-contract.json`，并用 linter 检查语义色、可读性、安全区和视觉预算。剩余缺口是让现有 HTML / Remotion 组件自动消费合同；在适配完成前，仍需维护一张从合同角色到实现变量的映射表。
 
 需要补：
 
@@ -1396,9 +1420,9 @@ Image2 / Figma / Remotion 提示词里怎么表达
 
 这个机制比“凭感觉继续设计”更重要。
 
-#### 缺口 E：还没有视觉 QA 自动检查
+#### 缺口 E：通用视觉合同已自动检查，卡片像素级 QA 仍需补
 
-当前主要靠人工看预览。后续至少需要一个半自动检查清单。
+当前已有 `lint-visual-contract.mjs` 检查合同结构、必需章节、对比度、字号、安全区、品牌仿制与视觉预算；它不能替代真实 PNG 的溢出、遮挡和像素检查。卡片层仍需下面的半自动检查清单。
 
 短期先人工检查：
 
@@ -1427,7 +1451,7 @@ titleHtml 是否包含未允许标签
 output 是否包含 6 张 PNG
 ```
 
-#### 缺口 F：Skills 还没有拆成 4 类
+#### 缺口 F：视觉/运动品味 Skill 已补，组件装配 Skills 仍待拆分
 
 参考文章建议沉淀四类 Skill。对应到当前视频系统，应该是：
 
@@ -1445,7 +1469,7 @@ output 是否包含 6 张 PNG
    判断问题属于文案过长、组件变体不足、布局缺陷，还是单条剪辑问题。
 ```
 
-当前 v1.0 先不急着创建 Skill 文件，但要从下一条视频开始积累触发条件和验收标准。
+当前已有 `vibe-visual-taste` 和 `vibe-motion-taste` 负责跨组件的视觉与运动门禁；上面四类里，组件选择和视频装配仍需从真实项目积累触发条件与验收标准，不能与品味层重复所有权。
 
 ### 16.3 优先级排序
 
@@ -1454,7 +1478,7 @@ output 是否包含 6 张 PNG
 ```text
 1. 为 6 张卡补 props/schema 文档。
 2. 为 6 张卡补 variants 文档。
-3. 增加 Token 映射表：文档 token ↔ CSS 变量 ↔ AI 提示词。
+3. 增加合同适配表：`visual-contract.json` 角色 ↔ CSS 变量 ↔ AI 提示词。
 4. 增加 cards.js 字段限制和写作规范。
 ```
 

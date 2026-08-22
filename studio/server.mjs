@@ -239,6 +239,7 @@ app.get("/api/shots", (_req, res) => {
 
 function skillGroup(id) {
   if (id === "vibe-director") return "导演调度";
+  if (id === "vibe-visual-taste") return "视觉品味与静帧质检";
   if (id === "vibe-motion-taste") return "动效品味与质检";
   if (id === "openmontage-adapter") return "工具箱适配";
   if (/^(hyperframes|gsap|three|animejs|lottie|waapi|css-animations|tailwind|typegpu|remotion)/.test(id)) return "动效执行";
@@ -259,14 +260,14 @@ const BLOCKED = {
 };
 
 const LANES = [
-  { id: "motion", form: "动效视频", when: "抽象概念、知识口播动效、说不清形态（本仓库默认）", skills: ["vibe-director", "vibe-motion-taste", "hyperframes", "gsap"], cred: "无", copy: "帮我做一个讲____的动效视频，9:16，30 秒，无人出镜。" },
-  { id: "promo", form: "产品宣传片", when: "产品网址 / 截图 / 桌面或网页 App / 「宣传片」", skills: ["promo-film-pipeline", "video-shotcraft", "website-to-hyperframes", "transitions-dev"], cred: "无", copy: "用 promo-film-pipeline 给 ____ 做一支电影感宣传片，纸感玻璃底座，无人出镜。" },
+  { id: "motion", form: "动效视频", when: "抽象概念、知识口播动效、说不清形态（本仓库默认）", skills: ["vibe-director", "vibe-visual-taste", "vibe-motion-taste", "hyperframes", "gsap"], cred: "无", copy: "帮我做一个讲____的动效视频，9:16，30 秒，无人出镜；先定视觉合同。" },
+  { id: "promo", form: "产品宣传片", when: "产品网址 / 截图 / 桌面或网页 App / 「宣传片」", skills: ["vibe-visual-taste", "promo-film-pipeline", "video-shotcraft", "website-to-hyperframes", "transitions-dev"], cred: "无", copy: "用 promo-film-pipeline 给 ____ 做一支电影感宣传片，先定原创视觉合同，无人出镜。" },
   { id: "gen", form: "生成影像", when: "即梦 / Seedance / 文生视频 / 图生视频 / 首尾帧", skills: ["seedance-20", "openmontage-adapter"], cred: "默认只交提示词包；代跑需 VOLC 或 FAL_KEY", copy: "用 Seedance 拍一段：____。先出提示词包，不要代跑。" },
   { id: "stock", form: "实拍混剪", when: "真素材 / 纪录片感 / 免费 stock", skills: ["openmontage-adapter"], cred: "PEXELS_API_KEY / PIXABAY_API_KEY", copy: "用免费实拍素材剪一支纪录片感短片，避开真人镜头。" },
   { id: "avatar", form: "数字人口播", when: "人像照片 + 口播稿 / 「数字人」", skills: ["rachel-digital-human-production"], cred: "MINIMAX_API_KEY + HEYGEN_API_KEY；须用户点名", copy: "用我的数字人念这段口播：____（肖像和音色样本另附）。" },
   { id: "talk", form: "口播成片", when: "已有口播录像，或只有文稿要配音但不给肖像", skills: ["ra-人话", "ra-local-talking-head-cut", "hyperframes-media"], cred: "Kokoro 本地无密钥；克隆音色要 MiniMax", copy: "这段口播录像帮我粗剪去口误，画面走动效。" },
   { id: "remix", form: "二创", when: "竞品/参考视频 URL + 「洗稿」「做成我的」", skills: ["ra-video-wash-pipeline", "ra-洗稿", "openmontage-adapter"], cred: "下载源片可能要 TikHub", copy: "把这条视频洗成我的：____（链接）。源标题不要进成片。" },
-  { id: "cover", form: "封面图文", when: "封面 / 小红书图 / 标题图", skills: ["rn-cover-skill", "editorial-dot-cover", "skill-cover", "xhs-article-to-images"], cred: "无", copy: "给刚这支片子做一张 5:2 封面，标题：____。" },
+  { id: "cover", form: "封面图文", when: "封面 / 小红书图 / 标题图", skills: ["vibe-visual-taste", "rn-cover-skill", "editorial-dot-cover", "skill-cover", "xhs-article-to-images"], cred: "无", copy: "给刚这支片子做一张 5:2 封面，标题：____；沿用项目视觉合同。" },
 ];
 
 const OVERRIDES = [

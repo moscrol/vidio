@@ -2,6 +2,20 @@
 
 这份文档是短视频生产系统的总设计手册，作用类似 Stitch `design-md`：把分散的视觉规范、组件边界、动效原则和发布判断整理成 AI 可读取、可执行的参考手册。
 
+## 0. 合同所有权（2026-08-22）
+
+本文件保留 Industry 7View 的长期品牌意图和组件语义，不再作为每个项目的数值权威。生产项目采用两层视觉合同，再按需进入运动合同：
+
+| 决策 | 权威文件 |
+| --- | --- |
+| 品牌长期定位、固定组件语义 | 本文件与 `DESIGN_TOKENS.md` |
+| 项目视觉意图、取舍、证据边界 | 项目级 `DESIGN.md` |
+| 画布、语义色、字号、安全区、预算 | 项目级 `visual-contract.json`（数值单一事实源） |
+| CSS / Remotion / Stitch 实现值 | 消费 `visual-contract.json`，不得自行另起 token |
+| 时间、缓动、转场、空间连续性 | `motion-contract.json` |
+
+执行顺序：`vibe-visual-taste → DESIGN.md + visual-contract.json → visual lint → renderer`；存在动画时再插入 `vibe-motion-taste → motion-contract.json`。`DESIGN_TOKENS.md` 是默认品牌输入，项目合同可以为具体画幅收紧它，但必须记录取舍。
+
 ## 1. 定位
 
 ```text
@@ -16,7 +30,7 @@ Industry 7View 视频系统 = 产业研究口播 + 观点卡片 + 动态图形 +
 Industry 7View 版 Swiss：克制、研究感、强结构、深蓝主导、金色强调数据。
 ```
 
-基础 token 以 `DESIGN_TOKENS.md` 为准：
+以下是仓库级默认 token，以 `DESIGN_TOKENS.md` 为准；进入具体项目后必须写入 `visual-contract.json`，renderer 只消费项目合同：
 
 ```text
 深蓝：#0f2747
@@ -76,7 +90,7 @@ stitch：外部设计资产或视觉探索来源，进入正式流程前需要�
 
 ## 6. 动效原则
 
-动效必须服务理解，不追求无意义炫技。
+动效必须服务理解，不追求无意义炫技。表内条目只描述意图，不是固定时长或 easing；具体帧级决定由 `vibe-motion-taste` 写入 `motion-contract.json`。
 
 | 卡片 | 推荐动效 |
 |---|---|
@@ -113,11 +127,14 @@ B-roll 不替代观点，而是补足场景。
 口播视频 / SRT
 → 语义段落
 → card intent
+→ DESIGN.md + visual-contract.json
+→ visual contract hard gate
 → component strategy
 → cards.generated.js
 → timeline-rules.generated.json
-→ motion-plan.json
+→ motion-contract.json（需要运动时）
 → Remotion render
+→ static / motion hybrid QC
 → publish review
 ```
 
@@ -145,6 +162,8 @@ SRT → card intent → recipe → Remotion native component / PNG fallback → 
 5. 是否过度堆卡，缺少 B-roll 呼吸。
 6. 数字、结论和风险提示是否可读。
 7. 结尾是否有互动或主站引导。
+8. `visual-contract.json` 是否为 0 error，warning 是否逐条记录。
+9. 最终像素是否在 1×、25%、灰阶和安全区检查中通过。
 ```
 
 详细清单以 `VIDEO_PUBLISH_CHECKLIST.md` 为准。
@@ -155,7 +174,7 @@ Stitch skills 的价值不是替代当前工程，而是提供方法论：
 
 | Stitch 能力 | 在本工程中的映射 |
 |---|---|
-| `design-md` | 维护本文件和 tokens / component docs |
+| `design-md` | 方法已炼化为项目级 `DESIGN.md` + `visual-contract.json`；本文件只保留长期品牌与组件语义 |
 | `enhance-prompt` | 把 SRT 段落增强为 card intent |
 | `remotion` | 指导 nativeMotion 动态组件实现 |
 | `stitch-loop` | 借鉴为 video-loop + report |
