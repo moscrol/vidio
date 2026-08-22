@@ -33,6 +33,7 @@ const GAP_OWNERS = new Set([
   "component-contract",
   "human",
 ]);
+const PARSE_FAILURE = Symbol("parse-failure");
 const VAGUE_PATTERNS = [
   ["高级", /高级/u],
   ["高端", /高端/u],
@@ -46,13 +47,40 @@ const VAGUE_PATTERNS = [
   ["cool", /\bcool\b/iu],
 ];
 
+function parseOpeningFence(line) {
+  const match = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+  if (!match || (match[1][0] === "`" && match[2].includes("`"))) return null;
+  return { marker: match[1][0], length: match[1].length };
+}
+
+function closesFence(line, fence) {
+  const match = line.match(/^ {0,3}(`+|~+)[ \t]*$/);
+  return (
+    match !== null &&
+    match[1][0] === fence.marker &&
+    match[1].length >= fence.length
+  );
+}
+
 function parseBrief(brief, errors) {
   const sections = new Set();
   const sources = [];
   let currentSection = "";
   let activeSource = null;
+  let activeFence = null;
 
   for (const line of brief.split(/\r?\n/)) {
+    if (activeFence) {
+      if (closesFence(line, activeFence)) activeFence = null;
+      continue;
+    }
+
+    const openingFence = parseOpeningFence(line);
+    if (openingFence) {
+      activeFence = openingFence;
+      continue;
+    }
+
     const h2 = line.match(/^##(?!#)\s+(.+?)\s*$/);
     if (h2) {
       currentSection = h2[1].trim().toLocaleLowerCase("und");
@@ -79,6 +107,16 @@ function parseBrief(brief, errors) {
       /^- (Layer|Status|Target|Borrow|Exclude|Retrieved|Evidence): +(\S(?:.*\S)?)\s*$/,
     );
     if (!field) continue;
+    if (activeSource.fields.has(field[1])) {
+      errors.push(
+        finding(
+          "VDL002",
+          `${activeSource.id}.${field[1]}`,
+          `${activeSource.id} repeats required source field ${field[1]}.`,
+        ),
+      );
+      continue;
+    }
     activeSource.fields.set(field[1], field[2].trim());
   }
 
@@ -164,7 +202,7 @@ function parseVocabulary(value, errors) {
       errors.push(
         finding("VDL001", "design-vocabulary.json", `Malformed JSON: ${error.message}`),
       );
-      return null;
+      return PARSE_FAILURE;
     }
   }
   return value;
@@ -556,7 +594,7 @@ export function lintArtifacts({ brief, vocabulary } = {}) {
     validateBriefShape(briefData, errors);
   }
   const parsedVocabulary = parseVocabulary(vocabulary, errors);
-  if (parsedVocabulary !== null) {
+  if (parsedVocabulary !== PARSE_FAILURE) {
     validateTopLevel(parsedVocabulary, errors);
     validateVocabularyShape(parsedVocabulary, errors);
     validateCollisions(parsedVocabulary?.terms, errors);

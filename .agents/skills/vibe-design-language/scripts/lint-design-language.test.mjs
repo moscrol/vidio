@@ -128,6 +128,10 @@ test("VDL001 reports malformed, missing, and unsupported vocabulary shape", () =
   assert.equal(malformed.status, 1);
   assert.match(malformed.output, /VDL001/);
 
+  const nullVocabulary = runCli({ rawVocabulary: "null" });
+  assert.equal(nullVocabulary.status, 1);
+  assert.match(nullVocabulary.output, /VDL001/);
+
   const missingFile = runCli({ vocabulary: null });
   assert.equal(missingFile.status, 1);
   assert.match(missingFile.output, /VDL001/);
@@ -183,6 +187,63 @@ test("source headings and fields require exact case and spacing", () => {
     assert.match(result.output, /VDL002/, `${label}: ${result.output}`);
     assert.match(result.output, /Layer/, `${label}: ${result.output}`);
   }
+});
+
+test("brief parsing ignores CommonMark fenced code", () => {
+  for (const { label, open, mismatch, close } of [
+    {
+      label: "backtick",
+      open: "   ```markdown",
+      mismatch: "~~~",
+      close: "````",
+    },
+    {
+      label: "tilde",
+      open: "~~~ text",
+      mismatch: "```",
+      close: "~~~~",
+    },
+  ]) {
+    const wrapped = runCli({ brief: [open, validBrief, close].join("\n") });
+    assert.equal(wrapped.status, 1, `${label}: ${wrapped.output}`);
+    assert.match(wrapped.output, /VDL002/, `${label}: ${wrapped.output}`);
+    assert.match(wrapped.output, /VDL005/, `${label}: ${wrapped.output}`);
+
+    const fencedSource = [
+      open,
+      mismatch,
+      "## Sources",
+      "### REF-999 — Fenced source",
+      "- Layer: principle",
+      "- Status: REFERENCE_ONLY",
+      "- Target: fenced example",
+      "- Borrow: nothing",
+      "- Exclude: everything",
+      "- Retrieved: 2026-08-22",
+      "- Evidence: this source is code, not brief structure",
+      close,
+      validBrief,
+    ].join("\n");
+    const visibleBrief = runCli({ brief: fencedSource });
+    assert.equal(visibleBrief.status, 0, `${label}: ${visibleBrief.output}`);
+    assert.match(
+      visibleBrief.output,
+      /0 error\(s\), 0 warning\(s\)/,
+      `${label}: ${visibleBrief.output}`,
+    );
+  }
+});
+
+test("VDL002 rejects duplicate source fields without overwriting the first value", () => {
+  const brief = validBrief.replace(
+    "- Status: SUPPLIED",
+    "- Status: REFERENCE_ONLY\n- Status: VERIFIED",
+  );
+  const result = runCli({ brief });
+  assert.equal(result.status, 1, result.output);
+  assert.match(result.output, /VDL002/);
+  assert.match(result.output, /repeats required source field Status/);
+  assert.match(result.output, /VDL101/);
 });
 
 test("VDL003 reports colliding term IDs, canonical names, and aliases", () => {
