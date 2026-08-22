@@ -61,7 +61,7 @@ function parseBrief(brief, errors) {
       continue;
     }
 
-    const h3 = line.match(/^###\s+(REF-\d{3})\s+(?:—|-)\s+(.+?)\s*$/i);
+    const h3 = line.match(/^###\s+(REF-\d{3})\s+(?:—|-)\s+(.+?)\s*$/);
     if (h3) {
       activeSource = null;
       if (currentSection === "sources") {
@@ -75,14 +75,11 @@ function parseBrief(brief, errors) {
     }
 
     if (!activeSource) continue;
-    const field = line.match(/^-\s+([^:]+):\s*(.*?)\s*$/);
-    if (!field) continue;
-    const fieldName = SOURCE_FIELDS.find(
-      (name) => name.toLocaleLowerCase("und") === field[1].trim().toLocaleLowerCase("und"),
+    const field = line.match(
+      /^- (Layer|Status|Target|Borrow|Exclude|Retrieved|Evidence): +(\S(?:.*\S)?)\s*$/,
     );
-    if (fieldName) {
-      activeSource.fields.set(fieldName, field[2].trim());
-    }
+    if (!field) continue;
+    activeSource.fields.set(field[1], field[2].trim());
   }
 
   for (const section of REQUIRED_SECTIONS) {
@@ -429,33 +426,50 @@ function validateSourceRefs(items, itemLabel, sourceIds, errors) {
   });
 }
 
-function validateCanonicalLanguage(terms, errors) {
-  if (!Array.isArray(terms)) return;
-  terms.forEach((term, index) => {
-    if (!isObject(term)) return;
-    const labels = [
-      [term.canonicalName, `terms[${index}].canonicalName`],
-      ...(Array.isArray(term.aliases)
-        ? term.aliases.map((alias, aliasIndex) => [
-            alias,
-            `terms[${index}].aliases[${aliasIndex}]`,
-          ])
-        : []),
-    ];
-    for (const [value, path] of labels) {
-      if (!hasText(value)) continue;
-      const vague = VAGUE_PATTERNS.find(([, pattern]) => pattern.test(value));
-      if (vague) {
-        errors.push(
-          finding(
-            "VDL006",
-            path,
-            `Vague label "${vague[0]}" belongs in translations[].phrase, not canonical language.`,
-          ),
-        );
-      }
+function formatVocabularyPath(segments) {
+  let path = "";
+  for (const segment of segments) {
+    if (typeof segment === "number") {
+      path += `[${segment}]`;
+    } else {
+      path += path.length > 0 ? `.${segment}` : segment;
     }
-  });
+  }
+  return path;
+}
+
+function validateVagueLanguage(value, errors, segments = []) {
+  if (typeof value === "string") {
+    const isTranslationPhrase =
+      segments.length === 3 &&
+      segments[0] === "translations" &&
+      typeof segments[1] === "number" &&
+      segments[2] === "phrase";
+    if (isTranslationPhrase) return;
+
+    const vague = VAGUE_PATTERNS.find(([, pattern]) => pattern.test(value));
+    if (vague) {
+      errors.push(
+        finding(
+          "VDL006",
+          formatVocabularyPath(segments),
+          `Vague phrase "${vague[0]}" is legal only in translations[].phrase.`,
+        ),
+      );
+    }
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => validateVagueLanguage(item, errors, [...segments, index]));
+    return;
+  }
+
+  if (isObject(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      validateVagueLanguage(item, errors, [...segments, key]);
+    }
+  }
 }
 
 function validateTranslations(translations, terms, errors) {
@@ -547,7 +561,7 @@ export function lintArtifacts({ brief, vocabulary } = {}) {
     validateVocabularyShape(parsedVocabulary, errors);
     validateCollisions(parsedVocabulary?.terms, errors);
     validateTermBoundaries(parsedVocabulary?.terms, errors);
-    validateCanonicalLanguage(parsedVocabulary?.terms, errors);
+    validateVagueLanguage(parsedVocabulary, errors);
     validateTranslations(parsedVocabulary?.translations, parsedVocabulary?.terms, errors);
     if (briefData) {
       const sourceIds = new Set(briefData.sources.map((source) => source.id));

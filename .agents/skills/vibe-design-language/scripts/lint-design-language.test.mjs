@@ -164,6 +164,27 @@ test("VDL002 reports a missing brief section and source field", () => {
   assert.match(wrongBullet.output, /Layer/);
 });
 
+test("source headings and fields require exact case and spacing", () => {
+  const lowercaseRef = runCli({
+    brief: validBrief.replace("### REF-001", "### ref-001"),
+  });
+  assert.equal(lowercaseRef.status, 1, lowercaseRef.output);
+  assert.match(lowercaseRef.output, /VDL005/);
+
+  for (const [label, replacement] of [
+    ["lowercase field", "- layer: project-evidence"],
+    ["missing post-colon space", "- Layer:project-evidence"],
+    ["empty value", "- Layer:    "],
+  ]) {
+    const result = runCli({
+      brief: validBrief.replace("- Layer: project-evidence", replacement),
+    });
+    assert.equal(result.status, 1, `${label}: ${result.output}`);
+    assert.match(result.output, /VDL002/, `${label}: ${result.output}`);
+    assert.match(result.output, /Layer/, `${label}: ${result.output}`);
+  }
+});
+
 test("VDL003 reports colliding term IDs, canonical names, and aliases", () => {
   const duplicateId = validVocabulary();
   duplicateId.terms[1].id = "TERM-001";
@@ -235,6 +256,60 @@ test("VDL006 blocks vague canonical language while translations remain legal", (
     assert.equal(result.status, 1, `${phrase}: ${result.output}`);
     assert.match(result.output, /VDL006/, `${phrase}: ${result.output}`);
   }
+});
+
+test("VDL006 scans every vocabulary string except translations[].phrase", () => {
+  const vocabulary = validVocabulary();
+  vocabulary.version = "premium";
+  vocabulary.project = "clean project";
+  Object.assign(vocabulary.terms[0], {
+    id: "TERM-modern",
+    canonicalName: "slick rail",
+    kind: "高端",
+    aliases: ["cool alias"],
+    definition: "premium definition",
+    notThis: ["clean boundary"],
+    states: ["modern state"],
+    acceptance: ["高级 acceptance"],
+    sourceRefs: ["REF-炫酷"],
+  });
+  Object.assign(vocabulary.translations[0], {
+    replaceWith: ["TERM-modern"],
+    acceptance: ["大气 acceptance"],
+    sourceRefs: ["REF-炫酷"],
+  });
+  vocabulary.openGaps = [
+    {
+      term: "丝滑 gap",
+      reason: "炫酷 reason",
+      owner: "premium",
+    },
+  ];
+
+  const result = runCli({ vocabulary });
+  assert.equal(result.status, 1, result.output);
+  for (const path of [
+    "version",
+    "project",
+    "terms[0].id",
+    "terms[0].canonicalName",
+    "terms[0].kind",
+    "terms[0].aliases[0]",
+    "terms[0].definition",
+    "terms[0].notThis[0]",
+    "terms[0].states[0]",
+    "terms[0].acceptance[0]",
+    "terms[0].sourceRefs[0]",
+    "translations[0].replaceWith[0]",
+    "translations[0].acceptance[0]",
+    "translations[0].sourceRefs[0]",
+    "openGaps[0].term",
+    "openGaps[0].reason",
+    "openGaps[0].owner",
+  ]) {
+    assert.ok(result.output.includes(`VDL006 ${path}:`), `${path}: ${result.output}`);
+  }
+  assert.doesNotMatch(result.output, /VDL006 translations\[0\]\.phrase:/);
 });
 
 test("VDL007 reports unknown translation targets and missing observable acceptance", () => {
