@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Director"
+  short_description: "Route video ideas through briefs, samples, rendering, and QC"
+  default_prompt: "Use $vibe-director to turn this idea into a routed, contract-driven video project."

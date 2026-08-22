@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Motion Taste"
+  short_description: "Design and validate fixed-timeline video motion contracts"
+  default_prompt: "Use $vibe-motion-taste to design and validate the motion contract for this video."

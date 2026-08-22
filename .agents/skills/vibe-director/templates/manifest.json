@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "replace-with-component-name",
+  "category": "组件",
+  "sourceProject": "projects/YYYY-MM-DD-project-slug",
+  "specs": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationFrames": 90
+  },
+  "parameters": [
+    {
+      "name": "accentColor",
+      "type": "color",
+      "default": "#ff7a29"
+    }
+  ],
+  "files": {
+    "preview": "preview.png",
+    "source": "工程/",
+    "render": "成品/"
+  },
+  "reuse": {
+    "requires": ["vibe-motion-taste"],
+    "instructions": "Copy the component, update its motion contract, and rerun renderer and visual QC."
+  }
+}
