@@ -16,7 +16,7 @@
 | CSS / Remotion / Stitch 实现值 | 消费 `visual-contract.json`，不得自行另起 token |
 | 时间、缓动、转场、空间连续性 | `motion-contract.json` |
 
-自主设计的执行顺序：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言层拥有来源边界与规范词汇，视觉层拥有静态数值，运动层拥有时间与缓动；无自主叠加设计的纯供应素材可跳过三道设计门禁。`DESIGN_TOKENS.md` 是默认品牌输入，项目合同可以为具体画幅收紧它，但必须记录取舍。
+自主设计的执行顺序：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言层拥有来源边界与规范词汇，视觉层拥有静态数值，运动层拥有时间与缓动。无自主叠加设计的纯供应素材可跳过语言与视觉门禁；只有原样透传、裁切或没有自主时间处理的直切可以再跳过运动门禁，交叉淡化、变速、重构图/运镜、合成、转场或 kinetic treatment 均须 `motion-contract.json`。`DESIGN_TOKENS.md` 是默认品牌输入，项目合同可以为具体画幅收紧它，但必须记录取舍。
 
 ## 1. 定位
 
@@ -133,10 +133,10 @@ B-roll 不替代观点，而是补足场景。
 → design language hard gate
 → DESIGN.md + visual-contract.json
 → visual contract hard gate
-→ motion-contract.json（需要运动时）
 → component strategy
 → cards.generated.js
 → timeline-rules.generated.json
+→ motion-contract.json（存在自主时间处理时）
 → Remotion render
 → static / motion hybrid QC
 → publish review

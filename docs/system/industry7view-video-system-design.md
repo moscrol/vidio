@@ -18,7 +18,7 @@
 | 项目运动数值 | `motion-contract.json` | 帧级节拍、缓动、空间连续性与 reduced motion |
 | renderer | HTML / Remotion / HyperFrames / Stitch 转译层 | 消费合同，不自行选择品牌风格或动画手感 |
 
-自主设计采用唯一规范链：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言层拥有参考边界与规范词汇，视觉层拥有静态数值，运动层拥有时间与缓动；无自主叠加设计的纯供应素材可跳过三道设计门禁。
+自主设计采用唯一规范链：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。语言层拥有参考边界与规范词汇，视觉层拥有静态数值，运动层拥有时间与缓动。无自主叠加设计的纯供应素材可跳过语言与视觉门禁；只有原样透传、裁切或没有自主时间处理的直切可以再跳过运动门禁，交叉淡化、变速、重构图/运镜、合成、转场或 kinetic treatment 均须 `motion-contract.json`。
 
 项目 `visual-contract.json` 仍是静态数值单一事实源。本文中的 hex、字号、间距和 motion token 是迁移前的默认资产；被具体项目采用时，要写入相应合同，不允许在提示词、CSS 和组件里继续维护平行副本。
 
@@ -66,9 +66,9 @@ vibe-design-language：生成 reference-brief.md + design-vocabulary.json，并�
   ↓
 vibe-visual-taste：生成 DESIGN.md + visual-contract.json，并通过 hard gate
   ↓
-vibe-motion-taste：需要运动时生成 motion-contract.json
+video-visual-system：按语言与视觉合同匹配组件、定义当前画面与时间线 + 生成图文卡 prompt + B-roll prompt
   ↓
-video-visual-system：按三层合同匹配组件 + 生成图文卡 prompt + B-roll prompt
+vibe-motion-taste：存在自主时间处理时生成 motion-contract.json
   ↓
 Remotion / HyperFrame / Figma / 剪映模板：生成图文卡与动态图表
   ↓

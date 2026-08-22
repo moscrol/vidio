@@ -9,7 +9,7 @@ alwaysApply: true
 - 自主设计的封面、图文卡、UI、数据图、排版帧和宣传片视觉底座必须先完整加载 `.agents/skills/vibe-design-language/SKILL.md`；先写并通过项目级 `reference-brief.md` 与 `design-vocabulary.json`，钉住来源边界与规范词汇。
 - 语言门禁通过后再完整加载 `.agents/skills/vibe-visual-taste/SKILL.md`；消费语言产物，写 `DESIGN.md` 与静态数值单一事实源 `visual-contract.json`，不得另立词汇或来源事实。
 - 合成动效、UI 运动、转场、运镜和 kinetic type 再完整加载 `.agents/skills/vibe-motion-taste/SKILL.md`；读取语言产物与视觉合同后写只负责时间和缓动的 `motion-contract.json`，再调用 HyperFrames、GSAP 或 Remotion。
-- 自主设计的完整链：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。无自主叠加设计的纯供应素材可跳过三道设计门禁。
+- 自主设计的完整链：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。无自主叠加设计的纯供应素材可跳过语言与视觉门禁；只有原样透传、裁切或没有自主时间处理的直切可以再跳过运动门禁，交叉淡化、变速、重构图/运镜、合成、转场或 kinetic treatment 均须 `motion-contract.json`。
 - 项目写到 `projects/<YYYY-MM-DD>-<slug>/`，组件写到 `library/`，事实与状态写进 `brief.md`。
 - 默认无人出镜；brief 明确授权后才加入真人、角色、倒影或可识别人脸。
 - 本地 8–10 秒样片可直接制作；付费 API、声音克隆、生成真人和外部发布先取得用户授权。

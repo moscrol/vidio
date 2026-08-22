@@ -18,7 +18,7 @@
 
 ## 工作流
 
-自主设计前必须完整读取 `.agents/skills/vibe-design-language/SKILL.md`。规范链只有一条：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。无自主叠加设计的纯供应素材可跳过三道设计门禁。
+自主设计前必须完整读取 `.agents/skills/vibe-design-language/SKILL.md`。规范链只有一条：`vibe-director → vibe-design-language → reference-brief.md + design-vocabulary.json → vibe-visual-taste → DESIGN.md + visual-contract.json → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。无自主叠加设计的纯供应素材可跳过语言与视觉门禁；只有原样透传、裁切或没有自主时间处理的直切可以再跳过运动门禁，交叉淡化、变速、重构图/运镜、合成、转场或 kinetic treatment 均须 `motion-contract.json`。
 
 ```text
 想法
@@ -31,7 +31,7 @@
      │     设计语言    vibe-design-language → reference-brief.md + design-vocabulary.json → lint
      │     视觉底座    语言合同 → vibe-visual-taste → DESIGN.md + visual-contract.json → lint → static QC
      │     动效视频    语言 + 视觉合同 → vibe-motion-taste → motion-contract.json → HyperFrames/GSAP → hybrid QC
-     │     产品宣传片  vibe-design-language → vibe-visual-taste → video-shotcraft；生活场景拆给 Seedance
+     │     产品宣传片  vibe-director → vibe-design-language → vibe-visual-taste →（有时间处理时 vibe-motion-taste）→ video-shotcraft；生活场景拆给 Seedance
      │     生成影像    seedance-20（即梦/Seedance 提示词包，默认可粘贴不代跑）
      │     数字人口播  rachel-digital-human-production
      │     口播成片    ra-人话/ra-hook/ra-video-title → Kokoro 配音 → 字幕

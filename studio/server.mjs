@@ -262,7 +262,7 @@ const BLOCKED = {
 
 const LANES = [
   { id: "motion", form: "动效视频", when: "抽象概念、知识口播动效、说不清形态（本仓库默认）", skills: ["vibe-director", "vibe-design-language", "vibe-visual-taste", "vibe-motion-taste", "hyperframes", "gsap"], cred: "无", copy: "帮我做一个讲____的动效视频，9:16，30 秒，无人出镜；先过 reference-brief.md / design-vocabulary.json 门禁，再定视觉与运动合同。" },
-  { id: "promo", form: "产品宣传片", when: "产品网址 / 截图 / 桌面或网页 App / 「宣传片」", skills: ["vibe-design-language", "vibe-visual-taste", "promo-film-pipeline", "video-shotcraft", "website-to-hyperframes", "transitions-dev"], cred: "无", copy: "用 promo-film-pipeline 给 ____ 做一支电影感宣传片，先过 reference-brief.md / design-vocabulary.json 门禁，再定原创视觉合同，无人出镜。" },
+  { id: "promo", form: "产品宣传片", when: "产品网址 / 截图 / 桌面或网页 App / 「宣传片」", skills: ["vibe-director", "vibe-design-language", "vibe-visual-taste", "vibe-motion-taste", "promo-film-pipeline", "video-shotcraft", "website-to-hyperframes", "transitions-dev"], cred: "无", copy: "给 ____ 做一支电影感宣传片；先走导演及 reference-brief.md / design-vocabulary.json、视觉门禁，凡交叉淡化、变速、运镜、合成或转场先写 motion-contract.json，再调用 promo-film-pipeline；无人出镜。" },
   { id: "gen", form: "生成影像", when: "即梦 / Seedance / 文生视频 / 图生视频 / 首尾帧", skills: ["seedance-20", "openmontage-adapter"], cred: "默认只交提示词包；代跑需 VOLC 或 FAL_KEY", copy: "用 Seedance 拍一段：____。先出提示词包，不要代跑。" },
   { id: "stock", form: "实拍混剪", when: "真素材 / 纪录片感 / 免费 stock", skills: ["openmontage-adapter"], cred: "PEXELS_API_KEY / PIXABAY_API_KEY", copy: "用免费实拍素材剪一支纪录片感短片，避开真人镜头。" },
   { id: "avatar", form: "数字人口播", when: "人像照片 + 口播稿 / 「数字人」", skills: ["rachel-digital-human-production"], cred: "MINIMAX_API_KEY + HEYGEN_API_KEY；须用户点名", copy: "用我的数字人念这段口播：____（肖像和音色样本另附）。" },
