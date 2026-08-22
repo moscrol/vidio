@@ -4,9 +4,22 @@
 
 ## 实验锁定
 
+- `node .agents/skills/vibe-design-language/scripts/lint-design-language.mjs projects/2026-08-22-finhot-visual-taste-proof`：**APPROVE · 0 error / 0 warning**。`reference-brief.md` 与 `design-vocabulary.json` 已成为视觉合同之前的上游门禁。
 - `node verify-proof.mjs`：**PASS**。两版可见文字逐字一致、共同引用同一张截图、canvas contract 一致，最终帧和对照板尺寸正确。
 - 共同截图 SHA-256：`63d71a9677fc948a0ba5675798dca90b5602b8e964619245205a0aea280a4a97`，与既有 motion proof 源文件一致。
 - 两版均为 1080×1920 静态 HTML；没有动画、音频、网络字体、生成图或运行时请求。
+- 本轮只改语言/视觉合同与来源说明；锁定文案、共享截图字节、两版 HTML、全部质检 PNG 与对照板均未修改，历史像素判定继续有效。
+- 两版 `DESIGN.md` 与本 QC 消费 `TERM-001`、`TERM-002`、`TERM-003`、`TERM-004`、`TERM-005`：基线明确记录受控违反项，炼化版明确记录五项约束；visual-contract JSON 只拥有数值与媒体策略，不重定义词义。
+- `reference-brief.md` 将截图记为 `SUPPLIED`，只确认本地证明用途且不假设可再分发；两份 visual contract 的 `sourcePolicy: supplied-local-proof-only` 与该边界一致。
+
+## 当前复核命令
+
+| 命令 | 当前结果 |
+| --- | --- |
+| `node .agents/skills/vibe-design-language/scripts/lint-design-language.mjs projects/2026-08-22-finhot-visual-taste-proof` | `APPROVE` · 0 errors · 0 warnings |
+| `node projects/2026-08-22-finhot-visual-taste-proof/verify-proof.mjs` | PASS · identical content, shared asset, fixed canvas, final captures |
+| `node .agents/skills/vibe-visual-taste/scripts/lint-visual-contract.mjs projects/2026-08-22-finhot-visual-taste-proof/baseline` | `Summary: 0 error(s), 5 warning(s)`（下方既有受控变量） |
+| `node .agents/skills/vibe-visual-taste/scripts/lint-visual-contract.mjs projects/2026-08-22-finhot-visual-taste-proof/distilled` | `Summary: 0 error(s), 0 warning(s)` |
 
 ## 自动门槛
 

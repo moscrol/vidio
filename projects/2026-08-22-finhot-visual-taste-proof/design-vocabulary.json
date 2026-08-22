@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "project": "2026-08-22-finhot-visual-taste-proof",
+  "terms": [
+    {
+      "id": "TERM-001",
+      "canonicalName": "evidence rail",
+      "kind": "pattern",
+      "aliases": ["claim-to-proof rail", "proof sequence"],
+      "definition": "The ordered relationship that leads from the locked FinHot claim through three labeled observations to the committed product screenshot, source, and disclaimer.",
+      "notThis": ["A decorative line or a row of equal-weight cards without a claim-to-proof order."],
+      "states": [],
+      "acceptance": [
+        "One focal claim precedes the three labeled evidence statements, and the product screenshot follows as corroboration.",
+        "At 25% scale, the claim, evidence sequence, and screenshot remain distinguishable in that order."
+      ],
+      "sourceRefs": ["REF-001", "REF-002", "REF-003"]
+    },
+    {
+      "id": "TERM-002",
+      "canonicalName": "content dominance",
+      "kind": "visual-axis",
+      "aliases": ["single-entry hierarchy", "claim-first axis"],
+      "definition": "The hierarchy axis that makes the locked headline the first reading entry while evidence, product proof, source, and disclaimer remain supporting levels.",
+      "notThis": ["Several panels competing as simultaneous first-order focal points."],
+      "states": [],
+      "acceptance": [
+        "The headline is the only first-order focal point; evidence and product proof read as support.",
+        "Grayscale and 25% review preserve that priority without relying on hue."
+      ],
+      "sourceRefs": ["REF-002", "REF-003"]
+    },
+    {
+      "id": "TERM-003",
+      "canonicalName": "accent scarcity",
+      "kind": "visual-axis",
+      "aliases": ["selective accent", "evidence-only accent"],
+      "definition": "The project axis that reserves accent treatment for evidence order, product status, or source linkage instead of distributing it across every surface.",
+      "notThis": ["Multiple unrelated accent colors assigning equal urgency to headline, panels, borders, and decoration."],
+      "states": [],
+      "acceptance": [
+        "Accent treatment marks evidence order, status, or source linkage rather than every surface.",
+        "No secondary panel competes with the headline through equal accent weight."
+      ],
+      "sourceRefs": ["REF-002"]
+    },
+    {
+      "id": "TERM-004",
+      "canonicalName": "literal product proof",
+      "kind": "pattern",
+      "aliases": ["source-faithful interface evidence", "unchanged product screenshot"],
+      "definition": "Use the committed d-feed.png as visible evidence of the FinHot feed state while retaining the labels and selected state that make the screenshot decision-relevant.",
+      "notThis": ["A reconstructed dashboard, invented state, or ornamental crop that removes the evidence-bearing labels."],
+      "states": [],
+      "acceptance": [
+        "The committed d-feed.png appears once, remains recognizable, and retains navigation, selected-state, and feed labels.",
+        "No reconstructed interface substitutes for the supplied screenshot."
+      ],
+      "sourceRefs": ["REF-001", "REF-003"]
+    },
+    {
+      "id": "TERM-005",
+      "canonicalName": "editorial restraint",
+      "kind": "principle",
+      "aliases": ["research-desk restraint", "structure-before-effects rule"],
+      "definition": "A FinHot composition rule that makes type roles, spacing, ordering, and rules carry the research narrative before optional surface effects are considered.",
+      "notThis": ["Adding stacked glass, glow, shadow, and radius treatments as substitutes for hierarchy."],
+      "states": [],
+      "acceptance": [
+        "Hierarchy is carried by type roles, spacing, rules, and ordering before shadows or glass effects.",
+        "The frame stays within the declared font, accent, focus, surface-effect, and radius budgets."
+      ],
+      "sourceRefs": ["REF-002", "REF-003"]
+    }
+  ],
+  "translations": [
+    {
+      "phrase": "高级 SaaS 感",
+      "replaceWith": ["TERM-002", "TERM-003", "TERM-004", "TERM-005"],
+      "acceptance": [
+        "The frame has one strongest claim, limits accents to evidence-bearing roles, keeps the committed product state legible, and uses structure before optional effects."
+      ],
+      "sourceRefs": ["REF-001", "REF-002", "REF-003"]
+    },
+    {
+      "phrase": "干净",
+      "replaceWith": ["TERM-001", "TERM-002", "TERM-003", "TERM-005"],
+      "acceptance": [
+        "At full size and 25% scale, the claim-to-proof order is unambiguous, only one first-order focal point remains, and accents or effects do not create rival reading paths."
+      ],
+      "sourceRefs": ["REF-002", "REF-003"]
+    },
+    {
+      "phrase": "现代",
+      "replaceWith": ["TERM-002", "TERM-003", "TERM-004"],
+      "acceptance": [
+        "The hierarchy survives grayscale, accent use communicates evidence or status, and the supplied interface remains literal, readable proof rather than decorative texture."
+      ],
+      "sourceRefs": ["REF-001", "REF-002", "REF-003"]
+    }
+  ],
+  "openGaps": []
+}

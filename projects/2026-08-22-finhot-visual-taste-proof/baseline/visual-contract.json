@@ -74,7 +74,7 @@
     ]
   },
   "media": {
-    "sourcePolicy": "project-owned",
+    "sourcePolicy": "supplied-local-proof-only",
     "treatment": "Keep the FinHot UI literal inside a glowing glass product panel.",
     "cropPolicy": "Preserve the navigation and first feed rows; crop only lower repeated rows."
   },

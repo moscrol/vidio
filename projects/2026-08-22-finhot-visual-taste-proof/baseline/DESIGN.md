@@ -6,6 +6,10 @@ This is a controlled negative baseline, not a recommended production system. It 
 
 The frame attempts to signal “advanced AI finance product” through simultaneous neon color, glass surfaces, large type, glowing chips, and a floating dashboard. Its intended emotional temperature is energetic and futuristic, but it has no single distinctive content move.
 
+## Design-language consumption
+
+`TERM-001` through `TERM-005` are the evaluation language for this controlled negative variant. It preserves `TERM-004` literal product proof. It intentionally violates `TERM-001` evidence rail, `TERM-002` content dominance, `TERM-003` accent scarcity, and `TERM-005` editorial restraint by giving parallel modules equal weight and exceeding the declared visual budgets. These violations are the controlled variable, not alternate definitions of the terms.
+
 ## Hierarchy
 
 The headline, three feature cards, and product panel all receive high contrast and glow. The declared reading order exists, but several elements are allowed to compete for first fixation; this is the variable under test.
@@ -20,7 +24,7 @@ The hero headline, feature-card cluster, ambient status chips, and product panel
 
 ## Media
 
-The FinHot screenshot remains literal and uses the same source file as the distilled variant. It sits inside a glass product panel and is cropped only below decision-relevant top-of-feed content.
+The supplied FinHot screenshot remains literal and uses the same local-proof-only source file as the distilled variant. It sits inside a glass product panel and is cropped only below decision-relevant top-of-feed content; repository lineage does not imply redistribution permission.
 
 ## Do / Avoid
 

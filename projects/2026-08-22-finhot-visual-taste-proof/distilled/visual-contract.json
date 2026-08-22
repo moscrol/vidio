@@ -59,7 +59,7 @@
     ]
   },
   "media": {
-    "sourcePolicy": "project-owned",
+    "sourcePolicy": "supplied-local-proof-only",
     "treatment": "Keep the FinHot UI literal in a quiet proof window subordinate to the claim.",
     "cropPolicy": "Preserve navigation, the active feed state, and first feed rows; crop only repeated lower rows."
   },

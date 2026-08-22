@@ -6,6 +6,10 @@ This is the recommended original system for the controlled proof. It treats FinH
 
 A cautious retail investor should see one evidence-backed promise, verify it against three compact statements, then recognize the literal FinHot feed. The voice is precise, restrained, editorial, and useful. The distinctive move is one evidence rail that physically connects claim, proof, and product.
 
+## Design-language consumption
+
+`TERM-001` evidence rail fixes the claim-to-proof order. `TERM-002` content dominance keeps one first-order focal claim. `TERM-003` accent scarcity reserves emphasis for the evidence connection. `TERM-004` literal product proof keeps the supplied feed state recognizable. `TERM-005` editorial restraint makes type roles, spacing, rules, and ordering carry hierarchy before effects. This variant consumes those IDs without redefining them.
+
 ## Hierarchy
 
 The headline is the only dominant focal element. The evidence rail is the second reading step, the product screenshot is third, and source plus disclaimer close the frame. Large quiet fields and contrast changes establish hierarchy without a second hero panel.
@@ -20,7 +24,7 @@ The headline block states one promise. The evidence rail binds three observation
 
 ## Media
 
-The screenshot is a project-owned FinHot product capture. Navigation, the “全部动态” state, and the first feed rows remain literal and readable; only repeated lower rows may be cropped. No generated image, recoloring, or invented performance claim is used.
+The screenshot is supplied for this local proof, with repository lineage recorded in `ASSET_PROVENANCE.md`; that lineage does not establish ownership or redistribution permission. Navigation, the “全部动态” state, and the first feed rows remain literal and readable; only repeated lower rows may be cropped. No generated image, recoloring, or invented performance claim is used.
 
 ## Do / Avoid
 
