@@ -1,16 +1,18 @@
 # vidio
 
-这是 vibe motion 工作区。用户给想法，agent 组装技能做成片。
+这是 vibe motion 工作区。权威远端是本机 Gitea `http://localhost:3300/a77/vidio`。
 
-**每次接到做视频 / 做内容 / 洗稿 / 数字人 / 宣传片 / 动效 / 即梦 / Seedance 的请求，先读并遵循** `.agents/skills/vibe-director/SKILL.md`。先读戏再选引擎。不要创建 `01-内容生产/`。
+**每次接到做视频、做内容、洗稿、数字人、宣传片、动效、即梦或 Seedance 请求，先完整读取并遵循** `.agents/skills/vibe-director/SKILL.md`。它负责读戏、建 brief、选车道、样片门和最终质检。
 
-项目落在 `projects/<YYYY-MM-DD>-<slug>/`，契约是 `brief.md`。可复用组件在 `library/`。OpenMontage 只当工具箱（`openmontage-adapter`），不要加载它的 pipeline / Backlot。
+**任何合成动效、UI 运动、转场、运镜或 kinetic type，完整读取并遵循** `.agents/skills/vibe-motion-taste/SKILL.md`。活动链只有一条：`vibe-director → vibe-motion-taste → motion-contract.json → renderer → hybrid QC`。HyperFrames、GSAP 与 Remotion 执行契约，不自行决定动效品味。
 
-本地 GUI 工作台：`cd studio && npm install && npm start`（→ localhost:4700）。六个视图：工作台 / 风格画廊 / 混剪台 / 组件库 / **能力地图**（vibe-director 8 条车道 + 152 镜头卡 + 硬覆盖）/ **质检**。GUI 管看和拍板，生产链仍走 vibe-director。
+项目落在 `projects/<YYYY-MM-DD>-<slug>/`，事实源是 `brief.md`；可复用组件落在 `library/`。本地 GUI：`cd studio && npm install && npm start`（→ localhost:4700）。
 
 ## 仓库红线
 
-- 成片 / 大媒体（`*.mp4`、`*.mp3`、批量帧图）不进 PR、不入库：走 GitHub Release 资产或外部存储，仓里只留指针与代表帧（质检每轮保留 1-2 张）。
-- 跨仓 skill 以 `skills-lock.json` 钉扎版本，不把技能树整树 vendor 入仓；权威源在 agent-memory 仓与本机技能目录，新环境用 `npx skills` 按锁恢复。
-- 动效手感走 Emil Kowalski 官方包（`.agents/skills/emil-design-eng` + `animate` / `review-animations`），来源 `emilkowalski/skills`，不要再用 uitripled 转抄。HyperFrames/GSAP 只负责把已经定好的曲线和时长渲成片。
-- 本仓 `.claude/skills/prototype` 是 Emil 的 UI 多版本切换器（显式调用才跑）；不要把它当成全局那个「状态模型/一次性 HTML 原型」skill。`animate-expo` / `ask-sonner` / `pick-ui-library` 只在对应场景加载。
+- 成片和大媒体不入 Git；仓内保留工程、契约、指针与每轮少量代表帧。
+- 外部 skill 用 `skills-lock.json` 管运行时版本；知识来源用 `docs/sources/` 钉 commit。仓库自有 skill 可直接迭代，外部 skill 树不整包 vendor。
+- Emil Kowalski 是 `vibe-motion-taste` 的知识来源之一，不是运行时 skill。来源、取舍与许可证见 `docs/sources/emilkowalski-skills.md`。
+- 付费 API、声音克隆、生成真人与外部发布必须取得用户授权；本地样片、lint、render 和 QC 可直接执行。
+- 默认无人出镜；brief 明确授权后才加入真人、角色、倒影或可识别人脸。
+- OpenMontage 只提供素材、ASR、TTS、ffmpeg 等工具；调度、项目状态和 QC 仍归 vidio。

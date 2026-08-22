@@ -239,9 +239,10 @@ app.get("/api/shots", (_req, res) => {
 
 function skillGroup(id) {
   if (id === "vibe-director") return "导演调度";
+  if (id === "vibe-motion-taste") return "动效品味与质检";
   if (id === "openmontage-adapter") return "工具箱适配";
   if (/^(hyperframes|gsap|three|animejs|lottie|waapi|css-animations|tailwind|typegpu|remotion)/.test(id)) return "动效执行";
-  if (/^rn-|^editorial-|^transitions-dev|^transitions-polish|^make-interfaces|^emil-|^animation-vocab|^contribute-catalog/.test(id)) return "风格与设计工程";
+  if (/^rn-|^editorial-|^transitions-dev|^transitions-polish|^make-interfaces|^contribute-catalog/.test(id)) return "风格与设计工程";
   if (/^seedance/.test(id)) return "生成影像";
   if (/^(rachel|heygen)/.test(id)) return "数字人";
   if (/^(ra-|dbs)/.test(id)) return "文案与洗稿";
@@ -258,7 +259,7 @@ const BLOCKED = {
 };
 
 const LANES = [
-  { id: "motion", form: "动效视频", when: "抽象概念、知识口播动效、说不清形态（本仓库默认）", skills: ["vibe-director", "rn-motion-director", "hyperframes", "gsap", "animation-vocabulary"], cred: "无", copy: "帮我做一个讲____的动效视频，9:16，30 秒，无人出镜。" },
+  { id: "motion", form: "动效视频", when: "抽象概念、知识口播动效、说不清形态（本仓库默认）", skills: ["vibe-director", "vibe-motion-taste", "hyperframes", "gsap"], cred: "无", copy: "帮我做一个讲____的动效视频，9:16，30 秒，无人出镜。" },
   { id: "promo", form: "产品宣传片", when: "产品网址 / 截图 / 桌面或网页 App / 「宣传片」", skills: ["promo-film-pipeline", "video-shotcraft", "website-to-hyperframes", "transitions-dev"], cred: "无", copy: "用 promo-film-pipeline 给 ____ 做一支电影感宣传片，纸感玻璃底座，无人出镜。" },
   { id: "gen", form: "生成影像", when: "即梦 / Seedance / 文生视频 / 图生视频 / 首尾帧", skills: ["seedance-20", "openmontage-adapter"], cred: "默认只交提示词包；代跑需 VOLC 或 FAL_KEY", copy: "用 Seedance 拍一段：____。先出提示词包，不要代跑。" },
   { id: "stock", form: "实拍混剪", when: "真素材 / 纪录片感 / 免费 stock", skills: ["openmontage-adapter"], cred: "PEXELS_API_KEY / PIXABAY_API_KEY", copy: "用免费实拍素材剪一支纪录片感短片，避开真人镜头。" },
