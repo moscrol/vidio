@@ -11,5 +11,5 @@
     "glass": "rgba(255,251,242,0.42) + blur(18px) saturate(1.2) + 白描边 + 暖褐投影",
     "blobs": "三枚暖色 blob 供毛玻璃折射（没有它们 blur 看不出来）"
   },
-  "reuse": "复制 工程/snippet.html 的共享层进 body 顶部，.glass/.plate 直接套组件。字体三声部随附：细体 400 铺垫词 + 衬线 900 关键词（.hero.or 烧橙）+ mono 角签；注意 .hero.or 层叠规则必须在 .hero 之后声明。"
+  "reuse": "复制 工程/snippet.html 的共享层进 body 顶部，.glass/.plate 直接套组件。字体三声部随附：细体 400 铺垫词 + 衬线 900 关键词（.hero.or 烧橙）+ mono 角签；注意 .hero.or 层叠规则必须在 .hero 之后声明。开幕字标 CSS 默认可见，用 set() 钉住；fromTo(opacity:0) 会把第 0 帧藏掉，成片封面是 t=0 不是旁路 PNG。"
 }

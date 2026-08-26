@@ -1,0 +1,9 @@
+{
+  "name": "",
+  "category": "",
+  "version": 1,
+  "source_project": "",
+  "specs": { "width": 1080, "height": 1920, "fps": 30, "duration_s": 0 },
+  "params": {},
+  "reuse": "复制 工程/snippet.html 或 成品/ 循环片。写清要改的 token 和不要动的契约。"
+}
