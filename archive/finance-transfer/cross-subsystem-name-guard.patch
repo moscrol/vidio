@@ -1,0 +1,174 @@
+From 6a3bbba59dc9f7f4611a73db6341f0c83e60beb5 Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 15:02:17 +0000
+Subject: [PATCH] =?UTF-8?q?bridge:=20=E8=B7=A8=E5=AD=90=E7=B3=BB=E7=BB=9F?=
+ =?UTF-8?q?=E5=90=8C=E5=90=8D=E5=AE=88=E5=8D=AB=E2=80=94=E2=80=94tf.macd?=
+ =?UTF-8?q?=5F*=5Fdiv=20=E5=9C=A8=20index=5Fstage=20=E9=87=8F=E7=9A=84?=
+ =?UTF-8?q?=E6=98=AF=E4=B8=8A=E8=AF=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+第一道断言（_LABEL_GROUPS）只看桥自己的四组，看不见别的子系统。2026-10-07
+补证包 FINDINGS §3 指出一处它拦不住的重名：index_stage.STRUCTURE_EVENTS 里的
+macd_bottom_div_observe 等名字量的是上证日线（市场级），桥上开放的同名标签量的
+是板块/个股。同一个名字两个实体两个子系统。
+
+更要紧的是市场级那份已经在给段位打分——stage_rules.py:300 底背离观察/确认日给
+缩量右底与共建主线各记一分。所以一棵树里同时写 tf.stage_coarse == 共建主线 和
+tf.macd_bottom_div_confirm，两个谓词不独立：前者部分由上证背离打分得来，后者是
+板块的背离。不是严格循环（实体不同），但相关，读的人多半以为是同一件事。
+
+不改名——改名要动已落库的历史行，单独定。只做两件：已知重名逐个登记写明桥上这份
+是谁；任何新增的意外重名导入期就炸。登记表留过期条目也炸（否则下一个人以为重名
+还在）。两条都做了变异验证：删一条登记 → AssertionError 指名 tf.macd_top_div 并
+说明是上证；加一条过期登记 → AssertionError 指名该条。
+
+另加一个底线测试：市场级那批会改写历史的字段（macd_*_hist/_dif、chan_* 八个，
+在补证包 432 天前缀一致性检查里完整序列 vs 截至当天不一致）没有被搬上桥。
+搬了的话第一道断言会先炸，这个测试把理由写在代码里。
+
+4 新测试，定向 444 passed / 2 skipped，ruff 通过。
+---
+ .../services/river_teaching_bridge.py         | 55 +++++++++++++++++
+ .../tests/test_river_teaching_bridge.py       | 59 +++++++++++++++++++
+ 2 files changed, 114 insertions(+)
+
+diff --git a/intelligence/services/river_teaching_bridge.py b/intelligence/services/river_teaching_bridge.py
+index 4a4b3cc0..595f1eaa 100644
+--- a/intelligence/services/river_teaching_bridge.py
++++ b/intelligence/services/river_teaching_bridge.py
+@@ -79,8 +79,63 @@ for _group_name, _group in _LABEL_GROUPS:
+                 "静默给出另一层的读数。请改名或在搬运侧剔除其中一个（并写明理由）。"
+             )
+         _seen[_label] = _group_name
++_BRIDGED_LABELS = frozenset(_seen)
+ del _seen, _group_name, _group, _label
+ 
++# ---------------------------------------------------------------------------
++# 跨子系统同名守卫
++#
++# 上面那道断言只看桥**自己**的四组，看不见别的子系统。2026-10-07 的补证包
++# (FINDINGS §3) 指出一处它拦不住的重名：
++#
++#   ``index_stage.STRUCTURE_EVENTS`` 里的 ``macd_bottom_div_observe`` 等名字量的是
++#   **上证日线**（市场级）；桥上开放的同名标签量的是**板块 / 个股**
++#   （``entity_type='sector'/'stock'``，见 ``river_objects.STRUCTURE_LABELS``）。
++#   同一个名字，两个实体，两个子系统。
++#
++# 更要紧的是市场级那一份**已经在给段位打分**——``stage_rules.py:300``：底背离的
++# 观察 / 确认日给「缩量右底」与「共建主线」各记一分。所以一棵树里同时写
++# ``tf.stage_coarse == "共建主线"`` 和 ``tf.macd_bottom_div_confirm == True``，
++# 两个谓词**不独立**：前者部分由上证背离打分得来，后者是板块的背离。不是严格循环
++# （实体不同），但相关，而且读的人多半以为是同一件事。
++#
++# 这里**不**改名——改名要动已落库的历史行，是另一件事，得单独定。只做两件：
++#   1. 已知的重名逐个在 ``_CROSS_SUBSYSTEM_REUSE`` 里写明「桥上这份是谁」；
++#   2. 任何**新增**的意外重名在导入期就炸，而不是等某棵树悄悄绑到另一层。
++#
++# 哪天把市场级那批也搬上河，第一道断言会先炸（同名跨组），这道是第二层。
++_CROSS_SUBSYSTEM_REUSE: dict[str, str] = {
++    "tf.macd_bottom_div_observe": "桥上这份是板块 / 个股；index_stage 同名那份量上证日线且已进段位计分",
++    "tf.macd_bottom_div_confirm": "桥上这份是板块 / 个股；index_stage 同名那份量上证日线且已进段位计分",
++    "tf.macd_bottom_div_failed": "桥上这份是板块 / 个股；index_stage 同名那份量上证日线",
++    "tf.macd_top_div": "桥上这份是板块 / 个股；index_stage 同名那份量上证日线",
++}
++
++
++def _assert_no_undeclared_cross_subsystem_reuse() -> None:
++    """桥上的名字若与 ``index_stage`` 的市场级结构事件重名，必须已在上表登记。"""
++
++    from .teaching_framework.index_stage import STRUCTURE_EVENTS
++
++    market_level = {f"{TEACHING_NAMESPACE}{name}" for name in STRUCTURE_EVENTS}
++    undeclared = sorted((_BRIDGED_LABELS & market_level) - set(_CROSS_SUBSYSTEM_REUSE))
++    if undeclared:
++        raise AssertionError(
++            f"教学标签 {undeclared} 在桥上开放，同名的另一份在 index_stage 量的是**上证日线**"
++            "（市场级），且其中一部分已参与段位计分。同名不同实体不会被第一道断言发现——"
++            "情景树拿到的是桥这一份（板块 / 个股），写树的人多半以为是上证那一份。"
++            "请在 _CROSS_SUBSYSTEM_REUSE 里写明桥上这份是谁，或改名。"
++        )
++    stale = sorted(set(_CROSS_SUBSYSTEM_REUSE) - _BRIDGED_LABELS)
++    if stale:
++        raise AssertionError(
++            f"_CROSS_SUBSYSTEM_REUSE 登记了 {stale}，但桥上已经没有这些标签了。"
++            "登记表留着过期条目会让下一个人以为重名还在——请删掉。"
++        )
++
++
++_assert_no_undeclared_cross_subsystem_reuse()
++
+ # 对象挂在哪条轨上。市场级那批挂 ``__market__`` 的盘面轨；结构事件是**实体级**的，
+ # 挂切片自己那个实体的轨（板块 → theme）。写死 "market" 会让实体级标签永远绑不到值，
+ # 而且是静默的 unknown —— 看不出是「没接旁路库」还是「找错了轨」。
+diff --git a/intelligence/tests/test_river_teaching_bridge.py b/intelligence/tests/test_river_teaching_bridge.py
+index 39b79275..97f71c30 100644
+--- a/intelligence/tests/test_river_teaching_bridge.py
++++ b/intelligence/tests/test_river_teaching_bridge.py
+@@ -494,3 +494,62 @@ def test_user_three_level_rule_compiles_end_to_end() -> None:
+         where="n1",
+     )
+     assert errs == [] and preds is not None and len(preds) == 3
++
++
++# --- 跨子系统同名守卫（2026-10-07 补证包 FINDINGS §3） ---------------------
++
++
++def test_known_cross_subsystem_reuse_is_declared() -> None:
++    """桥上这 4 个名字在 index_stage 另有一份量上证日线的同名标签，必须已登记。"""
++
++    from intelligence.services.teaching_framework.index_stage import STRUCTURE_EVENTS
++
++    market_level = {f"tf.{name}" for name in STRUCTURE_EVENTS}
++    reused = bridge._BRIDGED_LABELS & market_level
++    assert reused == set(bridge._CROSS_SUBSYSTEM_REUSE), (
++        "桥上开放的标签与 index_stage 市场级结构事件的重名集合，必须与登记表完全一致"
++    )
++    assert reused == {
++        "tf.macd_bottom_div_observe", "tf.macd_bottom_div_confirm",
++        "tf.macd_bottom_div_failed", "tf.macd_top_div",
++    }
++
++
++def test_undeclared_cross_subsystem_reuse_raises(monkeypatch) -> None:
++    """新增一个未登记的重名 —— 导入期就得炸，不能等某棵树悄悄绑到另一层。"""
++
++    monkeypatch.setattr(
++        bridge, "_CROSS_SUBSYSTEM_REUSE",
++        {k: v for k, v in bridge._CROSS_SUBSYSTEM_REUSE.items() if k != "tf.macd_top_div"},
++    )
++    with pytest.raises(AssertionError) as err:
++        bridge._assert_no_undeclared_cross_subsystem_reuse()
++    assert "tf.macd_top_div" in str(err.value)
++    assert "上证日线" in str(err.value)
++
++
++def test_stale_reuse_registration_raises(monkeypatch) -> None:
++    """登记表留着桥上已没有的标签，会让下一个人以为重名还在。"""
++
++    monkeypatch.setattr(
++        bridge, "_CROSS_SUBSYSTEM_REUSE",
++        {**bridge._CROSS_SUBSYSTEM_REUSE, "tf.not_on_the_bridge": "过期"},
++    )
++    with pytest.raises(AssertionError) as err:
++        bridge._assert_no_undeclared_cross_subsystem_reuse()
++    assert "tf.not_on_the_bridge" in str(err.value)
++
++
++def test_market_level_structure_events_are_not_bridged() -> None:
++    """市场级那批（含会改写历史的 _hist / _dif）没有被搬上桥 —— 搬了第一道断言会先炸。"""
++
++    rewriting = {
++        "tf.macd_top_div_hist", "tf.macd_top_div_dif",
++        "tf.macd_bottom_div_hist", "tf.macd_bottom_div_dif",
++        "tf.chan_stroke_bottom_divergence", "tf.chan_stroke_top_divergence",
++        "tf.chan_third_buy", "tf.chan_third_sell",
++    }
++    assert not (bridge._BRIDGED_LABELS & rewriting), (
++        "这批字段在 2026-10-07 补证包的前缀一致性检查里会改写历史（完整序列 vs 截至当天不一致），"
++        "不能当历史实时信号搬上判定路径"
++    )
+-- 
+2.39.5
+
