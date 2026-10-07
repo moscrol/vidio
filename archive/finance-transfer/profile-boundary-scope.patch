@@ -1,140 +1,164 @@
-From 6179ea073cb828245144d8cfc192d85b4c606b38 Mon Sep 17 00:00:00 2001
+From 7436219bcbf460378484b2d7e973d87d5db0194f Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:53 +0000
 Subject: [PATCH 3/3] =?UTF-8?q?feat(perspective):=20=E4=B9=B0=E5=8D=96/?=
- =?UTF-8?q?=E7=AD=96=E7=95=A5=E5=8F=A3=E5=BE=84=E6=8C=89=202026-09-20=207f?=
- =?UTF-8?q?e048decc27=20=E6=9B=B4=E6=96=B0=EF=BC=88=E5=80=99=E9=80=89?=
- =?UTF-8?q?=EF=BC=89+=20=E4=B8=89=E5=A4=84=E4=B8=80=E8=87=B4=E6=80=A7?=
- =?UTF-8?q?=E6=A3=80=E6=9F=A5?=
+ =?UTF-8?q?=E7=AD=96=E7=95=A5=E5=8F=A3=E5=BE=84=E6=8C=89=E8=B0=83=E7=94=A8?=
+ =?UTF-8?q?=E6=96=B9=E8=BA=AB=E4=BB=BD=E5=88=86=E4=B8=89=E6=A1=A3=EF=BC=88?=
+ =?UTF-8?q?=E5=80=99=E9=80=89=EF=BC=89=E2=80=94=E2=80=94=E6=9C=AC=E4=BA=BA?=
+ =?UTF-8?q?=E8=87=AA=E7=94=A8=E6=A1=A3=E4=B8=8D=E8=AE=BE=E4=B8=AA=E8=82=A1?=
+ =?UTF-8?q?=E9=99=90=E5=88=B6?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-用户 2026-10-07 裁定：按较新的日期、较好的那一版 → 2026-09-20 7fe048decc27。
+用户 2026-10-07 两次裁定：
+  (a) 按较新的日期、较好的那一版 → 2026-09-20 7fe048decc27
+  (b)「我自己用的时候不用管什么不输出个股，就是要好用就行，可以给我好的决策」
 
-同一条口径在画像里写了三遍：
-  anti_patterns[0]        「给交易建议/仓位建议（系统边界：只做分析与证据分层）」
-  reasoning_patterns[13]  板块内选股八思路……「（仅分析，不出买卖建议）」
-  voice_guidance          「……不输出仓位/买卖建议。」
-三处当前同为无条件禁止（blanket），已落后于 09-20。
+不是删掉红线，是补上此前漏掉的那一档。同一份画像同时喂两条路——本人自用，
+和对外产品 Foresight/8792；直接删会让对外那条路一起失去红线。
+7fe048decc27 自己就写明「先按目标用户与授权用途定义能力评测范围」，
+分档是这条纠偏本来的形状。
 
-只改一处会让画像自相矛盾，而矛盾的画像比过时的画像更糟：
-下游取到哪一条取决于它读了哪个字段，行为不可预测且不会有人发现。
-check_profile_boundary_consistency.py 守这条——它不判断哪一档「对」
-（那是用户的裁定权），只保证三处说的是同一件事。
+三档，默认 owner_personal：
+- owner_personal        本人自用。个股买卖与仓位不设限，给完整决策（方向、载体、
+                        理由、证伪条件、验证点）。「仅分析不下结论」在这一档属于
+                        2026-10-07 0a3034caf2f6 说的误伤干预。
+- licensed_institutional 持牌机构/团队内部，授权明确。选股与组合策略为正式能力，
+                        策略表现进正式评分（7fe048decc27）。
+- product_general       对外一般用户。红线**只限个股层面**；大盘与板块层面的方向
+                        分析照给——2026-09-06 298b8fbcba91 明确前一版把「不预测涨跌」
+                        写成整体能力边界是过度收窄。原画像那句无条件的
+                        「不输出仓位/买卖建议」比红线本身还窄。
 
-候选不是把红线删掉，是改成按授权用途分档：
-- 默认档（个人/未授权）仍守红线，且按 2026-09-06 298b8fbcba91 收窄到**个股层面**——
-  现画像那句无条件的「不输出仓位/买卖建议」连大盘与板块层面的方向判断都挡掉了，
-  比 09-06 的红线还窄，09-06 自己就说前一版「过度收窄了产品定义」。
-- 持牌机构或团队内部且授权用途明确时，选股与组合策略属能力范围，
-  策略表现按 7fe048decc27 纳入正式评分。
-7fe048decc27 自己写明「具体授权和合规边界另行确定」，所以这是分档不是放开。
+档位由调用方身份决定，不由模型自行判断：身份与权限按 2026-10-02 d0abda287494
+属于代码硬约束那一类，档位选错不是风格问题。
 
-明确不动的两处写进候选的 not_changed：
-- confidence.known_gaps 三项「已说结构、未定标定」的缺口保持空缺
-  （转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）。按 B 类纪律不内置
-  未回测数字阈值；agent 自行填数正是 2026-10-02 d0abda287494 禁止的硬语义规则。
-- reasoning_patterns[14] 首红→加强→分歧退潮保留（2026-08-26 用户口头批准），
-  但 n=2645 / p<0.0001 / T+3 +1.18pp 不得外推为阈值——本资料包无原始数据与台账。
+结构上从散文改为一个 output_policy 字段，三处散文指向它。原来同一条口径在
+anti_patterns[0] / reasoning_patterns[13] / voice_guidance 各写一遍，
+只改一处就自相矛盾且下游取到哪条取决于读了哪个字段——从根上消掉这类事故，
+而不是再加一道检查去追散文。
 
-生产画像在 intelligence/users/<USER_ID>/perspectives/ 下，被 .gitignore:114 排除，
-不在本仓；这里只给候选差异，应用需用户在本机执行。
+放开的是输出粒度，不是方法纪律：证伪条件与 T+1/T+3 验证窗保留（那是用户
+falsification_style 自己的要求，不是合规残留）；「小作文当事实」「跳过大盘直接
+判个股」两条反模式全档位保留；三项未标定缺口仍然空着——放开输出不等于可以
+凭空补阈值。候选里 what_this_does_not_improve 一节明说：这只是把闸门从
+「不许说」改成「按身份说」，不会让判断变准；质量侧的改动是 teaching-bridge
+把可用词汇从 4 个接到 14 个。
 
-11 个测试。反例是 P3 真正要防的事故：参数化覆盖「三处里漏改任意一处」的全部三种，
-每一种都必须被判矛盾。未参与调试的验证样本：风远与 SPT 两份画像不得使检查器崩。
+13 个测试，含「三处漏改任意一处」的参数化反例与两条诚实性断言
+（自用档必须 allowed、对外档必须 withheld，不能一放全放）。
 ---
- .../2026-10-07-strategy-scope-candidate.json  |  71 +++++++++++
- scripts/check_profile_boundary_consistency.py |  98 +++++++++++++++
- tests/test_profile_boundary_consistency.py    | 118 ++++++++++++++++++
- 3 files changed, 287 insertions(+)
+ .../2026-10-07-strategy-scope-candidate.json  |  90 ++++++++++++
+ scripts/check_profile_boundary_consistency.py | 103 +++++++++++++
+ tests/test_profile_boundary_consistency.py    | 139 ++++++++++++++++++
+ 3 files changed, 332 insertions(+)
  create mode 100644 docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json
  create mode 100644 scripts/check_profile_boundary_consistency.py
  create mode 100644 tests/test_profile_boundary_consistency.py
 
 diff --git a/docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json b/docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json
 new file mode 100644
-index 00000000..dc5131d0
+index 00000000..98a9a35f
 --- /dev/null
 +++ b/docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,90 @@
 +{
-+  "schema_version": 1,
++  "schema_version": 2,
 +  "kind": "profile_boundary_candidate",
 +  "profile_id": "user_framework",
 +  "status": "candidate",
 +  "note": "候选差异，未写回生产画像。生产画像在 intelligence/users/<USER_ID>/perspectives/ 下，被 .gitignore:114 排除，不在本仓；应用需用户在本机执行。",
 +  "decision": {
 +    "asked": "画像的买卖/策略口径按哪个日期",
-+    "answered": "按较新的日期、较好的那一版",
-+    "resolved_to": "2026-09-20 7fe048decc27",
++    "answered_2026_10_07_a": "按较新的日期、较好的那一版 → 2026-09-20 7fe048decc27",
++    "answered_2026_10_07_b": "「我自己用的时候不用管什么不输出个股，就是要好用就行，可以给我好的决策」",
++    "resolved_to": "按调用方身份分三档；本人自用档不设个股限制",
 +    "resolved_at": "2026-10-07"
 +  },
-+  "sources": [
-+    {
-+      "id": "298b8fbcba91",
-+      "ts": "2026-09-06",
-+      "takeaway": "产品红线是不荐股、不提供**个股**买卖建议；可以分析大盘和板块层面的行情、涨跌与方向。前一版把「不预测涨跌」写成整体能力边界，过度收窄了产品定义。"
-+    },
-+    {
-+      "id": "6eb05cd5d7ac",
-+      "ts": "2026-09-06",
-+      "takeaway": "Agent 不荐股、不预测价格，但可以分析次日整体行情与方向，帮用户形成自己的观察剧本。"
-+    },
-+    {
-+      "id": "d786e388b25a",
-+      "ts": "2026-09-13",
-+      "takeaway": "合规不作为当前功能设计的约束，后续通过取得投顾牌照解决；现阶段只把功能设计好。"
-+    },
-+    {
-+      "id": "7fe048decc27",
-+      "ts": "2026-09-20",
-+      "takeaway": "面向持牌机构或团队内部使用的投研 agent，可以将提供选股与组合策略作为产品能力，评测应把策略表现纳入正式评分维度。**具体授权和合规边界另行确定。**"
++  "why_tiers_instead_of_just_deleting_the_line": "同一份画像同时喂两条路：本人自用，和对外产品 Foresight/8792。直接删掉限制会让对外那条路一起失去红线；只给自用放开、不动对外，才是用户这次要的。2026-09-20 7fe048decc27 自己就写明「先按目标用户与授权用途定义能力评测范围」——分档是这条纠偏本来的形状，自用档只是此前漏掉的那一档。",
++  "why_structured_field": "原来同一条口径在 anti_patterns[0] / reasoning_patterns[13] / voice_guidance 三处各写一遍散文，只改一处就自相矛盾，且下游取到哪条取决于它读了哪个字段。改为一个结构化 output_policy，三处散文改成指向它，从根上消掉这类事故（而不是再加一道检查去追散文）。",
++  "proposed_new_field": {
++    "where": "profile.output_policy",
++    "value": {
++      "default_tier": "owner_personal",
++      "tier_is_decided_by": "caller_identity",
++      "tier_is_not_decided_by": "模型自行判断。身份与权限按 2026-10-02 d0abda287494 属于代码硬约束那一类；档位选错不是风格问题。",
++      "tiers": {
++        "owner_personal": {
++          "who": "画像本人自用",
++          "individual_stock_calls": "allowed",
++          "position_sizing": "allowed",
++          "note": "不设个股限制。要给就给完整的判断：方向、载体、理由、证伪条件、T+1/T+3 验证点。『仅分析不下结论』在这一档属于误伤干预（2026-10-07 0a3034caf2f6）。",
++          "still_required": [
++            "每个判断带证伪条件与验证窗（这是用户自己框架的要求，不是合规要求）",
++            "缺数据显式列缺口，不拿旧数据冒充今日数据（2026-09-21 1be39b9ce356）",
++            "区分事实层与分析层：小作文可拆解但不进事实层（用户框架 anti_patterns）"
++          ]
++        },
++        "licensed_institutional": {
++          "who": "持牌机构或团队内部，授权用途已明确",
++          "individual_stock_calls": "allowed",
++          "position_sizing": "allowed",
++          "note": "选股与组合策略属正式产品能力，策略表现纳入正式评分维度（2026-09-20 7fe048decc27）。具体授权与合规边界另行确定。"
++        },
++        "product_general": {
++          "who": "对外产品的一般用户，未取得投顾资质前",
++          "individual_stock_calls": "withheld",
++          "position_sizing": "withheld",
++          "note": "红线限于个股层面。大盘与板块层面的行情、涨跌与方向分析照常给——2026-09-06 298b8fbcba91 明确前一版把「不预测涨跌」写成整体能力边界是过度收窄。"
++        }
++      }
 +    }
-+  ],
-+  "why_three_places_change_together": "同一条口径在 anti_patterns[0] / reasoning_patterns[13] / voice_guidance 三处各写了一遍。只改一处会让画像自相矛盾，而下游取到哪一条取决于它读了哪个字段——行为不可预测且不会有人发现。scripts/check_profile_boundary_consistency.py 守这条。",
-+  "why_not_a_blanket_opening": "7fe048decc27 自己写明「具体授权和合规边界另行确定」，并要求「先按目标用户与授权用途定义能力评测范围」。所以这不是把红线删掉，而是把无条件禁止改成按授权用途分档；未授权场景下的默认档与 09-06 的红线一致。",
++  },
 +  "changes": [
 +    {
 +      "where": "anti_patterns[0]",
 +      "before": "给交易建议/仓位建议（系统边界：只做分析与证据分层）",
-+      "after": "未经明确授权用途时给个股买卖/仓位建议（默认档红线，2026-09-06 298b8fbcba91：红线是个股层面，大盘与板块层面的行情、涨跌与方向分析不在禁止之列）。面向持牌机构或团队内部且授权用途已明确时，选股与组合策略属能力范围，不再记为反模式（2026-09-20 7fe048decc27，具体授权与合规边界另行确定）"
++      "after": "在 output_policy 判定为 product_general 档时给个股买卖/仓位建议。其余档位不适用本条——owner_personal 与 licensed_institutional 下给出个股结论是能力而非反模式",
++      "why": "原文是无条件禁止，既挡掉了本人自用，也挡掉了持牌场景。"
 +    },
 +    {
 +      "where": "reasoning_patterns[13].rule",
 +      "field": "板块内选股八思路横向对比",
 +      "before_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（仅分析，不出买卖建议）",
-+      "after_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（默认档仅分析、不出个股买卖建议；持牌机构或团队内部且授权用途明确时可输出选股结果，并按 7fe048decc27 把策略表现纳入正式评分）"
++      "after_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（输出粒度按 output_policy：owner_personal / licensed_institutional 直接给选出的载体与理由，product_general 只给模式判断不点个股）",
++      "why": "「仅分析，不出买卖建议」是 2026-08-26 问卷期写下的，当时口径尚未分档；本人自用时这句话正是用户这次说的「误伤」。"
 +    },
 +    {
 +      "where": "voice_guidance",
 +      "before": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；不输出仓位/买卖建议。",
-+      "after": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；默认档不输出个股买卖/仓位建议，大盘与板块层面的方向判断照常给；授权用途明确为持牌机构或团队内部时，可输出选股与组合策略并一并给出策略表现口径。"
++      "after": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；输出粒度按 output_policy 档位，owner_personal 档给完整决策（方向、载体、理由、证伪条件），不打折扣。",
++      "why": "证伪条件与验证窗保留——那是用户框架本身的要求（falsification_style），不是合规残留，去掉会削弱自用价值。"
 +    }
 +  ],
 +  "not_changed": [
 +    {
 +      "where": "confidence.known_gaps",
-+      "why": "三项「用户已说结构、未定标定」的缺口（转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）保持空缺。按 B 类纪律不内置未回测数字阈值；agent 自行填数正是 2026-10-02 d0abda287494 禁止的硬语义规则。"
++      "why": "三项「用户已说结构、未定标定」的缺口保持空缺（转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）。放开输出粒度不等于可以凭空补阈值；agent 自行填数仍是 2026-10-02 d0abda287494 禁止的硬语义规则。"
 +    },
 +    {
-+      "where": "reasoning_patterns[14] 首红→加强→分歧退潮生命周期",
-+      "why": "这条推理模式保留（2026-08-26 16:33 用户口头批准，patch_history 有记录），但其中 n=2645 / p<0.0001 / T+3 +1.18pp 等数字不得外推为阈值——本资料包无原始数据与台账，云端无法复验。"
++      "where": "anti_patterns[1] / anti_patterns[2]",
++      "why": "「把小作文逻辑当事实」「跳过大盘/情绪/板块直接判断个股」两条与输出粒度无关，是用户自己的方法纪律，全档位保留。"
++    },
++    {
++      "where": "reasoning_patterns[14] 首红→加强→分歧退潮",
++      "why": "保留（2026-08-26 用户口头批准），但 n=2645 / p<0.0001 / T+3 +1.18pp 不得外推为阈值——本资料包无原始数据与台账。放开个股输出后这点更要紧：这些数字可能被直接当成买点依据。"
 +    }
 +  ],
++  "what_this_does_not_improve": "放开输出粒度本身不会让判断变准。真正决定自用价值的是数据覆盖与接线：实测用户框架点名的 19 个量里 17 个有库内支撑，而判定路径此前只认 4 个标签——teaching-bridge 把可用词汇接到 14 个，那才是质量侧的改动。这条候选只是把闸门从『不许说』改成『按身份说』。",
 +  "verification": {
 +    "tool": "scripts/check_profile_boundary_consistency.py",
-+    "before": "三处口径均为 blanket → 自洽（但已过时）",
-+    "after": "三处口径均为 scoped → 自洽",
-+    "negative_control": "只改其中一处 → blanket 与 scoped 混用 → 检查器退出码 1"
++    "rule": "三处散文必须全部指向 output_policy，不得残留无条件禁止措辞",
++    "negative_control": "只改其中一处 → 残留 blanket 与 policy 混用 → 退出码 1"
 +  }
 +}
 diff --git a/scripts/check_profile_boundary_consistency.py b/scripts/check_profile_boundary_consistency.py
 new file mode 100644
-index 00000000..0abc3ce4
+index 00000000..bc078194
 --- /dev/null
 +++ b/scripts/check_profile_boundary_consistency.py
-@@ -0,0 +1,98 @@
+@@ -0,0 +1,103 @@
 +#!/usr/bin/env python3
 +"""画像里「能不能给买卖/策略」的口径，必须三处一致。
 +
@@ -156,7 +180,10 @@ index 00000000..0abc3ce4
 +把三处里提到买卖/仓位/荐股/策略的句子各归一档：
 +
 +- ``blanket``  —— 无条件禁止（没有任何适用范围限定词）
-+- ``scoped``   —— 带适用范围（持牌/授权/机构/团队/个人/未授权，或区分个股 vs 大盘板块）
++- ``scoped``   —— 带适用范围：指向 ``output_policy`` 档位，或自带持牌/授权/个股 vs 板块的限定
++
++分档后的正解是三处散文**都指向** ``output_policy`` 这一个结构化字段，而不是各自复述一遍口径——
++复述三遍正是「只改一处就矛盾」的根因。
 +
 +全 ``blanket`` 或全 ``scoped`` 都算自洽；**混着就是矛盾**，退出码 1。
 +本工具不判断哪一档「对」——那是用户的裁定权，这里只保证三处说的是同一件事。
@@ -175,6 +202,8 @@ index 00000000..0abc3ce4
 +SCOPE_WORDS = (
 +    "持牌", "授权", "机构", "团队内部", "未授权", "个人用户", "目标用户",
 +    "个股层面", "板块层面", "大盘和板块", "按用途", "按场景",
++    # 分档后的正规写法：散文指向结构化字段，而不是各自复述一遍口径
++    "output_policy", "owner_personal", "product_general", "licensed_institutional", "档",
 +)
 +
 +
@@ -235,10 +264,10 @@ index 00000000..0abc3ce4
 +    sys.exit(main())
 diff --git a/tests/test_profile_boundary_consistency.py b/tests/test_profile_boundary_consistency.py
 new file mode 100644
-index 00000000..eeb36477
+index 00000000..edb18195
 --- /dev/null
 +++ b/tests/test_profile_boundary_consistency.py
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,139 @@
 +"""买卖/策略口径三处一致性检查。
 +
 +- **正常样本**：当前快照画像（三处同为 blanket）→ 自洽。
@@ -329,24 +358,45 @@ index 00000000..eeb36477
 +def test_candidate_touches_exactly_the_three_loci_and_cites_its_source() -> None:
 +    cand = json.loads(CANDIDATE.read_text(encoding="utf-8"))
 +    assert cand["status"] == "candidate", "候选不能标成已应用"
-+    assert cand["decision"]["resolved_to"] == "2026-09-20 7fe048decc27"
 +    assert {c["where"] for c in cand["changes"]} == {
 +        "anti_patterns[0]", "reasoning_patterns[13].rule", "voice_guidance",
 +    }
-+    ids = {s["id"] for s in cand["sources"]}
-+    assert "7fe048decc27" in ids and "298b8fbcba91" in ids
-+    # 不是无条件放开：默认档必须仍然守红线
-+    after = " ".join(str(c.get("after", "") or c.get("after_tail", "")) for c in cand["changes"])
-+    assert "默认档" in after and "授权" in after
++    tiers = cand["proposed_new_field"]["value"]["tiers"]
++    assert set(tiers) == {"owner_personal", "licensed_institutional", "product_general"}
++    # 本人自用档：不设个股限制，这是 2026-10-07 用户明确要的
++    assert tiers["owner_personal"]["individual_stock_calls"] == "allowed"
++    assert tiers["owner_personal"]["position_sizing"] == "allowed"
++    assert cand["proposed_new_field"]["value"]["default_tier"] == "owner_personal"
++    # 对外产品档不受牵连：放开自用不等于一起拆掉对外红线
++    assert tiers["product_general"]["individual_stock_calls"] == "withheld"
++    # 档位由调用方身份定，不由模型自己判断（2026-10-02 d0abda287494：身份权限属硬约束）
++    assert cand["proposed_new_field"]["value"]["tier_is_decided_by"] == "caller_identity"
 +
 +
 +def test_candidate_does_not_fill_in_any_withheld_number() -> None:
-+    """候选不得顺手把三项「已说结构、未定标定」的缺口填上数字。"""
++    """放开输出粒度 ≠ 可以凭空补阈值。三项缺口必须仍然空着。"""
 +    cand = json.loads(CANDIDATE.read_text(encoding="utf-8"))
 +    assert any("known_gaps" in n["where"] for n in cand["not_changed"])
 +    blob = json.dumps(cand, ensure_ascii=False)
 +    for forbidden in ("缺口幅度门槛为", "市值容量顶比值为", "阈值设为"):
 +        assert forbidden not in blob
++
++
++def test_candidate_keeps_the_user_own_method_discipline_in_every_tier() -> None:
++    """放开的是输出粒度，不是方法纪律。证伪条件与验证窗是用户框架自己的要求，不是合规残留。"""
++    cand = json.loads(CANDIDATE.read_text(encoding="utf-8"))
++    owner = cand["proposed_new_field"]["value"]["tiers"]["owner_personal"]
++    required = " ".join(owner["still_required"])
++    assert "证伪" in required and "缺口" in required
++    assert any("anti_patterns[1]" in n["where"] for n in cand["not_changed"])
++    after_voice = next(c for c in cand["changes"] if c["where"] == "voice_guidance")["after"]
++    assert "证伪条件" in after_voice and "T+1/T+3" in after_voice
++
++
++def test_candidate_is_honest_that_this_does_not_improve_accuracy() -> None:
++    """闸门从「不许说」改成「按身份说」不会让判断变准——候选必须自己讲清楚。"""
++    cand = json.loads(CANDIDATE.read_text(encoding="utf-8"))
++    assert "不会让判断变准" in cand["what_this_does_not_improve"]
 +
 +
 +# --------------------------------------------------------------------------- #

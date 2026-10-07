@@ -1,71 +1,90 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "kind": "profile_boundary_candidate",
   "profile_id": "user_framework",
   "status": "candidate",
   "note": "候选差异，未写回生产画像。生产画像在 intelligence/users/<USER_ID>/perspectives/ 下，被 .gitignore:114 排除，不在本仓；应用需用户在本机执行。",
   "decision": {
     "asked": "画像的买卖/策略口径按哪个日期",
-    "answered": "按较新的日期、较好的那一版",
-    "resolved_to": "2026-09-20 7fe048decc27",
+    "answered_2026_10_07_a": "按较新的日期、较好的那一版 → 2026-09-20 7fe048decc27",
+    "answered_2026_10_07_b": "「我自己用的时候不用管什么不输出个股，就是要好用就行，可以给我好的决策」",
+    "resolved_to": "按调用方身份分三档；本人自用档不设个股限制",
     "resolved_at": "2026-10-07"
   },
-  "sources": [
-    {
-      "id": "298b8fbcba91",
-      "ts": "2026-09-06",
-      "takeaway": "产品红线是不荐股、不提供**个股**买卖建议；可以分析大盘和板块层面的行情、涨跌与方向。前一版把「不预测涨跌」写成整体能力边界，过度收窄了产品定义。"
-    },
-    {
-      "id": "6eb05cd5d7ac",
-      "ts": "2026-09-06",
-      "takeaway": "Agent 不荐股、不预测价格，但可以分析次日整体行情与方向，帮用户形成自己的观察剧本。"
-    },
-    {
-      "id": "d786e388b25a",
-      "ts": "2026-09-13",
-      "takeaway": "合规不作为当前功能设计的约束，后续通过取得投顾牌照解决；现阶段只把功能设计好。"
-    },
-    {
-      "id": "7fe048decc27",
-      "ts": "2026-09-20",
-      "takeaway": "面向持牌机构或团队内部使用的投研 agent，可以将提供选股与组合策略作为产品能力，评测应把策略表现纳入正式评分维度。**具体授权和合规边界另行确定。**"
+  "why_tiers_instead_of_just_deleting_the_line": "同一份画像同时喂两条路：本人自用，和对外产品 Foresight/8792。直接删掉限制会让对外那条路一起失去红线；只给自用放开、不动对外，才是用户这次要的。2026-09-20 7fe048decc27 自己就写明「先按目标用户与授权用途定义能力评测范围」——分档是这条纠偏本来的形状，自用档只是此前漏掉的那一档。",
+  "why_structured_field": "原来同一条口径在 anti_patterns[0] / reasoning_patterns[13] / voice_guidance 三处各写一遍散文，只改一处就自相矛盾，且下游取到哪条取决于它读了哪个字段。改为一个结构化 output_policy，三处散文改成指向它，从根上消掉这类事故（而不是再加一道检查去追散文）。",
+  "proposed_new_field": {
+    "where": "profile.output_policy",
+    "value": {
+      "default_tier": "owner_personal",
+      "tier_is_decided_by": "caller_identity",
+      "tier_is_not_decided_by": "模型自行判断。身份与权限按 2026-10-02 d0abda287494 属于代码硬约束那一类；档位选错不是风格问题。",
+      "tiers": {
+        "owner_personal": {
+          "who": "画像本人自用",
+          "individual_stock_calls": "allowed",
+          "position_sizing": "allowed",
+          "note": "不设个股限制。要给就给完整的判断：方向、载体、理由、证伪条件、T+1/T+3 验证点。『仅分析不下结论』在这一档属于误伤干预（2026-10-07 0a3034caf2f6）。",
+          "still_required": [
+            "每个判断带证伪条件与验证窗（这是用户自己框架的要求，不是合规要求）",
+            "缺数据显式列缺口，不拿旧数据冒充今日数据（2026-09-21 1be39b9ce356）",
+            "区分事实层与分析层：小作文可拆解但不进事实层（用户框架 anti_patterns）"
+          ]
+        },
+        "licensed_institutional": {
+          "who": "持牌机构或团队内部，授权用途已明确",
+          "individual_stock_calls": "allowed",
+          "position_sizing": "allowed",
+          "note": "选股与组合策略属正式产品能力，策略表现纳入正式评分维度（2026-09-20 7fe048decc27）。具体授权与合规边界另行确定。"
+        },
+        "product_general": {
+          "who": "对外产品的一般用户，未取得投顾资质前",
+          "individual_stock_calls": "withheld",
+          "position_sizing": "withheld",
+          "note": "红线限于个股层面。大盘与板块层面的行情、涨跌与方向分析照常给——2026-09-06 298b8fbcba91 明确前一版把「不预测涨跌」写成整体能力边界是过度收窄。"
+        }
+      }
     }
-  ],
-  "why_three_places_change_together": "同一条口径在 anti_patterns[0] / reasoning_patterns[13] / voice_guidance 三处各写了一遍。只改一处会让画像自相矛盾，而下游取到哪一条取决于它读了哪个字段——行为不可预测且不会有人发现。scripts/check_profile_boundary_consistency.py 守这条。",
-  "why_not_a_blanket_opening": "7fe048decc27 自己写明「具体授权和合规边界另行确定」，并要求「先按目标用户与授权用途定义能力评测范围」。所以这不是把红线删掉，而是把无条件禁止改成按授权用途分档；未授权场景下的默认档与 09-06 的红线一致。",
+  },
   "changes": [
     {
       "where": "anti_patterns[0]",
       "before": "给交易建议/仓位建议（系统边界：只做分析与证据分层）",
-      "after": "未经明确授权用途时给个股买卖/仓位建议（默认档红线，2026-09-06 298b8fbcba91：红线是个股层面，大盘与板块层面的行情、涨跌与方向分析不在禁止之列）。面向持牌机构或团队内部且授权用途已明确时，选股与组合策略属能力范围，不再记为反模式（2026-09-20 7fe048decc27，具体授权与合规边界另行确定）"
+      "after": "在 output_policy 判定为 product_general 档时给个股买卖/仓位建议。其余档位不适用本条——owner_personal 与 licensed_institutional 下给出个股结论是能力而非反模式",
+      "why": "原文是无条件禁止，既挡掉了本人自用，也挡掉了持牌场景。"
     },
     {
       "where": "reasoning_patterns[13].rule",
       "field": "板块内选股八思路横向对比",
       "before_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（仅分析，不出买卖建议）",
-      "after_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（默认档仅分析、不出个股买卖建议；持牌机构或团队内部且授权用途明确时可输出选股结果，并按 7fe048decc27 把策略表现纳入正式评分）"
+      "after_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（输出粒度按 output_policy：owner_personal / licensed_institutional 直接给选出的载体与理由，product_general 只给模式判断不点个股）",
+      "why": "「仅分析，不出买卖建议」是 2026-08-26 问卷期写下的，当时口径尚未分档；本人自用时这句话正是用户这次说的「误伤」。"
     },
     {
       "where": "voice_guidance",
       "before": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；不输出仓位/买卖建议。",
-      "after": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；默认档不输出个股买卖/仓位建议，大盘与板块层面的方向判断照常给；授权用途明确为持牌机构或团队内部时，可输出选股与组合策略并一并给出策略表现口径。"
+      "after": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；输出粒度按 output_policy 档位，owner_personal 档给完整决策（方向、载体、理由、证伪条件），不打折扣。",
+      "why": "证伪条件与验证窗保留——那是用户框架本身的要求（falsification_style），不是合规残留，去掉会削弱自用价值。"
     }
   ],
   "not_changed": [
     {
       "where": "confidence.known_gaps",
-      "why": "三项「用户已说结构、未定标定」的缺口（转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）保持空缺。按 B 类纪律不内置未回测数字阈值；agent 自行填数正是 2026-10-02 d0abda287494 禁止的硬语义规则。"
+      "why": "三项「用户已说结构、未定标定」的缺口保持空缺（转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）。放开输出粒度不等于可以凭空补阈值；agent 自行填数仍是 2026-10-02 d0abda287494 禁止的硬语义规则。"
     },
     {
-      "where": "reasoning_patterns[14] 首红→加强→分歧退潮生命周期",
-      "why": "这条推理模式保留（2026-08-26 16:33 用户口头批准，patch_history 有记录），但其中 n=2645 / p<0.0001 / T+3 +1.18pp 等数字不得外推为阈值——本资料包无原始数据与台账，云端无法复验。"
+      "where": "anti_patterns[1] / anti_patterns[2]",
+      "why": "「把小作文逻辑当事实」「跳过大盘/情绪/板块直接判断个股」两条与输出粒度无关，是用户自己的方法纪律，全档位保留。"
+    },
+    {
+      "where": "reasoning_patterns[14] 首红→加强→分歧退潮",
+      "why": "保留（2026-08-26 用户口头批准），但 n=2645 / p<0.0001 / T+3 +1.18pp 不得外推为阈值——本资料包无原始数据与台账。放开个股输出后这点更要紧：这些数字可能被直接当成买点依据。"
     }
   ],
+  "what_this_does_not_improve": "放开输出粒度本身不会让判断变准。真正决定自用价值的是数据覆盖与接线：实测用户框架点名的 19 个量里 17 个有库内支撑，而判定路径此前只认 4 个标签——teaching-bridge 把可用词汇接到 14 个，那才是质量侧的改动。这条候选只是把闸门从『不许说』改成『按身份说』。",
   "verification": {
     "tool": "scripts/check_profile_boundary_consistency.py",
-    "before": "三处口径均为 blanket → 自洽（但已过时）",
-    "after": "三处口径均为 scoped → 自洽",
-    "negative_control": "只改其中一处 → blanket 与 scoped 混用 → 检查器退出码 1"
+    "rule": "三处散文必须全部指向 output_policy，不得残留无条件禁止措辞",
+    "negative_control": "只改其中一处 → 残留 blanket 与 policy 混用 → 退出码 1"
   }
 }

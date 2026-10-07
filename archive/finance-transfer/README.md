@@ -91,7 +91,7 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 |---|---|
 | `teaching-bridge.patch` | **P1 搭桥**。47 个 `tf.*` 教学标签中落到河上的 16 个，开放 14 个给判定路径，命名空间不合并。缺旁路库 → Kleene `unknown`，不是 false 也不是静默跳过 |
 | `profile-lens-split.patch` | **P2 拆 SPT**。`量能状态机`(1856字/52条) + `筹码与结构`(1037字/34条) → 86 条带稳定 ID 的条目，逐字可还原，1 条待用户裁定 |
-| `profile-boundary-scope.patch` | **P3 口径**。买卖/策略口径按 2026-09-20 `7fe048decc27` 改为按授权用途分档，三处同改 + 一致性检查器 |
+| `profile-boundary-scope.patch` | **P3 口径**。按调用方身份分三档，**本人自用档不设个股限制**（用户 10-07 第二次裁定）；对外产品档红线保留且只限个股层面。改为结构化 `output_policy` 字段，三处散文指向它 |
 | `bridge-split-boundary-all-three.patch` | 上面三个的一把梭 |
 
 候选产物（不写回生产画像，供本机应用）：
