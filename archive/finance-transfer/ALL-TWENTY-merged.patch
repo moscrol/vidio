@@ -9947,3 +9947,222 @@ index 00000000..97be2d75
 -- 
 2.39.5
 
+From f444d89d9ef140aed5cecdc0cd221a94b5371917 Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 17:52:15 +0000
+Subject: [PATCH] =?UTF-8?q?fix(teaching):=20=E8=AF=BB=E8=B7=AF=E5=BE=84?=
+ =?UTF-8?q?=E8=A1=A5=20first=5Fknown=5Fat=20=E5=88=97=E5=AE=88=E5=8D=AB?=
+ =?UTF-8?q?=EF=BC=8C=E5=B9=B6=E6=8A=8A=20PIT=20=E8=AF=AD=E4=B9=89=E5=8F=98?=
+ =?UTF-8?q?=E6=9B=B4=E7=9A=84=E6=AE=8B=E7=95=99=E6=94=B6=E5=B9=B2=E5=87=80?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+应用补丁栈后对照干净树跑回归，发现 PIT 身份那一刀（P10）留了三个洞——
+全都只在**打过补丁的树**上才看得见，在干净树上搜关键字是 0 命中。
+
+1. **读路径没有列守卫。** river_objects 的三处 SELECT 开始要 first_known_at，
+   但 ensure_schema 全是 CREATE TABLE IF NOT EXISTS，**不会给已存在的旧表加列**。
+   写路径有 check_teaching_schema 挡着，读路径只有 _has_table（查表在不在）。
+   旧库上于是抛一个裸的 Binder Error，对着那条信息没人猜得到该跑 reset-teaching。
+   → 加 _require_pit_column，抛 StaleTeachingSidecarError 并点名补救命令。
+   不选「列不在就当 NULL 继续」：那会静默产出一批没有 PIT 身份的对象。
+
+2. **recorded_at 的含义被悄悄改了。** 它从 computed_at（跑构建的墙钟，晚）
+   变成 max(first_known_at)（交易日收盘，早）。verify_briefing_consumption:114
+   的不变量还停在旧含义上，且把「缺 PIT 证据」和「时间倒挂」合成一条报，
+   前者会顶着 "Backdated computed_at" 的名字出现，指向错的字段。→ 拆成两条。
+
+3. **测试 fixture 手搓了 schema**，停在加列之前。tf.briefing_* 不在
+   KNOWABLE_AT_CLOSE 里 ⇒ 走 carry-forward，first_known_at = computed_at。
+   留 NULL 会让对象被 PIT 闸滤掉，测的就不是本意那条路径了。
+
+另：_series_on_calendar 的 docstring 还写着「板块没有收盘价」，与换源那一刀的
+sector_px_is_real 分支矛盾。陈旧注释比没有注释更坏，一并更新。
+
+变异验证：把列守卫改成 if False → test_old_sidecar_raises_actionable_error 红；还原 → 绿。
+intelligence 定向回归 715 passed / 2 skipped（守卫 3 测试为新增）。
+tests/test_verify_briefing_consumption.py 15 passed（修 fixture 前有 4 条红）。
+---
+ .../teaching_framework/river_objects.py       | 36 ++++++++++++++++++
+ .../tests/test_river_objects_pit_guard.py     | 38 +++++++++++++++++++
+ scripts/teaching_framework.py                 |  8 +++-
+ scripts/verify_briefing_consumption.py        |  8 +++-
+ tests/test_verify_briefing_consumption.py     | 12 ++++--
+ 5 files changed, 96 insertions(+), 6 deletions(-)
+ create mode 100644 intelligence/tests/test_river_objects_pit_guard.py
+
+diff --git a/intelligence/services/teaching_framework/river_objects.py b/intelligence/services/teaching_framework/river_objects.py
+index 0fc62ed5..407547ab 100644
+--- a/intelligence/services/teaching_framework/river_objects.py
++++ b/intelligence/services/teaching_framework/river_objects.py
+@@ -92,6 +92,41 @@ def _has_table(con: Any, table: str) -> bool:
+     return bool(con.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?", [table]).fetchone()[0])
+ 
+ 
++class StaleTeachingSidecarError(RuntimeError):
++    """教学旁路库的表比当前 DDL 旧，读不出 PIT 身份。"""
++
++
++def _require_pit_column(con: Any) -> None:
++    """``history_teaching_labels`` 必须有 ``first_known_at``，否则给出可操作的中止。
++
++    为什么需要这个：加 ``first_known_at`` 那一刀只改了 DDL，而 ``ensure_schema`` 全是
++    ``CREATE TABLE IF NOT EXISTS``——**已存在的旧表不会被加列**。写路径有
++    ``_open_sidecar_for_write`` → ``check_teaching_schema`` 挡着，读路径只有
++    ``_has_table``（查表在不在），没查列。于是旧库上这里会抛一个裸的
++    ``Binder Error: Referenced column "first_known_at" not found``——
++    对着那条信息没人猜得到该做什么。
++
++    不选「列不在就当 NULL 继续」：那会静默产出一批没有 PIT 身份的对象，
++    正是「有库无河」那一类病（管子通着、水是假的）。教学表**可丢弃**
++    （内容全部能由 ``build-*`` 从主库重算），所以这里直接要求重建。
++    """
++    if not _has_table(con, "history_teaching_labels"):
++        return
++    cols = {
++        str(r[0])
++        for r in con.execute(
++            "SELECT column_name FROM information_schema.columns WHERE table_name = 'history_teaching_labels'"
++        ).fetchall()
++    }
++    if "first_known_at" not in cols:
++        raise StaleTeachingSidecarError(
++            "history_teaching_labels 缺列 first_known_at：这张表建于加 PIT 身份之前。"
++            "ensure_schema 的 CREATE TABLE IF NOT EXISTS 不会给已存在的表加列。"
++            "跑 `teaching_framework.py reset-teaching` 重建 10 张教学表后再 build-*"
++            "（教学表可重算；legacy 的 history_calendar / history_labels 不会被动）。"
++        )
++
++
+ def teaching_objects(
+     labels_db: str | Path, as_of: str, *, top: int = 10,
+     entity_type: str | None = None, entity_id: str | None = None,
+@@ -107,6 +142,7 @@ def teaching_objects(
+     day = _date(as_of)
+     con = open_labels_db(path, read_only=True)
+     try:
++        _require_pit_column(con)
+         out: list[RiverObject] = []
+         narrative = _labels_object(con, day, as_of, labels=NARRATIVE_LABELS, object_type="teaching_narrative", suffix="narrative")
+         briefing = _labels_object(con, day, as_of, labels=BRIEFING_LABELS, object_type="teaching_briefing", suffix="briefing")
+diff --git a/intelligence/tests/test_river_objects_pit_guard.py b/intelligence/tests/test_river_objects_pit_guard.py
+new file mode 100644
+index 00000000..a297890c
+--- /dev/null
++++ b/intelligence/tests/test_river_objects_pit_guard.py
+@@ -0,0 +1,38 @@
++"""旧教学旁路库（没有 first_known_at 列）必须给可操作的中止，而不是裸 Binder Error。"""
++from __future__ import annotations
++
++import duckdb
++import pytest
++
++from intelligence.services.teaching_framework.river_objects import (
++    StaleTeachingSidecarError,
++    _require_pit_column,
++)
++
++_OLD_DDL = (
++    "CREATE TABLE history_teaching_labels ("
++    "trade_date DATE, entity_type VARCHAR, entity_id VARCHAR, label VARCHAR, value_num DOUBLE, "
++    "value_text VARCHAR, framework_version VARCHAR, status VARCHAR, computed_at TIMESTAMP)"
++)
++_NEW_DDL = _OLD_DDL[:-1] + ", first_known_at TIMESTAMP)"
++
++
++def test_old_sidecar_raises_actionable_error() -> None:
++    con = duckdb.connect(":memory:")
++    con.execute(_OLD_DDL)
++    with pytest.raises(StaleTeachingSidecarError) as err:
++        _require_pit_column(con)
++    msg = str(err.value)
++    assert "first_known_at" in msg
++    assert "reset-teaching" in msg, "必须点名补救命令，否则用户不知道该做什么"
++
++
++def test_current_sidecar_passes() -> None:
++    con = duckdb.connect(":memory:")
++    con.execute(_NEW_DDL)
++    _require_pit_column(con)
++
++
++def test_absent_table_is_not_an_error() -> None:
++    """表根本没有 ≠ 表是旧的：前者由 _has_table 分支正常处理成「没有对象」。"""
++    _require_pit_column(duckdb.connect(":memory:"))
+diff --git a/scripts/teaching_framework.py b/scripts/teaching_framework.py
+index fe7c4127..1a208b0e 100755
+--- a/scripts/teaching_framework.py
++++ b/scripts/teaching_framework.py
+@@ -1383,7 +1383,13 @@ def _series_on_calendar(
+ ) -> dict[str, tuple[str, list[float | None], list[str | None]]]:
+     """按 key_col 拼到全局日历上，逐日记下当天的 id_col（板块宇宙切换后代码会换，序列按名字接、代码按天取）。
+ 
+-    板块没有收盘价，用 ∏(1 + pct_chg) 从 100 起造合成点位（缺一天少乘一天，与 river_query 同一坑，缺天处留 None）。
++    ``cumulative_pct=True`` 时用 ∏(1 + pct_chg) 从 100 起造合成点位（缺一天少乘一天，与 river_query
++    同一坑，缺天处留 None）。``False`` 时直接取 ``value_col`` 的真实价。
++
++    ⚠ 本函数**不决定**用哪种，由调用方按数据源传参。板块曾经只能走合成（旁路库的
++    ``SECTOR_PX_VIEW`` 回退分支把 close 写死成 NULL），接上 ``fact_sector_kline_daily``
++    的真 OHLC 之后走 ``cumulative_pct=False``——见 ``cmd_build_structure`` 的
++    ``sector_px_is_real`` 分支。别再默认「板块＝合成」。
+     """
+     idx = {d: i for i, d in enumerate(calendar)}
+     out: dict[str, tuple[str, list[float | None], list[str | None]]] = {}
+diff --git a/scripts/verify_briefing_consumption.py b/scripts/verify_briefing_consumption.py
+index ad4bec5c..aac86515 100644
+--- a/scripts/verify_briefing_consumption.py
++++ b/scripts/verify_briefing_consumption.py
+@@ -111,7 +111,13 @@ def verify(args: argparse.Namespace) -> dict:
+             for field, value in values.items():
+                 require((field not in obj.payload) if value is None else obj.payload.get(field) == value,
+                         f"River payload mismatch: {day} {field}")
+-            require(bool(obj.recorded_at) and obj.recorded_at[:10] >= str(source_recorded_at)[:10], "Backdated computed_at")
++            # recorded_at 自 PIT 身份那一刀起不再是 computed_at，而是 max(first_known_at)。
++            # 两条分开报：缺 PIT 证据（fail-closed 滤掉）和真的时间倒挂是两回事，
++            # 合成一条会让前者顶着 "Backdated computed_at" 的名字出现，指向错的字段。
++            require(bool(obj.recorded_at),
++                    "River object has no first_known_at (PIT fail-closed): "
++                    "某条成分标签的 first_known_at 是 NULL，整个对象被滤掉。不是时间倒挂。")
++            require(obj.recorded_at[:10] >= str(source_recorded_at)[:10], "Backdated first_known_at")
+             common = {"db_path": args.db_path, "checkpoints_path": Path(temp) / "absent-checkpoints.jsonl"}
+             plain = slice_river(day, args.entity, **common).to_dict()
+             off = slice_river(day, args.entity, teaching_labels_db=None, **common).to_dict()
+diff --git a/tests/test_verify_briefing_consumption.py b/tests/test_verify_briefing_consumption.py
+index 7ed73017..c05a597f 100644
+--- a/tests/test_verify_briefing_consumption.py
++++ b/tests/test_verify_briefing_consumption.py
+@@ -34,7 +34,8 @@ def inputs(tmp_path: Path, monkeypatch) -> Namespace:
+         con.execute(
+             "CREATE TABLE history_teaching_labels ("
+             "trade_date DATE, entity_type VARCHAR, entity_id VARCHAR, label VARCHAR, value_num DOUBLE, "
+-            "value_text VARCHAR, framework_version VARCHAR, status VARCHAR, computed_at TIMESTAMP)"
++            "value_text VARCHAR, framework_version VARCHAR, status VARCHAR, computed_at TIMESTAMP, "
++            "first_known_at TIMESTAMP)"
+         )
+     monkeypatch.setattr("sys.argv", ["verify", "--db-path", str(db), "--labels-db", str(labels),
+                                     "--kb-wiki", str(wiki), "--briefing-date", "2026-09-18", "--entity", "test"])
+@@ -60,14 +61,17 @@ def _add_briefing_labels(
+         "tf.briefing_lag_days": 2.0,
+     }
+     rows = [
+-        (label, value, "2026-09-20 08:00:00" if label == early_label else "2026-09-22 08:00:00")
++        (label, value, stamp, stamp)
+         for label, value in values.items()
++        for stamp in ["2026-09-20 08:00:00" if label == early_label else "2026-09-22 08:00:00"]
+     ]
+     with duckdb.connect(str(inputs.labels)) as con:
+         con.executemany(
+             "INSERT INTO history_teaching_labels "
+-            "(trade_date, entity_type, entity_id, label, value_num, framework_version, status, computed_at) "
+-            "VALUES ('2026-09-19', 'market', 'market', ?, ?, 'tf-test', 'ok', ?)",
++            "(trade_date, entity_type, entity_id, label, value_num, framework_version, status, computed_at, first_known_at) "
++            # tf.briefing_* 不在 KNOWABLE_AT_CLOSE 里 ⇒ 走 carry-forward，first_known_at = computed_at。
++            # 留 NULL 会让对象被 PIT 闸 fail-closed 滤掉，测的就不是本意那条路径了。
++            "VALUES ('2026-09-19', 'market', 'market', ?, ?, 'tf-test', 'ok', ?, ?)",
+             rows,
+         )
+ 
+-- 
+2.39.5
+
