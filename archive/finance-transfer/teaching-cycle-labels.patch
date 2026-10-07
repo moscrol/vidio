@@ -1,0 +1,256 @@
+From 649af5db524d910a300f3d468695f6b86e7332ca Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 12:46:27 +0000
+Subject: [PATCH 4/5] =?UTF-8?q?feat(river):=20=E6=8A=8A=E6=97=81=E8=B7=AF?=
+ =?UTF-8?q?=E5=BA=93=E7=AE=97=E4=BA=86=E5=8D=B4=E4=BB=8E=E6=9C=AA=E4=B8=8A?=
+ =?UTF-8?q?=E6=B2=B3=E7=9A=84=209=20=E4=B8=AA=E5=91=A8=E6=9C=9F=E4=BD=8D?=
+ =?UTF-8?q?=E7=BD=AE=E6=A0=87=E7=AD=BE=E6=90=AC=E4=B8=8A=E6=9D=A5=E5=B9=B6?=
+ =?UTF-8?q?=E5=BC=80=E6=94=BE=E5=88=A4=E5=AE=9A?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+接上桥之后发现桥上没车：旁路库 47 个 tf.* 里，用户框架「大盘周期」镜头点名的
+概念大多算了但从未搬进河对象，判定路径因此依旧看不见。
+
+实测用户框架 21 个概念：本轮前 5 个可判定，其余 9 个属「算了没搬」
+（gap_down_open / cross_above_week_ma / deviation_narrowing / shrink_day /
+volume_shrink_streak / double_volume_day / mainline_volume_top3 /
+mainline_share_trend_up / max_boards）。
+
+新增 CYCLE_LABELS 元组 + teaching_cycle 河对象，只搬不算——不新增任何计算、
+阈值或口径。不并进 STAGE_LABELS 的原因与 CAPITAL/BREADTH 相同：阶段对象已接近
+payload ≤ 20 键的索引层约束（river_objects.py:39 既有注释）。
+
+桥对调用方隐藏对象分法：谓词只写 tf.xxx，不必知道它落在 stage 还是 cycle 上；
+_OBJECT_OF_LABEL 做路由，ref 仍分别指向各自对象，收据能分辨。
+
+结果：用户框架概念可判定 5 → 20 / 21。唯一未开放的是 tf.volume_band，
+按 2026-09-07 用户裁定「三档不属于任何一段，只写出、不进计分」留置。
+
+新增 3 个测试：周期标签端到端可判定且 ref 指向 cycle 对象；用户框架原话
+「转点（缺口+收盘跌破周均线）」不改一字编译成谓词合取；反例——stage 在而
+cycle 缺时必须 unknown，若实现退化成「找不到就去 stage 碰运气」会炸，
+且缺一个对象不得拖垮另一个。
+
+教学/河/情景树/判定回归 507 passed / 2 skipped。
+---
+ .../services/river_teaching_bridge.py         | 35 ++++++--
+ .../teaching_framework/river_objects.py       | 13 +++
+ .../tests/test_river_teaching_bridge.py       | 83 +++++++++++++++++++
+ 3 files changed, 126 insertions(+), 5 deletions(-)
+
+diff --git a/intelligence/services/river_teaching_bridge.py b/intelligence/services/river_teaching_bridge.py
+index d93c272e..e5608de9 100644
+--- a/intelligence/services/river_teaching_bridge.py
++++ b/intelligence/services/river_teaching_bridge.py
+@@ -38,10 +38,19 @@ from typing import Any
+ 
+ from intelligence.services.river import RiverObject, RiverSlice
+ from intelligence.services.river_window_contract import track_objects
+-from intelligence.services.teaching_framework.river_objects import STAGE_LABELS
++from intelligence.services.teaching_framework.river_objects import CYCLE_LABELS, STAGE_LABELS
+ 
+ TEACHING_NAMESPACE = "tf."
+ TEACHING_STAGE_OBJECT = "teaching_stage"
++TEACHING_CYCLE_OBJECT = "teaching_cycle"
++
++# 哪个标签挂在哪个河对象上。两个对象而不是一个，是因为阶段对象已接近 payload ≤ 20 键的索引层约束
++# （仓里 CAPITAL / BREADTH / NARRATIVE 也是这么分的）。桥对调用方隐藏这个分法：
++# 谓词只写 ``tf.xxx``，不需要知道它落在哪个对象里。
++_OBJECT_OF_LABEL: dict[str, str] = {
++    **{label: TEACHING_STAGE_OBJECT for label in STAGE_LABELS},
++    **{label: TEACHING_CYCLE_OBJECT for label in CYCLE_LABELS},
++}
+ 
+ 
+ class TeachingLabelNotBridged(ValueError):
+@@ -68,6 +77,17 @@ TEACHING_LABEL_KINDS: dict[str, str] = {
+     # —— 量（见顶量价时空）——
+     "tf.amount_vs_ma20_pct": "num",      # 「板块量相对 120 日均」的同族口径
+     "tf.new_high_1y_count": "num",
++    # —— 周期位置：旁路库早就算了、此前从未搬上河的那批（teaching_cycle 对象）——
++    # 这 9 个精确对应用户框架「大盘周期」镜头点名的概念，接上后该镜头从 5 个概念可判定变成 14 个。
++    "tf.gap_down_open": "bool",          # 转点「缺口」
++    "tf.cross_above_week_ma": "bool",    # 「站上周均确认」= 左底向上
++    "tf.deviation_narrowing": "bool",    # 偏离度收敛
++    "tf.shrink_day": "bool",             # 「缩量」
++    "tf.volume_shrink_streak": "num",    # 连续缩量天数
++    "tf.double_volume_day": "bool",      # 「切换口径用价日/量日/双量日」
++    "tf.mainline_volume_top3": "bool",   # 「量板块＝容量占比前三申万一级」
++    "tf.mainline_share_trend_up": "bool",  # 「主线成交占比环比连续回落」取反
++    "tf.max_boards": "num",              # 情绪层「旧口径按连板高度」
+ }
+ 
+ # 显式留置：算得出、进了河，但**不开放给判定**。每条必须有理由，理由必须可追到记录。
+@@ -84,7 +104,7 @@ TEACHING_LABELS_WITHHELD: dict[str, str] = {
+ def assert_teaching_catalog_parity() -> None:
+     """开放表 ∪ 留置表 必须恰好等于河上真实搬运的那批教学标签。偏了就抛。"""
+     declared = set(TEACHING_LABEL_KINDS) | set(TEACHING_LABELS_WITHHELD)
+-    actual = set(STAGE_LABELS)
++    actual = set(STAGE_LABELS) | set(CYCLE_LABELS)
+     missing = sorted(actual - declared)
+     extra = sorted(declared - actual)
+     if missing or extra:
+@@ -118,13 +138,17 @@ def teaching_kind(label: str) -> str:
+     )
+ 
+ 
+-def _stage_object(sl: RiverSlice) -> RiverObject | None:
++def _object_for(sl: RiverSlice, object_type: str) -> RiverObject | None:
+     for o in track_objects(sl, "market"):
+-        if o.object_type == TEACHING_STAGE_OBJECT:
++        if o.object_type == object_type:
+             return o
+     return None
+ 
+ 
++def _stage_object(sl: RiverSlice) -> RiverObject | None:
++    return _object_for(sl, TEACHING_STAGE_OBJECT)
++
++
+ def _coerce(raw: Any, kind: str) -> Any | None:
+     """旁路库把 bool 存成 0/1 的 value_num，取回来要按声明的值域还原。
+ 
+@@ -157,7 +181,7 @@ def bind_teaching(label: str, sl: RiverSlice) -> tuple[Any, list[str]]:
+     旁路库没接（切片上没有 teaching_stage 对象）／当天这条标签没读数／值的类型与声明不符。
+     """
+     kind = teaching_kind(label)
+-    obj = _stage_object(sl)
++    obj = _object_for(sl, _OBJECT_OF_LABEL[label])
+     if obj is None:
+         return None, []
+     key = label.removeprefix(TEACHING_NAMESPACE)
+@@ -190,6 +214,7 @@ def teaching_provenance(sl: RiverSlice) -> dict[str, Any] | None:
+ # FUTURE：teaching_capital / teaching_narrative / teaching_briefing / teaching_breadth 四个对象
+ # 另有 ~30 个市场级数值标签（龙虎榜、封单、竞价、广度、叙事覆盖）。本轮不开放，原因是它们还没有
+ # 对应到用户框架里**已裁定**的判据；开放前应先走一遍「这条判据用户说过吗」，避免 agent 自造判准。
++# 缠论 / MACD 背离那十余个也同理：旁路库算了，但用户框架里没有对应判据，不搬不开放。
+ __all__ = [
+     "TEACHING_NAMESPACE",
+     "TEACHING_LABEL_KINDS",
+diff --git a/intelligence/services/teaching_framework/river_objects.py b/intelligence/services/teaching_framework/river_objects.py
+index 9b14ab06..4fe121e9 100644
+--- a/intelligence/services/teaching_framework/river_objects.py
++++ b/intelligence/services/teaching_framework/river_objects.py
+@@ -54,6 +54,16 @@ BRIEFING_LABELS = tuple(f"tf.{name}" for name in (
+     "briefing_tier1_items", "briefing_tier2_items", "briefing_tier3_items", "briefing_market_confirmed",
+     "briefing_dimensions", "briefing_hit_rps5_pct", "briefing_lag_days",
+ ))
++# 周期位置（用户框架「大盘周期」镜头）：转点、周均线穿越、量能日型、主线容量趋势。
++# 这些标签旁路库早就算了，但一直没搬上河——判定路径因此看不见用户框架里点名的那批概念
++# （转点缺口、站上周均确认、缩量、双量日、量板块、主线成交占比趋势、连板高度、偏离度收敛）。
++# 不并进 STAGE_LABELS 的原因与 CAPITAL/BREADTH 相同：阶段对象已接近 payload ≤ 20 键的索引层约束。
++# 这里只负责**搬**，不新增任何计算、阈值或口径。
++CYCLE_LABELS = tuple(f"tf.{name}" for name in (
++    "gap_down_open", "cross_above_week_ma", "deviation_narrowing",
++    "shrink_day", "volume_shrink_streak", "double_volume_day",
++    "mainline_volume_top3", "mainline_share_trend_up", "max_boards",
++))
+ # 广度（第二十五段）：全市场个股层的市场级读数，单独一个对象——阶段对象已接近 payload ≤ 20 键的上限。
+ BREADTH_LABELS = tuple(f"tf.{name}" for name in (
+     "stock_above_ma5_share_pct", "new_high_20d_count", "new_low_20d_count", "new_low_1y_count",
+@@ -108,6 +118,9 @@ def teaching_objects(labels_db: str | Path, as_of: str, *, top: int = 10) -> lis
+         breadth = _labels_object(con, day, as_of, labels=BREADTH_LABELS, object_type="teaching_breadth", suffix="breadth")
+         if breadth is not None:
+             out.append(breadth)
++        cycle = _labels_object(con, day, as_of, labels=CYCLE_LABELS, object_type="teaching_cycle", suffix="cycle")
++        if cycle is not None:
++            out.append(cycle)
+         if narrative is not None:
+             out.append(narrative)
+         if briefing is not None:
+diff --git a/intelligence/tests/test_river_teaching_bridge.py b/intelligence/tests/test_river_teaching_bridge.py
+index 33895cec..e6e5ede4 100644
+--- a/intelligence/tests/test_river_teaching_bridge.py
++++ b/intelligence/tests/test_river_teaching_bridge.py
+@@ -204,3 +204,86 @@ def test_holdout_days_are_not_all_the_same_reading(sidecar: Path) -> None:
+         value, _refs = bridge.bind_teaching("tf.above_week_ma", _slice(sidecar, day))
+         seen.add(value)
+     assert len(seen) >= 2, f"所有验证日的 tf.above_week_ma 读数都一样（{seen}），疑似常量实现"
++
++
++# --------------------------------------------------------------------------- #
++# teaching_cycle：旁路库早就算了、此前从未搬上河的那 9 个
++# --------------------------------------------------------------------------- #
++CYCLE_ROWS = {
++    "tf.gap_down_open": 1, "tf.cross_above_week_ma": 0, "tf.deviation_narrowing": 1,
++    "tf.shrink_day": 1, "tf.volume_shrink_streak": 3, "tf.double_volume_day": 0,
++    "tf.mainline_volume_top3": 1, "tf.mainline_share_trend_up": 0, "tf.max_boards": 5,
++}
++
++
++@pytest.fixture
++def sidecar_with_cycle(sidecar: Path) -> Path:
++    """把周期位置标签写进旁路库。单独写在测试里而不是改公共夹具——
++    公共夹具被多个逐字断言的测试共用，改它会把无关测试一起拖下水。"""
++    import duckdb
++
++    con = duckdb.connect(str(sidecar))
++    try:
++        cols = [r[1] for r in con.execute("PRAGMA table_info('history_teaching_labels')").fetchall()]
++        template = con.execute(
++            "SELECT * FROM history_teaching_labels WHERE label = 'tf.money_losing_streak' AND trade_date = ?",
++            [DEV_DAY],
++        ).fetchone()
++        assert template is not None, "夹具形状变了，样板行取不到"
++        i_label, i_num, i_text = cols.index("label"), cols.index("value_num"), cols.index("value_text")
++        for label, num in CYCLE_ROWS.items():
++            row = list(template)
++            row[i_label], row[i_num], row[i_text] = label, float(num), None
++            con.execute(
++                f"INSERT INTO history_teaching_labels VALUES ({', '.join('?' for _ in cols)})", row
++            )
++    finally:
++        con.close()
++    return sidecar
++
++
++def test_cycle_labels_reach_the_judgment_path(sidecar_with_cycle: Path) -> None:
++    """用户框架「大盘周期」镜头点名的那批概念，接上后必须可判定。"""
++    sl = _slice(sidecar_with_cycle, DEV_DAY)
++    assert any(o.object_type == "teaching_cycle" for o in sl.tracks["market"]), "teaching_cycle 对象没出现"
++    assert bridge.bind_teaching("tf.gap_down_open", sl)[0] is True            # 转点「缺口」
++    assert bridge.bind_teaching("tf.cross_above_week_ma", sl)[0] is False     # 尚未站上周均
++    assert bridge.bind_teaching("tf.shrink_day", sl)[0] is True               # 「缩量」
++    assert bridge.bind_teaching("tf.volume_shrink_streak", sl)[0] == 3.0
++    assert bridge.bind_teaching("tf.mainline_volume_top3", sl)[0] is True     # 「量板块」
++    assert bridge.bind_teaching("tf.max_boards", sl)[0] == 5.0
++    # ref 必须指向 cycle 对象而不是 stage 对象——两个对象的 ref 不同，收据要能分辨
++    assert bridge.bind_teaching("tf.gap_down_open", sl)[1] == [
++        f"history_teaching_labels:{DEV_DAY}:market:cycle"
++    ]
++
++
++def test_user_framework_turning_point_rule_compiles_end_to_end() -> None:
++    """用户框架原话「转点（缺口+收盘跌破周均线为主）」→ 一条真正能编译的判定条件。
++
++    这是整座桥要证明的事：用户自己写的判据，不改一个字地变成可判定的谓词合取。
++    """
++    preds, errs = st.compile_condition(
++        {"all": [
++            {"label": "tf.gap_down_open", "op": "==", "value": True},
++            {"label": "tf.above_week_ma", "op": "==", "value": False},
++            {"label": "tf.cross_below_kind", "op": "in", "value": ["first"]},
++        ]},
++        where="转点",
++    )
++    assert errs == [] and preds is not None and len(preds) == 3
++
++
++def test_cycle_labels_are_unknown_when_the_cycle_object_is_absent(sidecar: Path) -> None:
++    """反例：旁路库里没有周期标签的日子（未写入 cycle 行）→ unknown，不是 false。
++
++    注意这与 stage 对象是否存在无关——stage 在的时候 cycle 仍可能缺，
++    若实现退化成「找不到就去 stage 里碰运气」，这条会炸。
++    """
++    sl = _slice(sidecar, DEV_DAY)   # 只有 stage，没有 cycle
++    assert any(o.object_type == "teaching_stage" for o in sl.tracks["market"])
++    assert not any(o.object_type == "teaching_cycle" for o in sl.tracks["market"])
++    for label in ("tf.gap_down_open", "tf.shrink_day", "tf.max_boards"):
++        assert bridge.bind_teaching(label, sl) == (None, []), f"{label} 应为 unknown"
++    # 同一片切片上 stage 的标签仍然照常可判，缺一个对象不该拖垮另一个
++    assert bridge.bind_teaching("tf.above_week_ma", sl)[0] is False
+-- 
+2.39.5
+

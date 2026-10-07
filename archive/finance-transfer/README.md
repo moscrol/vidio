@@ -92,13 +92,15 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 | `teaching-bridge.patch` | **P1 搭桥**。47 个 `tf.*` 教学标签中落到河上的 16 个，开放 14 个给判定路径，命名空间不合并。缺旁路库 → Kleene `unknown`，不是 false 也不是静默跳过 |
 | `profile-lens-split.patch` | **P2 拆 SPT**。`量能状态机`(1856字/52条) + `筹码与结构`(1037字/34条) → 86 条带稳定 ID 的条目，逐字可还原，1 条待用户裁定 |
 | `profile-boundary-scope.patch` | **P3 口径**。按调用方身份分三档，**本人自用档不设个股限制**（用户 10-07 第二次裁定）；对外产品档红线保留且只限个股层面。改为结构化 `output_policy` 字段，三处散文指向它 |
-| `bridge-split-boundary-all-three.patch` | 上面三个的一把梭 |
+| `teaching-cycle-labels.patch` | **搬运**。旁路库算了却从未上河的 9 个周期位置标签 → `teaching_cycle` 对象并开放判定。只搬不算,不新增任何计算或阈值。**用户框架概念可判定 5 → 20 / 21** |
+| `spt-007-adjudication.patch` | 裁定 `sptfei.筹码与结构.007`「临近突破状态」为独立条目,并挂 `definitional_gap`(9 次引用 0 次定义) |
+| `bridge-split-boundary-all-three.patch` | 上面五个的一把梭 |
 
 候选产物（不写回生产画像，供本机应用）：
 - `2026-10-07-sptfei-lens-split-candidate.json` —— SPT 86 条拆分结果
 - `2026-10-07-strategy-scope-candidate.json` —— 口径三处差异 + 来源记录 ID
 
-**验证**：干净 clone `git am` 三连成功 → 新测 **32 passed**，相关回归 **507 passed / 2 skipped**，ruff 干净。
+**验证**：干净 clone `git am` 五连成功 → 新测 **37 passed**，相关回归 **510 passed / 2 skipped**，ruff 干净。
 `git push` 到 finance 仍 403（与前五个补丁同因），故走补丁交付。
 
 ⚠ 两个候选 JSON 里含画像内容，但均来自用户已授权公开的 PR #71 快照，不含新的私有信息。
