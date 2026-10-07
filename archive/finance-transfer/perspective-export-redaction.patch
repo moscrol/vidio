@@ -1,0 +1,396 @@
+From f40540a21199b22754b251355ad330237d6d451a Mon Sep 17 00:00:00 2001
+From: moscrol <moscrol@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 10:22:08 +0000
+Subject: [PATCH] =?UTF-8?q?feat(perspective):=20=E7=94=BB=E5=83=8F?=
+ =?UTF-8?q?=E7=9A=84=E8=84=B1=E6=95=8F=E5=AF=BC=E5=87=BA=E2=80=94=E2=80=94?=
+ =?UTF-8?q?=E5=88=86=E4=BA=AB=E6=A1=86=E6=9E=B6=EF=BC=8C=E4=B8=8D=E5=88=86?=
+ =?UTF-8?q?=E4=BA=AB=E6=9D=A5=E6=BA=90?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+起因：要让协作方看懂某个视角，但 intelligence/users/*/perspectives/ 被
+.gitignore:114 排除，理由写在 perspective_lab 文档头「版权 + 隐私边界」：
+articles/<id>/raw/ 是第三方文章原文，画像本身也可能夹带 360 字的 excerpt
+片段与带日期的 contradictions（形状接近私人复盘记录）。
+
+但「不能整个推上去」不等于「不能分享」。该分享的是蒸馏后的框架——
+market_lenses / risk_triggers / reasoning_patterns / falsification_style，
+正是设计里「学框架不学口癖」的那一半。原文是来源，框架是产物。
+
+用白名单不用黑名单。黑名单在这件事上是错的形状：画像 schema 以后新增任何
+字段都会默认漏出去，且漏的时候没有提示。而这个工具只会往一个方向出错，
+那个方向不可撤销——推上公开仓的东西，删了也还在 git 历史里。
+（moscrol/finance 实测 private=false。）
+
+白名单外的字段一律丢弃**并点名**：
+- 已知私密字段（contradictions / sources / voice_guidance / confidence）
+  不导，且报告里说得出每一个不导的理由，不静默吞掉
+- 不认识的字段进 dropped_unknown 逐个列出，由人判断它是框架还是来源
+- confidence 要用 --with-confidence 主动要，不默认带
+
+另加一层提醒（不是边界）：扫描已导出内容里的超长句与残留引号/省略号
+（excerpt 截断会留「…」），标出字段路径。白名单挡不住「框架字段里被塞进
+一整段原文」，那得靠人看一眼。
+
+测试 7 条，重点全在阴性：
+- schema 新字段必须①不出现在导出里 ②出现在 dropped_unknown 里。
+  只做①是静默丢弃，人会以为导全了，两者缺一不可。
+- 夹带原文的那条要被标出来且给出字段路径
+- 正常的框架描述不得被误标——每条都标等于没标，人会略过整个报告
+
+读数：7 passed；ruff 全绿。
+---
+ scripts/export_perspective_framework.py    | 179 +++++++++++++++++++++
+ tests/test_perspective_export_redaction.py | 153 ++++++++++++++++++
+ 2 files changed, 332 insertions(+)
+ create mode 100644 scripts/export_perspective_framework.py
+ create mode 100644 tests/test_perspective_export_redaction.py
+
+diff --git a/scripts/export_perspective_framework.py b/scripts/export_perspective_framework.py
+new file mode 100644
+index 00000000..e295017e
+--- /dev/null
++++ b/scripts/export_perspective_framework.py
+@@ -0,0 +1,179 @@
++#!/usr/bin/env python3
++"""把蒸馏画像导成**只含框架、不含原文**的一份，用于对外分享 / 协作 / 提 issue。
++
++    python3 scripts/export_perspective_framework.py --perspective sptfei --user linxiaoqi5111
++    python3 scripts/export_perspective_framework.py --perspective sptfei --user me --out /tmp/spt.json
++
++## 为什么需要这个
++
++``intelligence/users/<user>/perspectives/`` 被 ``.gitignore:114`` 排除，
++``perspective_lab`` 的文档头写明原因是「版权 + 隐私边界」：``articles/<id>/raw/``
++存的是第三方文章原文，画像本身也可能夹带 360 字的 ``excerpt`` 片段与带日期的
++``contradictions``（单次观察，近似私人复盘记录）。
++
++但「不能整个推上去」不等于「不能分享」。真正该分享的是**蒸馏后的框架**——
++market_lenses / risk_triggers / reasoning_patterns / falsification_style 这些
++可迁移的分析结构，恰恰是 perspective_lab 设计里「学框架不学口癖」的那一半。
++原文是来源，框架是产物；产物是你的，来源不是。
++
++## 为什么是白名单不是黑名单
++
++黑名单（「去掉 raw、去掉 excerpt」）在这件事上是错的形状：画像 schema 以后
++新增任何字段，默认都会**漏出去**，而且漏的时候没有任何提示。脱敏工具只会往
++一个方向出错，而那个方向是不可撤销的——推上公开仓的东西，删了也还在 git 历史里。
++
++所以这里只放行显式列出的字段，其余一律丢弃**并在报告里点名**。
++schema 加了新字段 → 导出时会说「这 N 个字段我不认识，没有导出」，由你决定。
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import re
++import sys
++from pathlib import Path
++from typing import Any
++
++REPO_ROOT = Path(__file__).resolve().parent.parent
++if str(REPO_ROOT) not in sys.path:
++    sys.path.insert(0, str(REPO_ROOT))
++
++# 放行名单：perspective_lab 设计里「可迁移的分析结构」那一组。
++# 每一项都要能回答「它是框架还是来源」——是框架才进。
++ALLOW = {
++    "display_name": "视角名",
++    "type": "视角类型",
++    "market_lenses": "镜头：看市场的维度与权重",
++    "opportunity_preferences": "机会偏好",
++    "risk_triggers": "风险触发条件",
++    "evidence_hierarchy": "证据层级排序",
++    "reasoning_patterns": "推理模式（名 + 规则）",
++    "anti_patterns": "反模式：明确不做什么",
++    "falsification_style": "证伪风格：怎么给失效条件",
++    "honest_boundaries": "诚实边界：该视角不适用于哪些领域",
++}
++
++# 显式拒绝名单，只为了**解释原因**；真正的门是上面的白名单。
++# 列在这里是为了让人看到「这些我是故意不导的」，而不是「这些我忘了」。
++DENY_REASON = {
++    "contradictions": "带日期的单次观察，形状接近私人复盘记录，不是可迁移框架",
++    "sources": "含 allowed_sources 等来源配置，指向本地文章台账",
++    "confidence": "含 article_count 等样本元信息；用 --with-confidence 可单独带上",
++    "voice_guidance": "语气指引。设计明写「学框架不学口癖」，分享框架时不需要它",
++    "schema_version": "内部字段",
++    "id": "内部字段",
++    "created_at": "内部字段",
++    "updated_at": "内部字段",
++}
++
++# 疑似夹带原文：长句 + 引号 / 省略号残留（excerpt 截断会留「…」）。
++# 这不是安全边界，是**提醒**——真正的边界是白名单。报出来让人自己看一眼。
++LONG_TEXT = 180
++QUOTEY = re.compile(r"[“”「」『』]|…|\.{3}")
++
++
++def _walk_strings(obj: Any, path: str = ""):
++    if isinstance(obj, str):
++        yield path, obj
++    elif isinstance(obj, dict):
++        for k, v in obj.items():
++            yield from _walk_strings(v, f"{path}.{k}" if path else str(k))
++    elif isinstance(obj, (list, tuple)):
++        for i, v in enumerate(obj):
++            yield from _walk_strings(v, f"{path}[{i}]")
++
++
++def load_profile(pid: str, user: str | None) -> tuple[dict[str, Any], str]:
++    from intelligence.services.perspective_lab import _BUILTIN_PROFILES
++
++    if user:
++        p = REPO_ROOT / "intelligence" / "users" / user / "perspectives" / "profiles" / f"{pid}.json"
++        if p.exists():
++            return json.loads(p.read_text(encoding="utf-8")), str(p)
++    if pid in _BUILTIN_PROFILES:
++        return dict(_BUILTIN_PROFILES[pid]), f"内置画像 _BUILTIN_PROFILES[{pid!r}]"
++    raise SystemExit(
++        f"找不到画像 {pid}。\n"
++        f"  蒸馏画像在 intelligence/users/<user>/perspectives/profiles/<id>.json（要 --user）；\n"
++        f"  内置的有：{sorted(_BUILTIN_PROFILES)}"
++    )
++
++
++def export(pid: str, user: str | None, *, with_confidence: bool) -> tuple[dict[str, Any], dict[str, Any]]:
++    prof, src = load_profile(pid, user)
++
++    out: dict[str, Any] = {}
++    for k in ALLOW:
++        if k in prof and prof[k] not in (None, [], {}, ""):
++            out[k] = prof[k]
++    if with_confidence and "confidence" in prof:
++        out["confidence"] = prof["confidence"]
++
++    dropped_known = {k: DENY_REASON[k] for k in prof if k in DENY_REASON and k not in out}
++    # 白名单之外、也不在解释名单里的——schema 长出了新东西，必须点名。
++    unknown = sorted(set(prof) - set(ALLOW) - set(DENY_REASON))
++
++    flags = []
++    for path, s in _walk_strings(out):
++        if len(s) >= LONG_TEXT or QUOTEY.search(s):
++            flags.append({"field": path, "len": len(s), "head": s[:70]})
++
++    report = {
++        "source": src,
++        "exported_fields": sorted(out),
++        "dropped_with_reason": dropped_known,
++        "dropped_unknown": unknown,
++        "possible_verbatim": flags,
++    }
++    return out, report
++
++
++def main(argv: list[str] | None = None) -> int:
++    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++    ap.add_argument("--perspective", required=True)
++    ap.add_argument("--user")
++    ap.add_argument("--out", help="写到文件；不给就打到 stdout")
++    ap.add_argument("--with-confidence", action="store_true", help="带上 article_count / known_gaps")
++    ap.add_argument("--quiet", action="store_true", help="只出 JSON，不出报告（报告走 stderr）")
++    a = ap.parse_args(argv)
++
++    data, rep = export(a.perspective, a.user, with_confidence=a.with_confidence)
++    text = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
++
++    if a.out:
++        Path(a.out).write_text(text, encoding="utf-8")
++    else:
++        print(text)
++
++    err = sys.stderr
++    print(f"\n来源：{rep['source']}", file=err)
++    print(f"已导出字段（{len(rep['exported_fields'])}）：{rep['exported_fields']}", file=err)
++    if rep["dropped_with_reason"]:
++        print("\n故意没导（白名单外）：", file=err)
++        for k, why in rep["dropped_with_reason"].items():
++            print(f"  - {k}：{why}", file=err)
++    if rep["dropped_unknown"]:
++        print(
++            f"\n⚠ 画像里有 {len(rep['dropped_unknown'])} 个本工具不认识的字段，**没有导出**："
++            f"{rep['dropped_unknown']}\n"
++            "   schema 长出了新东西。确认它是框架（该导）还是来源（不该导）后，"
++            "再决定要不要加进 ALLOW。",
++            file=err,
++        )
++    if rep["possible_verbatim"]:
++        print(
++            f"\n⚠ 这 {len(rep['possible_verbatim'])} 处看着像夹带了原文片段"
++            "（超长句，或残留引号/省略号——excerpt 截断会留「…」）。\n"
++            "   白名单已经挡掉了 raw 与 excerpt 字段，这里只是提醒你再扫一眼：",
++            file=err,
++        )
++        for f in rep["possible_verbatim"][:12]:
++            print(f"     {f['field']}（{f['len']} 字）：{f['head']}…", file=err)
++    if a.out:
++        print(f"\n已写入 {a.out}", file=err)
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/test_perspective_export_redaction.py b/tests/test_perspective_export_redaction.py
+new file mode 100644
+index 00000000..683eb1e8
+--- /dev/null
++++ b/tests/test_perspective_export_redaction.py
+@@ -0,0 +1,153 @@
++"""脱敏导出的契约。
++
++``intelligence/users/*/perspectives/`` 被 gitignore 排除，理由写在 ``perspective_lab``
++的文档头：「版权 + 隐私边界」。但不能整个推上去 ≠ 不能分享——该分享的是蒸馏后的框架
++（market_lenses / risk_triggers / …），不是来源（文章原文、excerpt、带日期的私人复盘）。
++
++这个工具只会往一个方向出错，而那个方向不可撤销：推上公开仓的东西，删了也还在 git
++历史里。所以它的测试要比一般工具狠，重点全在**阴性**（不该导的有没有真的没导）：
++
++1. 白名单而非黑名单——schema 新增字段必须默认**不导出**且**点名**；
++2. 已知的私密字段不导，且说得出不导的理由；
++3. 夹带原文片段要被标出来（这不是边界，是提醒；边界是白名单）。
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++REPO_ROOT = Path(__file__).resolve().parent.parent
++
++
++@pytest.fixture()
++def fake_user(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> str:
++    """造一份「什么都有」的画像：框架字段 + 私密字段 + schema 新字段 + 原文残留。"""
++    import scripts.export_perspective_framework as ex
++
++    user = "probe_user"
++    d = tmp_path / "intelligence" / "users" / user / "perspectives" / "profiles"
++    d.mkdir(parents=True)
++    (d / "p1.json").write_text(
++        json.dumps(
++            {
++                # —— 框架：应当导出
++                "display_name": "探针视角",
++                "type": "blogger",
++                "market_lenses": [{"name": "镜头A", "description": "一句正常的框架描述", "weight": 1.0}],
++                "risk_triggers": ["利多不涨"],
++                "reasoning_patterns": [{"name": "条件化", "rule": "先定位置再谈标的"}],
++                "falsification_style": ["给出 T+3 反向证据"],
++                "anti_patterns": ["把单次观察写成定律"],
++                "evidence_hierarchy": ["盘面"],
++                "honest_boundaries": ["不适用于港股"],
++                # —— 私密：不该导出，且要说得出理由
++                "contradictions": ["2026-08-12 这天我自己打脸了，当时仓位 7 成"],
++                "sources": {"allowed_sources": ["uploaded_articles"], "citation_required": True},
++                "voice_guidance": {"style": "清晰", "forbidden": ["复刻私人语气"]},
++                "confidence": {"article_count": 50, "known_gaps": ["样本偏短线"]},
++                # —— schema 以后长出来的新字段：必须默认不导且点名
++                "private_notes_v2": "这是以后才加的字段，里面可能是任何东西",
++                "subscriber_list": ["a@example.com"],
++                # —— 原文残留：excerpt 截断会留「…」
++                "opportunity_preferences": [
++                    "…他在文中写道「这一轮的核心矛盾是供给侧出清没有走完，所以任何反弹都只是修复而不是反转」，"
++                    "这段话我认为点出了问题的本质，值得反复看，因为它把两个常被混为一谈的概念区分开了…"
++                ],
++            },
++            ensure_ascii=False,
++        ),
++        encoding="utf-8",
++    )
++    monkeypatch.setattr(ex, "REPO_ROOT", tmp_path)
++    return user
++
++
++def test_框架字段导出而私密字段不导(fake_user: str) -> None:
++    import scripts.export_perspective_framework as ex
++
++    data, rep = ex.export("p1", fake_user, with_confidence=False)
++
++    for k in ("display_name", "market_lenses", "risk_triggers", "reasoning_patterns",
++              "falsification_style", "anti_patterns", "evidence_hierarchy", "honest_boundaries"):
++        assert k in data, f"{k} 是可迁移框架，应当导出"
++
++    for k in ("contradictions", "sources", "voice_guidance", "confidence"):
++        assert k not in data, f"{k} 不该出现在对外导出里"
++        assert k in rep["dropped_with_reason"], f"{k} 不导就要说得出理由，不能默默吞掉"
++
++
++def test_schema_新字段必须默认不导且点名(fake_user: str) -> None:
++    """这条是整个工具的支点。
++
++    黑名单的形状下，画像以后加一个字段就会默认漏出去，而且漏的时候没有提示。
++    白名单下它必须：① 不出现在导出里；② 出现在 dropped_unknown 里让人看见。
++    两者缺一都不行——只做 ① 是静默丢弃，人会以为导全了。
++    """
++    import scripts.export_perspective_framework as ex
++
++    data, rep = ex.export("p1", fake_user, with_confidence=False)
++
++    assert "private_notes_v2" not in data
++    assert "subscriber_list" not in data
++    assert set(rep["dropped_unknown"]) == {"private_notes_v2", "subscriber_list"}, (
++        "本工具不认识的字段必须逐个点名，由人判断它是框架还是来源"
++    )
++
++
++def test_夹带原文的片段会被标出来(fake_user: str) -> None:
++    """白名单挡不住「框架字段里被塞进了一整段原文」这种情况——那得靠人看。
++
++    所以工具要把超长句、残留引号与省略号的地方指出来。这是提醒不是边界：
++    报告里必须出现那一条，且要给出字段路径让人能定位。
++    """
++    import scripts.export_perspective_framework as ex
++
++    _, rep = ex.export("p1", fake_user, with_confidence=False)
++
++    flagged = {f["field"] for f in rep["possible_verbatim"]}
++    assert any(f.startswith("opportunity_preferences") for f in flagged), (
++        f"夹带了引号 + 省略号 + 超长句的那条没被标出来；实际标了：{flagged}"
++    )
++
++
++def test_正常的框架描述不该被误标(fake_user: str) -> None:
++    """误报率也要管：每条都标 = 等于没标，人会直接略过整个报告。
++
++    ``market_lenses[0].description`` 是一句干干净净的框架描述，不该进提醒列表。
++    """
++    import scripts.export_perspective_framework as ex
++
++    _, rep = ex.export("p1", fake_user, with_confidence=False)
++    flagged = {f["field"] for f in rep["possible_verbatim"]}
++    assert not any(f.startswith("market_lenses") for f in flagged), f"正常描述被误标：{flagged}"
++
++
++def test_with_confidence_是显式开关(fake_user: str) -> None:
++    """样本量（article_count）有时需要随框架一起给——但必须是**主动要**，不是默认带。"""
++    import scripts.export_perspective_framework as ex
++
++    off, _ = ex.export("p1", fake_user, with_confidence=False)
++    on, _ = ex.export("p1", fake_user, with_confidence=True)
++    assert "confidence" not in off
++    assert on["confidence"]["article_count"] == 50
++
++
++def test_内置画像也能导_用于自检() -> None:
++    """不给 --user 时回退到内置画像。这条顺便保证工具在干净 clone 上可自检。"""
++    import scripts.export_perspective_framework as ex
++
++    data, rep = ex.export("kol_fengyuan", None, with_confidence=False)
++    assert data["display_name"] == "风远框架视角"
++    assert len(data["market_lenses"]) == 5
++    assert not rep["dropped_unknown"], f"内置画像出现了未知字段：{rep['dropped_unknown']}"
++
++
++def test_白名单与解释名单不得重叠() -> None:
++    """同一个字段既在 ALLOW 又在 DENY_REASON = 意图自相矛盾，而 ALLOW 会赢（静默导出）。"""
++    import scripts.export_perspective_framework as ex
++
++    overlap = set(ex.ALLOW) & set(ex.DENY_REASON)
++    assert not overlap, f"这些字段同时出现在白名单与拒绝说明里：{sorted(overlap)}"
+-- 
+2.39.5
+
