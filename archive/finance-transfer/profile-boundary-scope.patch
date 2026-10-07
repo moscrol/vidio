@@ -1,0 +1,362 @@
+From 6179ea073cb828245144d8cfc192d85b4c606b38 Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 11:56:53 +0000
+Subject: [PATCH 3/3] =?UTF-8?q?feat(perspective):=20=E4=B9=B0=E5=8D=96/?=
+ =?UTF-8?q?=E7=AD=96=E7=95=A5=E5=8F=A3=E5=BE=84=E6=8C=89=202026-09-20=207f?=
+ =?UTF-8?q?e048decc27=20=E6=9B=B4=E6=96=B0=EF=BC=88=E5=80=99=E9=80=89?=
+ =?UTF-8?q?=EF=BC=89+=20=E4=B8=89=E5=A4=84=E4=B8=80=E8=87=B4=E6=80=A7?=
+ =?UTF-8?q?=E6=A3=80=E6=9F=A5?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+用户 2026-10-07 裁定：按较新的日期、较好的那一版 → 2026-09-20 7fe048decc27。
+
+同一条口径在画像里写了三遍：
+  anti_patterns[0]        「给交易建议/仓位建议（系统边界：只做分析与证据分层）」
+  reasoning_patterns[13]  板块内选股八思路……「（仅分析，不出买卖建议）」
+  voice_guidance          「……不输出仓位/买卖建议。」
+三处当前同为无条件禁止（blanket），已落后于 09-20。
+
+只改一处会让画像自相矛盾，而矛盾的画像比过时的画像更糟：
+下游取到哪一条取决于它读了哪个字段，行为不可预测且不会有人发现。
+check_profile_boundary_consistency.py 守这条——它不判断哪一档「对」
+（那是用户的裁定权），只保证三处说的是同一件事。
+
+候选不是把红线删掉，是改成按授权用途分档：
+- 默认档（个人/未授权）仍守红线，且按 2026-09-06 298b8fbcba91 收窄到**个股层面**——
+  现画像那句无条件的「不输出仓位/买卖建议」连大盘与板块层面的方向判断都挡掉了，
+  比 09-06 的红线还窄，09-06 自己就说前一版「过度收窄了产品定义」。
+- 持牌机构或团队内部且授权用途明确时，选股与组合策略属能力范围，
+  策略表现按 7fe048decc27 纳入正式评分。
+7fe048decc27 自己写明「具体授权和合规边界另行确定」，所以这是分档不是放开。
+
+明确不动的两处写进候选的 not_changed：
+- confidence.known_gaps 三项「已说结构、未定标定」的缺口保持空缺
+  （转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）。按 B 类纪律不内置
+  未回测数字阈值；agent 自行填数正是 2026-10-02 d0abda287494 禁止的硬语义规则。
+- reasoning_patterns[14] 首红→加强→分歧退潮保留（2026-08-26 用户口头批准），
+  但 n=2645 / p<0.0001 / T+3 +1.18pp 不得外推为阈值——本资料包无原始数据与台账。
+
+生产画像在 intelligence/users/<USER_ID>/perspectives/ 下，被 .gitignore:114 排除，
+不在本仓；这里只给候选差异，应用需用户在本机执行。
+
+11 个测试。反例是 P3 真正要防的事故：参数化覆盖「三处里漏改任意一处」的全部三种，
+每一种都必须被判矛盾。未参与调试的验证样本：风远与 SPT 两份画像不得使检查器崩。
+---
+ .../2026-10-07-strategy-scope-candidate.json  |  71 +++++++++++
+ scripts/check_profile_boundary_consistency.py |  98 +++++++++++++++
+ tests/test_profile_boundary_consistency.py    | 118 ++++++++++++++++++
+ 3 files changed, 287 insertions(+)
+ create mode 100644 docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json
+ create mode 100644 scripts/check_profile_boundary_consistency.py
+ create mode 100644 tests/test_profile_boundary_consistency.py
+
+diff --git a/docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json b/docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json
+new file mode 100644
+index 00000000..dc5131d0
+--- /dev/null
++++ b/docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json
+@@ -0,0 +1,71 @@
++{
++  "schema_version": 1,
++  "kind": "profile_boundary_candidate",
++  "profile_id": "user_framework",
++  "status": "candidate",
++  "note": "候选差异，未写回生产画像。生产画像在 intelligence/users/<USER_ID>/perspectives/ 下，被 .gitignore:114 排除，不在本仓；应用需用户在本机执行。",
++  "decision": {
++    "asked": "画像的买卖/策略口径按哪个日期",
++    "answered": "按较新的日期、较好的那一版",
++    "resolved_to": "2026-09-20 7fe048decc27",
++    "resolved_at": "2026-10-07"
++  },
++  "sources": [
++    {
++      "id": "298b8fbcba91",
++      "ts": "2026-09-06",
++      "takeaway": "产品红线是不荐股、不提供**个股**买卖建议；可以分析大盘和板块层面的行情、涨跌与方向。前一版把「不预测涨跌」写成整体能力边界，过度收窄了产品定义。"
++    },
++    {
++      "id": "6eb05cd5d7ac",
++      "ts": "2026-09-06",
++      "takeaway": "Agent 不荐股、不预测价格，但可以分析次日整体行情与方向，帮用户形成自己的观察剧本。"
++    },
++    {
++      "id": "d786e388b25a",
++      "ts": "2026-09-13",
++      "takeaway": "合规不作为当前功能设计的约束，后续通过取得投顾牌照解决；现阶段只把功能设计好。"
++    },
++    {
++      "id": "7fe048decc27",
++      "ts": "2026-09-20",
++      "takeaway": "面向持牌机构或团队内部使用的投研 agent，可以将提供选股与组合策略作为产品能力，评测应把策略表现纳入正式评分维度。**具体授权和合规边界另行确定。**"
++    }
++  ],
++  "why_three_places_change_together": "同一条口径在 anti_patterns[0] / reasoning_patterns[13] / voice_guidance 三处各写了一遍。只改一处会让画像自相矛盾，而下游取到哪一条取决于它读了哪个字段——行为不可预测且不会有人发现。scripts/check_profile_boundary_consistency.py 守这条。",
++  "why_not_a_blanket_opening": "7fe048decc27 自己写明「具体授权和合规边界另行确定」，并要求「先按目标用户与授权用途定义能力评测范围」。所以这不是把红线删掉，而是把无条件禁止改成按授权用途分档；未授权场景下的默认档与 09-06 的红线一致。",
++  "changes": [
++    {
++      "where": "anti_patterns[0]",
++      "before": "给交易建议/仓位建议（系统边界：只做分析与证据分层）",
++      "after": "未经明确授权用途时给个股买卖/仓位建议（默认档红线，2026-09-06 298b8fbcba91：红线是个股层面，大盘与板块层面的行情、涨跌与方向分析不在禁止之列）。面向持牌机构或团队内部且授权用途已明确时，选股与组合策略属能力范围，不再记为反模式（2026-09-20 7fe048decc27，具体授权与合规边界另行确定）"
++    },
++    {
++      "where": "reasoning_patterns[13].rule",
++      "field": "板块内选股八思路横向对比",
++      "before_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（仅分析，不出买卖建议）",
++      "after_tail": "左侧=有预期提前选，右侧=看上涨个股对应哪个模式选最强方向（默认档仅分析、不出个股买卖建议；持牌机构或团队内部且授权用途明确时可输出选股结果，并按 7fe048decc27 把策略表现纳入正式评分）"
++    },
++    {
++      "where": "voice_guidance",
++      "before": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；不输出仓位/买卖建议。",
++      "after": "用用户自己的复盘语言：先大势后风格再载体；每个判断带证伪条件与 T+1/T+3 验证点；缺数据显式列缺口；默认档不输出个股买卖/仓位建议，大盘与板块层面的方向判断照常给；授权用途明确为持牌机构或团队内部时，可输出选股与组合策略并一并给出策略表现口径。"
++    }
++  ],
++  "not_changed": [
++    {
++      "where": "confidence.known_gaps",
++      "why": "三项「用户已说结构、未定标定」的缺口（转点缺口幅度门槛、市值容量顶比值、Q1.4/Q3.4 弱候选）保持空缺。按 B 类纪律不内置未回测数字阈值；agent 自行填数正是 2026-10-02 d0abda287494 禁止的硬语义规则。"
++    },
++    {
++      "where": "reasoning_patterns[14] 首红→加强→分歧退潮生命周期",
++      "why": "这条推理模式保留（2026-08-26 16:33 用户口头批准，patch_history 有记录），但其中 n=2645 / p<0.0001 / T+3 +1.18pp 等数字不得外推为阈值——本资料包无原始数据与台账，云端无法复验。"
++    }
++  ],
++  "verification": {
++    "tool": "scripts/check_profile_boundary_consistency.py",
++    "before": "三处口径均为 blanket → 自洽（但已过时）",
++    "after": "三处口径均为 scoped → 自洽",
++    "negative_control": "只改其中一处 → blanket 与 scoped 混用 → 检查器退出码 1"
++  }
++}
+diff --git a/scripts/check_profile_boundary_consistency.py b/scripts/check_profile_boundary_consistency.py
+new file mode 100644
+index 00000000..0abc3ce4
+--- /dev/null
++++ b/scripts/check_profile_boundary_consistency.py
+@@ -0,0 +1,98 @@
++#!/usr/bin/env python3
++"""画像里「能不能给买卖/策略」的口径，必须三处一致。
++
++## 为什么需要这个检查
++
++``user_framework.json`` 在三个地方各自声明了同一件事：
++
++- ``anti_patterns[0]``   「给交易建议/仓位建议（系统边界：只做分析与证据分层）」
++- ``reasoning_patterns[13]`` 板块内选股八思路……「（仅分析，不出买卖建议）」
++- ``voice_guidance``     「……不输出仓位/买卖建议。」
++
++2026-09-20 纠偏 ``7fe048decc27`` 把口径改成**按目标用户与授权用途分档**
++（持牌机构/团队内部可把选股与组合策略作为产品能力）。
++若只改其中一处，画像就会自相矛盾——而矛盾的画像比过时的画像更糟：
++下游取到哪一条取决于它读了哪个字段，行为变得不可预测，且没人会发现。
++
++## 判定
++
++把三处里提到买卖/仓位/荐股/策略的句子各归一档：
++
++- ``blanket``  —— 无条件禁止（没有任何适用范围限定词）
++- ``scoped``   —— 带适用范围（持牌/授权/机构/团队/个人/未授权，或区分个股 vs 大盘板块）
++
++全 ``blanket`` 或全 ``scoped`` 都算自洽；**混着就是矛盾**，退出码 1。
++本工具不判断哪一档「对」——那是用户的裁定权，这里只保证三处说的是同一件事。
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++from pathlib import Path
++from typing import Any
++
++TOPIC_WORDS = ("买卖", "仓位", "荐股", "交易建议", "组合策略", "选股与组合")
++PROHIBITION = ("不出", "不输出", "不给", "不做", "禁止", "不提供", "不荐")
++SCOPE_WORDS = (
++    "持牌", "授权", "机构", "团队内部", "未授权", "个人用户", "目标用户",
++    "个股层面", "板块层面", "大盘和板块", "按用途", "按场景",
++)
++
++
++def _loci(profile: dict[str, Any]) -> list[tuple[str, str]]:
++    out: list[tuple[str, str]] = []
++    for i, x in enumerate(profile.get("anti_patterns") or []):
++        out.append((f"anti_patterns[{i}]", x if isinstance(x, str) else json.dumps(x, ensure_ascii=False)))
++    for i, x in enumerate(profile.get("reasoning_patterns") or []):
++        text = x.get("rule", "") if isinstance(x, dict) else str(x)
++        out.append((f"reasoning_patterns[{i}]", text))
++    vg = profile.get("voice_guidance")
++    if vg is not None:
++        out.append(("voice_guidance", vg if isinstance(vg, str) else json.dumps(vg, ensure_ascii=False)))
++    return [(w, t) for w, t in out if any(k in t for k in TOPIC_WORDS)]
++
++
++def classify(text: str, where: str = "") -> str:
++    """``anti_patterns`` 里「列着」本身就是禁止，不需要再出现否定词。"""
++    if any(s in text for s in SCOPE_WORDS):
++        return "scoped"
++    if any(p in text for p in PROHIBITION):
++        return "blanket"
++    if where.startswith("anti_patterns"):
++        return "blanket"
++    return "neutral"
++
++
++def check(profile: dict[str, Any]) -> dict[str, Any]:
++    loci = _loci(profile)
++    graded = [{"where": w, "verdict": classify(t, w), "text": t} for w, t in loci]
++    kinds = {g["verdict"] for g in graded} - {"neutral"}
++    return {
++        "profile_id": profile.get("id"),
++        "loci": graded,
++        "consistent": len(kinds) <= 1,
++        "verdicts": sorted(kinds),
++    }
++
++
++def main(argv: list[str] | None = None) -> int:
++    ap = argparse.ArgumentParser(description="检查画像里买卖/策略口径的三处声明是否一致（只读）")
++    ap.add_argument("profiles", nargs="+", type=Path)
++    args = ap.parse_args(argv)
++    bad = 0
++    for path in args.profiles:
++        res = check(json.loads(path.read_text(encoding="utf-8")))
++        mark = "✓ 自洽" if res["consistent"] else "✗ 矛盾"
++        print(f"{mark}  {res['profile_id']}（{len(res['loci'])} 处提到买卖/策略，口径 {res['verdicts'] or ['—']}）")
++        for g in res["loci"]:
++            print(f"      [{g['verdict']:<7}] {g['where']}: {g['text'][:90]}")
++        if not res["consistent"]:
++            bad += 1
++            print("      ↑ 这些声明不是同一个口径；只改其中一处会让下游行为取决于它读了哪个字段")
++    return 1 if bad else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/test_profile_boundary_consistency.py b/tests/test_profile_boundary_consistency.py
+new file mode 100644
+index 00000000..eeb36477
+--- /dev/null
++++ b/tests/test_profile_boundary_consistency.py
+@@ -0,0 +1,118 @@
++"""买卖/策略口径三处一致性检查。
++
++- **正常样本**：当前快照画像（三处同为 blanket）→ 自洽。
++- **反例**：只改一处 → blanket 与 scoped 混用 → 必须判矛盾。这是 P3 真正要防的事故。
++- **未参与调试的验证样本**：风远与 SPT 两份画像（检查器不是对着它们写的）→ 不得崩，且结论可解释。
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from scripts.check_profile_boundary_consistency import check, classify
++
++SNAPSHOT = Path("docs/cloud-research-context/snapshots/2026-10-07/profiles")
++CANDIDATE = Path("docs/learning/perspective-boundary/2026-10-07-strategy-scope-candidate.json")
++
++pytestmark = pytest.mark.skipif(not SNAPSHOT.exists(), reason="快照不在")
++
++
++def _user_framework() -> dict:
++    return json.loads((SNAPSHOT / "user_framework.json").read_text(encoding="utf-8"))
++
++
++# --------------------------------------------------------------------------- #
++# 正常样本
++# --------------------------------------------------------------------------- #
++def test_current_profile_states_the_same_boundary_in_all_three_places() -> None:
++    res = check(_user_framework())
++    assert len(res["loci"]) == 3, f"口径声明处数变了：{[g['where'] for g in res['loci']]}"
++    assert {g["where"] for g in res["loci"]} == {
++        "anti_patterns[0]", "reasoning_patterns[13]", "voice_guidance",
++    }
++    assert res["verdicts"] == ["blanket"]
++    assert res["consistent"]
++
++
++def test_anti_pattern_entry_counts_as_prohibition_without_a_negation_word() -> None:
++    """「给交易建议/仓位建议」被**列在** anti_patterns 里本身就是禁止，不需要再写「不」。"""
++    assert classify("给交易建议/仓位建议（系统边界：只做分析与证据分层）", "anti_patterns[0]") == "blanket"
++    assert classify("给交易建议/仓位建议（系统边界：只做分析与证据分层）", "voice_guidance") == "neutral"
++
++
++# --------------------------------------------------------------------------- #
++# 反例：只改一处
++# --------------------------------------------------------------------------- #
++def test_changing_only_one_of_the_three_places_is_caught() -> None:
++    profile = _user_framework()
++    profile["anti_patterns"][0] = (
++        "未经明确授权用途时给个股买卖/仓位建议；面向持牌机构或团队内部且授权用途已明确时不记为反模式"
++    )
++    res = check(profile)
++    assert not res["consistent"], "只改了 anti_patterns，另两处仍是无条件禁止，却没被判矛盾"
++    assert set(res["verdicts"]) == {"blanket", "scoped"}
++
++
++@pytest.mark.parametrize("where", ["anti_patterns", "reasoning_patterns", "voice_guidance"])
++def test_any_single_locus_left_behind_is_caught(where: str) -> None:
++    """三处里漏掉任意一处都要被抓到，不只是漏掉 anti_patterns 那一种。"""
++    scoped_note = "；面向持牌机构或团队内部且授权用途明确时可输出选股与组合策略"
++    profile = _user_framework()
++    if where != "anti_patterns":
++        profile["anti_patterns"][0] += scoped_note
++    if where != "reasoning_patterns":
++        profile["reasoning_patterns"][13]["rule"] += scoped_note
++    if where != "voice_guidance":
++        profile["voice_guidance"] += scoped_note
++    res = check(profile)
++    assert not res["consistent"], f"漏改 {where} 没被抓到"
++
++
++def test_changing_all_three_is_consistent_again() -> None:
++    scoped_note = "；面向持牌机构或团队内部且授权用途明确时可输出选股与组合策略"
++    profile = _user_framework()
++    profile["anti_patterns"][0] += scoped_note
++    profile["reasoning_patterns"][13]["rule"] += scoped_note
++    profile["voice_guidance"] += scoped_note
++    res = check(profile)
++    assert res["consistent"] and res["verdicts"] == ["scoped"]
++
++
++# --------------------------------------------------------------------------- #
++# 候选文件自身
++# --------------------------------------------------------------------------- #
++@pytest.mark.skipif(not CANDIDATE.exists(), reason="候选不在")
++def test_candidate_touches_exactly_the_three_loci_and_cites_its_source() -> None:
++    cand = json.loads(CANDIDATE.read_text(encoding="utf-8"))
++    assert cand["status"] == "candidate", "候选不能标成已应用"
++    assert cand["decision"]["resolved_to"] == "2026-09-20 7fe048decc27"
++    assert {c["where"] for c in cand["changes"]} == {
++        "anti_patterns[0]", "reasoning_patterns[13].rule", "voice_guidance",
++    }
++    ids = {s["id"] for s in cand["sources"]}
++    assert "7fe048decc27" in ids and "298b8fbcba91" in ids
++    # 不是无条件放开：默认档必须仍然守红线
++    after = " ".join(str(c.get("after", "") or c.get("after_tail", "")) for c in cand["changes"])
++    assert "默认档" in after and "授权" in after
++
++
++def test_candidate_does_not_fill_in_any_withheld_number() -> None:
++    """候选不得顺手把三项「已说结构、未定标定」的缺口填上数字。"""
++    cand = json.loads(CANDIDATE.read_text(encoding="utf-8"))
++    assert any("known_gaps" in n["where"] for n in cand["not_changed"])
++    blob = json.dumps(cand, ensure_ascii=False)
++    for forbidden in ("缺口幅度门槛为", "市值容量顶比值为", "阈值设为"):
++        assert forbidden not in blob
++
++
++# --------------------------------------------------------------------------- #
++# 未参与调试的验证样本
++# --------------------------------------------------------------------------- #
++@pytest.mark.parametrize("pid", ["fengyuan", "sptfei"])
++def test_holdout_profiles_do_not_crash_the_checker(pid: str) -> None:
++    res = check(json.loads((SNAPSHOT / f"{pid}.json").read_text(encoding="utf-8")))
++    assert isinstance(res["consistent"], bool)
++    assert all(g["verdict"] in {"blanket", "scoped", "neutral"} for g in res["loci"])
+-- 
+2.39.5
+

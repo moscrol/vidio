@@ -1,0 +1,1031 @@
+From e48c5a69d024fe1c25a6c44abd349c715e0f7d50 Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 11:56:39 +0000
+Subject: [PATCH 2/3] =?UTF-8?q?feat(perspective):=20=E6=8A=8A=E3=80=8C?=
+ =?UTF-8?q?=E4=B8=80=E4=B8=AA=E5=AD=97=E6=AE=B5=E5=A1=9E=E5=87=A0=E5=8D=81?=
+ =?UTF-8?q?=E6=9D=A1=E8=A7=84=E5=88=99=E3=80=8D=E7=9A=84=E9=95=9C=E5=A4=B4?=
+ =?UTF-8?q?=E6=8B=86=E6=88=90=E5=B8=A6=E7=A8=B3=E5=AE=9A=20ID=20=E7=9A=84?=
+ =?UTF-8?q?=E6=9D=A1=E7=9B=AE=EF=BC=88=E5=80=99=E9=80=89=EF=BC=8C=E4=B8=8D?=
+ =?UTF-8?q?=E5=86=99=E5=9B=9E=E7=94=BB=E5=83=8F=EF=BC=89?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+实测 profiles/sptfei.json：market_lenses[量能状态机] 1856 字符约 52 条规则、
+market_lenses[筹码与结构] 1037 字符约 33 条，两个字段合计 85 条规则挤在两个字符串里。
+而同一份画像其余 92 条（25 机会 / 28 风险 / 20 反模式 / 19 证伪）平均 38 字符，
+已经是原子的——这是 SPT 单独的问题，大概率按篇追加、从未归并。
+对照：用户框架最长字段 327 字符 / 3 条，风远 273 字符 / 2 条，都健康。
+
+后果是这 85 条不能被单独引用、单独打补丁、单独证伪、单独检索命中；
+204 条补丁要落到它们身上只能整串重写。
+
+三条纪律：
+1. 只拆不删。2026-10-07 纠偏 0a3034caf2f6「删减只针对重复决策、僵硬模板和
+   误伤内容的干预」。verify_lossless 守逐字可还原，不过就抛。
+2. 不静默判断。分号后面是新规则还是上一条的后半截（「否则不升级为主线」），
+   机器判不准的标 needs_review 并写明理由，交人裁——不是挑个看起来合理的切法然后不说。
+3. 不改语义。不润色、不归纳、不去重、不排序。合并重复是另一件事，
+   需用户裁定（README 明写「未替用户重新裁定」）。
+
+实跑结果：1856+1037 字符 → 86 条，85 条清晰，1 条待裁定
+（sptfei.筹码与结构.007「临近突破状态」6 字无谓词，像是上一条的附加状语被分号切出来）。
+作者用「，」连条件与结论、用「；」分条，切法与之吻合：12 条含「则/否则」的
+条件句全部完整落在条内，没有一条被切断。
+
+启发式曾误标：单用「无谓词标记」会标出 10 条，其中多数是真规则
+（「指数箱体+成交额中枢定市场阶段」），噪音大到让标记失去意义；
+改成「又短又无谓词」的合取后精确命中 1 条。
+
+11 个测试。反例含本轮明确要求的那条：故意把条件与结论用分号隔开，
+必须标 needs_review 而非静默切开；另有「还原校验本身必须会失败」两条
+（少一条、悄悄改一个字），防止校验是空的。
+未参与调试的验证样本：风远 6 个镜头 + 用户框架 4 个镜头——启发式是对着 SPT
+调的，这两份没调过，逐字还原同样成立。
+---
+ ...026-10-07-sptfei-lens-split-candidate.json | 635 ++++++++++++++++++
+ scripts/split_monolithic_lens.py              | 185 +++++
+ tests/test_split_monolithic_lens.py           | 137 ++++
+ 3 files changed, 957 insertions(+)
+ create mode 100644 docs/learning/perspective-split/2026-10-07-sptfei-lens-split-candidate.json
+ create mode 100644 scripts/split_monolithic_lens.py
+ create mode 100644 tests/test_split_monolithic_lens.py
+
+diff --git a/docs/learning/perspective-split/2026-10-07-sptfei-lens-split-candidate.json b/docs/learning/perspective-split/2026-10-07-sptfei-lens-split-candidate.json
+new file mode 100644
+index 00000000..a01782d5
+--- /dev/null
++++ b/docs/learning/perspective-split/2026-10-07-sptfei-lens-split-candidate.json
+@@ -0,0 +1,635 @@
++{
++  "schema_version": 1,
++  "kind": "lens_split_candidate",
++  "profile_id": "sptfei",
++  "profile_sha256": "01611ea02994286031603f5ecf126b937cbee69a4ddb70afbdf5c8b39e88b8da",
++  "note": "候选产物，未写回生产画像；needs_review 的条目需用户裁定后才能定稿",
++  "lenses": [
++    {
++      "lens": "量能状态机",
++      "weight": 0.25,
++      "source_chars": 1856,
++      "source_sha256": "31018665633d430432b68094ed7d1fa8ea983f0ae7f5e0c8b23ff5e9cfbb2375",
++      "rule_count": 52,
++      "clear": 52,
++      "needs_review": 0,
++      "rules": [
++        {
++          "text": "指数箱体+成交额中枢定市场阶段",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.001",
++          "text_sha256": "71a25408830f"
++        },
++        {
++          "text": "冰点日必须多指数（尤其杀跌元凶）共振见底，单指数冰点不算",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.002",
++          "text_sha256": "da83cc736f9e"
++        },
++        {
++          "text": "成交额显著环比放量且新老主线普涨=新老断代日",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.003",
++          "text_sha256": "cc9cf4361dbb"
++        },
++        {
++          "text": "成交额MA20未到110-120%是共建主线/轮动而非主升",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.004",
++          "text_sha256": "bf039983bec1"
++        },
++        {
++          "text": "极小量日后若大盘量不够，主线以旗型或横盘蓄能，必须板块与指数一体两面放量才承认加速",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.005",
++          "text_sha256": "c841df783a62"
++        },
++        {
++          "text": "只有市场极小量才证明老主线筹码躺平、新主线才能发育",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.006",
++          "text_sha256": "18bc24cc7a10"
++        },
++        {
++          "text": "板块回流三件套=大幅缩量+支撑位+30分钟底背离",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.007",
++          "text_sha256": "27cde9d00de6"
++        },
++        {
++          "text": "见顶信号=量价不匹配的大阴量、单行业净流入极端放量后的超级顶值、涨幅靠前个股成交额占比到顶阈值后缩量",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.008",
++          "text_sha256": "522c580548c3"
++        },
++        {
++          "text": "容量板块量顶=一级行业成交额占比上阈值 + 单行业资金流入高位 + 市场强度上阈值同时出现（该在里面的资金都在里面了）",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.009",
++          "text_sha256": "4be4430aba4f"
++        },
++        {
++          "text": "一次量顶=容量过载后的第一次大分歧，二次量顶=新二级子板块发育节点，不是同一种见顶",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.010",
++          "text_sha256": "0a2f98533fb9"
++        },
++        {
++          "text": "日线顶背不能宣判容量行情结束，主题生命周期看成交额占比台阶是否回落",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.011",
++          "text_sha256": "2ea2cba68882"
++        },
++        {
++          "text": "放量杀跌后的次日缩量回流是弱回流，真回流要缩量回踩支撑且市场强度出现二次冰点",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.012",
++          "text_sha256": "9fa856b2c37a"
++        },
++        {
++          "text": "成交额推到高分位后若无法继续放量，核心板块只能缩容聚焦不能放量扩散，最强方向无结构可调续命",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.013",
++          "text_sha256": "b5c420e7355f"
++        },
++        {
++          "text": "强轮动（中观量能仍高）时最弱共建板块到支撑即可预期回流，量能不够的共建期必须连续缩量回踩支撑才有反弹",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.014",
++          "text_sha256": "a82e23a55e97"
++        },
++        {
++          "text": "一次性放到目标量不算进入主升，必须继续放量",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.015",
++          "text_sha256": "7e1ac13e149a"
++        },
++        {
++          "text": "上涨且成交额靠前个股的成交额占比连续多日高阈值、大盘不再放量，主线大票承压",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.016",
++          "text_sha256": "93773429bb9e"
++        },
++        {
++          "text": "强轮动中量能停滞并缩量跌破下沿，指数发育失败推倒重来",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.017",
++          "text_sha256": "f7ba3da0830f"
++        },
++        {
++          "text": "一次回流若板块给不出足够量能，回流完即消亡",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.018",
++          "text_sha256": "5858ab1f4502"
++        },
++        {
++          "text": "指数四阶段代号：下横=左右底+缩量右底共建，上=共建末期+主流主升，上横=承接盘反复，下=左底向下",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.019",
++          "text_sha256": "a423cedb6f26"
++        },
++        {
++          "text": "左底确认优先放量+回归周均线，量不足则站稳周均线",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.020",
++          "text_sha256": "f2779a37da87"
++        },
++        {
++          "text": "二次探底要看到强度个股涨幅或成交额占比极小值，探完须回归相对均量才确认",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.021",
++          "text_sha256": "a9e73d9001e4"
++        },
++        {
++          "text": "缺口后放量普反才认或有左底，缩量普反则继续向下找左底",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.022",
++          "text_sha256": "4082abebfd04"
++        },
++        {
++          "text": "支撑位二分：环比极小缩量后回流=行情尾声，量能保持后快速放量回拉=扩张中继",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.023",
++          "text_sha256": "067186e95390"
++        },
++        {
++          "text": "中等容量概念单日成交额翻倍后次日分歧，横盘期间成交额不减才谈共识加速",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.024",
++          "text_sha256": "85a7d3b4db66"
++        },
++        {
++          "text": "主升阶段见顶观察边际量过大或价偏离到顶",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.025",
++          "text_sha256": "1cac9364202d"
++        },
++        {
++          "text": "主升转承接有两种接不住：边际量再次爆炸后接不住，或单日量能大幅减少接不住",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.026",
++          "text_sha256": "ec8e7742131a"
++        },
++        {
++          "text": "临界点不直接断言方向，用涨幅前排龙回头当日及次日大盘量能否修复来二次确认：量能修复则共振板块续命，顶值龙回头且大盘不给增量才确认批量下行并切到抱团",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.027",
++          "text_sha256": "baeec6e425cf"
++        },
++        {
++          "text": "缩量普涨且涨幅前排指标顶值、大盘继续缩量=龙回头次日冰点",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.028",
++          "text_sha256": "83fc47c0f05e"
++        },
++        {
++          "text": "左底向下以抱团和新发育小板块为核，大盘量不够不做板块整体轮动",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.029",
++          "text_sha256": "812d88affe1e"
++        },
++        {
++          "text": "新发酵板块须红量大边际增量才确认一周强度，缩量大涨或大阴量不算",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.030",
++          "text_sha256": "338ab6723bdc"
++        },
++        {
++          "text": "大盘连续缩量时逆势放量的一级/二级可认新承接，但若同日放出边际极大量则改为先于龙或低位补涨、不追当日高潮",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.031",
++          "text_sha256": "ca0629018118"
++        },
++        {
++          "text": "伴身吃量板块只在大盘量尚未爆到顶值前参与轮动，量爆无可爆后同样回踩",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.032",
++          "text_sha256": "f261a6081284"
++        },
++        {
++          "text": "主线修复要指数与板块同时出现30分钟底部结构，不是单边底背",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.033",
++          "text_sha256": "d20f958bee43"
++        },
++        {
++          "text": "短线拥挤过热则强轮动转入弱轮动",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.034",
++          "text_sha256": "f52253390676"
++        },
++        {
++          "text": "板块进入箱体并酝酿60分钟调整时，高位和中高位弹性横盘票不要等缩量突破再买",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.035",
++          "text_sha256": "1e0efad15cf1"
++        },
++        {
++          "text": "明牌容量盘眼成交额打到高分位，视为板块转入更强分歧",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.036",
++          "text_sha256": "ebe20363fd25"
++        },
++        {
++          "text": "缩量右底共建失败=参与轮动的几个板块各自走到60分钟结构而综指仍不能放量或再出缺口",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.037",
++          "text_sha256": "31b98ae4cc11"
++        },
++        {
++          "text": "量结构从老容量迁到新宽度夺价并打到顶值时：市场不放量=板块内轮动最后聚焦局部趋势，市场缩量=无板块抱团",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.038",
++          "text_sha256": "7759c15870ab"
++        },
++        {
++          "text": "高位启动量过大且量能结构打满=次日接不住，低位启动不适用同一条",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.039",
++          "text_sha256": "e902463845a7"
++        },
++        {
++          "text": "批量反包或龙回头日量能仍弱=风险区间并转向新一批抱团",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.040",
++          "text_sha256": "37f28eef320a"
++        },
++        {
++          "text": "成交额偏离度再次大幅回落且主线出现日线顶部=风格切回抱团",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.041",
++          "text_sha256": "60f34c2b7e98"
++        },
++        {
++          "text": "起手边际量严重过大时，高开必须在早盘短窗口给出足够量，否则不能当强中强",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.042",
++          "text_sha256": "46129e083cab"
++        },
++        {
++          "text": "容量锚点无论缩量创新高还是爆量创新高都是分歧",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.043",
++          "text_sha256": "5ca6196a669e"
++        },
++        {
++          "text": "三次量顶的二级子第一次分歧后仍有反复，二次分歧结束才进入修整",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.044",
++          "text_sha256": "fb3e50fd50e6"
++        },
++        {
++          "text": "深度调整必须同时满足绝对量回落到相对量下阈值和微盘股日线顶部，缺一不可",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.045",
++          "text_sha256": "53c730887a61"
++        },
++        {
++          "text": "高偏离阈值后若不再给边际大量，或成交额边际增速快速缩容=当日从顺势变区间：光大模式是下一级横盘再换一批低位容量，建投模式才是再给边际大量后续加速",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.046",
++          "text_sha256": "2bc522f4c93a"
++        },
++        {
++          "text": "过载调结构创造的主线反弹，次日量能不能上一个台阶无法维持",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.047",
++          "text_sha256": "402546f7609b"
++        },
++        {
++          "text": "短线指标到顶值而成交额没有回流=承接盘反复中期向末期，容量主线进入顶部后切情绪抱团",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.048",
++          "text_sha256": "73cef81d8ba5"
++        },
++        {
++          "text": "连续缩量未修复则高速轮动电风扇转不动后进入独立抱团",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.049",
++          "text_sha256": "ce24c36fceb5"
++        },
++        {
++          "text": "主题成交额占比打到历史高位且总量锁死=增量告一段落，拉价值毁成长走不远",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.050",
++          "text_sha256": "bae900178c7b"
++        },
++        {
++          "text": "护盘造成指数失真时看容量是否连续离散、前排成交额占比是否在下沿，两者同时出现=无板块无大票只剩抱团，轻仓等出清",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.051",
++          "text_sha256": "fc854edb9a2a"
++        },
++        {
++          "text": "足够大的一次量顶意味着主题不会在一次分歧后结束，后面必有二次量顶",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.量能状态机.052",
++          "text_sha256": "fd4c661638a1"
++        }
++      ]
++    },
++    {
++      "lens": "筹码与结构",
++      "weight": 0.25,
++      "source_chars": 1037,
++      "source_sha256": "dd377c0d0f5ab0dc919d019c665fdce7c4b1863e8c665aa94c693f29015d8d91",
++      "rule_count": 34,
++      "clear": 33,
++      "needs_review": 1,
++      "rules": [
++        {
++          "text": "大量资金沉淀的主线必做复杂结构顶、必有回流",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.001",
++          "text_sha256": "c9a680899d3e"
++        },
++        {
++          "text": "新主线确认=临突破或新上升趋势早期，且在断代日/老主线反弹时仍能主动抢到资金，不是只当对立面",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.002",
++          "text_sha256": "86434ad54bcf"
++        },
++        {
++          "text": "宽度夺价=概念板块与申万行业板块共振，才确认主线在扩散",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.003",
++          "text_sha256": "eeb40e6f0e9d"
++        },
++        {
++          "text": "伴身板块=底部N型有强度但非临突破，只配当轮动或主线高潮后的分歧承接",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.004",
++          "text_sha256": "1d68f06dfe57"
++        },
++        {
++          "text": "共建主线阶段主线越轮越强（缩量分歧或分歧后强修复），非主线越轮越弱（结构有瑕疵）",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.005",
++          "text_sha256": "2906a8ab6c10"
++        },
++        {
++          "text": "承接板块=底部N字+放量+离压力位远",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.006",
++          "text_sha256": "5d2c5d989c6c"
++        },
++        {
++          "text": "临近突破状态",
++          "status": "needs_review",
++          "review_reasons": [
++            "只有 6 字且不含任何谓词/判断标记，像名词短语——多半是上一条的附加状语，被分号切了出来"
++          ],
++          "rule_id": "sptfei.筹码与结构.007",
++          "text_sha256": "27c3fe2e0607"
++        },
++        {
++          "text": "抱团补涨范式（襄阳轴承/西部材料：中低位堆量抗分歧、等板块到位后加速）",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.008",
++          "text_sha256": "d6a16d2218ff"
++        },
++        {
++          "text": "秒板无充分换手则后排无参与价值",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.009",
++          "text_sha256": "a8df87e7e749"
++        },
++        {
++          "text": "夺价补涨分层：板块夺价且容量+异动/临界异动+容量占比够才成超级板块，边际大量看补涨",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.010",
++          "text_sha256": "1af288c20174"
++        },
++        {
++          "text": "向申万一级夺量则补涨演绎成多个概念，仅概念级容量/异动则补涨是个股级",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.011",
++          "text_sha256": "6b55a2d7d97d"
++        },
++        {
++          "text": "概念夺价但板块内无绝对高度则不做补涨、做核心高标抱团，继续放量则龙头做高度、不放量则抱团反复",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.012",
++          "text_sha256": "6a8629afbaa6"
++        },
++        {
++          "text": "高低切随主线爆量后缩圈，不再用爆量前的容量口径",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.013",
++          "text_sha256": "732ee40d2812"
++        },
++        {
++          "text": "批量顶一字尤其连续顶板降权，上位板块打出绝对高度后才提供深水低吸，低吸后再看放量能否过压力位二分路径",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.014",
++          "text_sha256": "79cbb8677ef8"
++        },
++        {
++          "text": "概念夺价升级锐度夺价=申万一级夺价+多个二级锐度与量能共振+一级资金共振",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.015",
++          "text_sha256": "c810477fe40e"
++        },
++        {
++          "text": "超级资金主线炒作中，新共振夺价板块要高度重视，起手可以不流畅，一旦确认夺价，短期锐度会作为核心板块的补涨出现",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.016",
++          "text_sha256": "7a70a2e66145"
++        },
++        {
++          "text": "核心主线进入60分钟到日线顶部时，新夺价板块是顺势卡分歧重点",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.017",
++          "text_sha256": "e74e3320c8b8"
++        },
++        {
++          "text": "宽度夺价=个股锐度趋势，夺量=多个二级此起彼伏此消彼长",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.018",
++          "text_sha256": "c55ac6c8a70e"
++        },
++        {
++          "text": "总量不够的宽度夺价只做一级内二级轮动低吸，不默认强中强",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.019",
++          "text_sha256": "d2884332396c"
++        },
++        {
++          "text": "补涨或新夺价级别低于容量板块三次量顶核心二级",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.020",
++          "text_sha256": "061b3456bdc2"
++        },
++        {
++          "text": "左底向下两种做法：前期主流反弹至少看双头作为二次探底力量，或核心抱团穿越左右底，这阶段发育不出像样新板块",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.021",
++          "text_sha256": "5af7ea8106b0"
++        },
++        {
++          "text": "抱团三种：下跌前已有辨识度跟随见底做二波",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.022",
++          "text_sha256": "b3c63643e833"
++        },
++        {
++          "text": "下跌中形成辨识度逆势打高度后横盘反核",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.023",
++          "text_sha256": "53ee6463dc1f"
++        },
++        {
++          "text": "左底向下的2B或首板打高度、左底向上出现妖股分时",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.024",
++          "text_sha256": "7c49d5c4f549"
++        },
++        {
++          "text": "微盘股见底并背离综指=抱团穿越票二波观察窗",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.025",
++          "text_sha256": "65a7ddd108ad"
++        },
++        {
++          "text": "轮动低吸优先一次分歧结构，回避二次分歧",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.026",
++          "text_sha256": "7cb4689f6f5f"
++        },
++        {
++          "text": "容量、价的宽度、价的高度可以分落在不同板块",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.027",
++          "text_sha256": "3d4ae5f2b3f0"
++        },
++        {
++          "text": "二次夺量但价未复合则二波未确认，二波以容量趋势为主不是连板，开启要情绪先锋启动且夺量后再夺价，内核够可以倒反天罡卡掉监管造成的高度压制",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.028",
++          "text_sha256": "afef2246be4f"
++        },
++        {
++          "text": "低开高走且早盘爆量分歧更容易锁筹码，高开或价值板块盘中吸血则锁不住",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.029",
++          "text_sha256": "37aecf794f4e"
++        },
++        {
++          "text": "低吸看缩量，顺势高低切看放量",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.030",
++          "text_sha256": "ddd6941c76fe"
++        },
++        {
++          "text": "价有锐度但没有宽度=板块指数给不了共振",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.031",
++          "text_sha256": "201fab5bdd34"
++        },
++        {
++          "text": "后置逻辑线等到二次量顶再参与",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.032",
++          "text_sha256": "8ce4d7a44933"
++        },
++        {
++          "text": "新题材要先锋之外的跟随标的同步走强才算轮动方向一锤定音",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.033",
++          "text_sha256": "8f1cdfadeaf8"
++        },
++        {
++          "text": "震荡缩圈只做高度+容量+辨识度，不挖阿猫阿狗",
++          "status": "clear",
++          "review_reasons": [],
++          "rule_id": "sptfei.筹码与结构.034",
++          "text_sha256": "f7d8aa41ff90"
++        }
++      ]
++    }
++  ]
++}
+diff --git a/scripts/split_monolithic_lens.py b/scripts/split_monolithic_lens.py
+new file mode 100644
+index 00000000..a703f55f
+--- /dev/null
++++ b/scripts/split_monolithic_lens.py
+@@ -0,0 +1,185 @@
++#!/usr/bin/env python3
++"""把画像里「一个 description 塞几十条规则」的镜头拆成带稳定 ID 的条目。
++
++## 为什么要拆
++
++实测 ``profiles/sptfei.json``：``market_lenses[量能状态机]`` 1856 字符约 52 条规则、
++``market_lenses[筹码与结构]`` 1037 字符约 33 条规则，两个字段合计 85 条规则挤在两个字符串里。
++后果是这 85 条**不能被单独引用、单独打补丁、单独证伪、单独检索命中**——204 条补丁要落到它们身上
++只能整串重写。同一份画像的其余 92 条（机会/风险/反模式/证伪）平均 38 字符，已经是原子的；
++这是 SPT 单独的问题，大概率是按篇追加、从未归并。
++
++## 三条纪律
++
++1. **只拆不删。** 2026-10-07 纠偏 ``0a3034caf2f6``「删减只针对重复决策、僵硬模板和误伤内容的干预」。
++   拆分前后内容必须逐字可还原，``verify_lossless`` 守这一条，不过就抛。
++2. **不静默判断。** 分号后面跟的到底是一条新规则，还是上一条的后半截（「否则不升级」「则抱团反复」），
++   机器判不准。判不准的一律标 ``needs_review`` 并写明理由，交人裁定——
++   不是挑一个看起来合理的切法然后不说。
++3. **不改语义。** 这里不润色、不归纳、不去重、不排序。合并重复规则是另一件事，
++   需要用户裁定（画像是蒸馏出来的，``README`` 明写「未替用户重新裁定」）。
++
++## ID 稳定性
++
++``<profile>.<lens_slug>.<序号>`` + 内容指纹 ``text_sha256[:12]``。序号一次分配后不因后续插入而重排；
++指纹用来发现「同一个 ID 下的文本被改过」——补丁要落到规则上，就得能区分「这条被改了」和「这是新的一条」。
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import re
++import sys
++import unicodedata
++from pathlib import Path
++from typing import Any
++
++SPLIT_CHARS = "；;"
++
++# 以这些词开头的片段，多半是上一句的后半截而不是独立规则。不自动合并——标出来让人看。
++CONTINUATION_STARTS = (
++    "否则", "则", "而", "但", "不是", "不然", "再", "又", "且", "并", "或", "反之",
++    "缺一不可", "两者", "同样", "同上", "此时", "这时", "那时", "后者", "前者",
++)
++# 以这些结尾的片段，像是话没说完
++DANGLING_ENDS = ("：", ":", "，", ",", "、", "=", "＝")
++
++# 谓词/判断标记。一条规则总得「说了点什么」——下判断、给条件、作比较。
++# 单用这条会误标（「指数箱体+成交额中枢定市场阶段」是真规则却不含这些词），
++# 所以只在「又短又没有谓词」时才标：短 + 无谓词 ≈ 名词短语 ≈ 上一条的附加状语。
++PREDICATE_MARKS = (
++    "=", "＝", "才", "要", "不", "看", "做", "认", "是", "则", "须", "必", "用", "按",
++    "优先", "回避", "警惕", "可", "会", "进入", "转", "确认", "视为", "降低", "寻找",
++)
++MIN_STANDALONE = 10  # 短于此且无谓词标记 → 判不准，交人裁
++
++
++def _slug(name: str) -> str:
++    return re.sub(r"[^\w\u4e00-\u9fff]+", "_", name).strip("_")
++
++
++def _sha(text: str) -> str:
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def _norm(text: str) -> str:
++    """比对用的规范化：Unicode NFC + 去掉所有空白。不动任何实义字符。"""
++    return re.sub(r"\s+", "", unicodedata.normalize("NFC", text))
++
++
++def split_description(text: str) -> list[dict[str, Any]]:
++    """按分号切，但**不**把判不准的合并掉——标 needs_review 交人裁。"""
++    parts: list[str] = []
++    buf = ""
++    for ch in text:
++        if ch in SPLIT_CHARS:
++            parts.append(buf)
++            buf = ""
++        else:
++            buf += ch
++    parts.append(buf)
++
++    out: list[dict[str, Any]] = []
++    for i, raw in enumerate(parts):
++        body = raw.strip()
++        if not body:
++            continue
++        reasons: list[str] = []
++        head = next((w for w in CONTINUATION_STARTS if body.startswith(w)), None)
++        if head:
++            reasons.append(f"以「{head}」开头，可能是上一条（{len(out)} 号）的后半截，不是独立规则")
++        if body.endswith(DANGLING_ENDS):
++            reasons.append("以标点收尾，像是话没说完")
++        if len(body) < MIN_STANDALONE and not any(m in body for m in PREDICATE_MARKS):
++            reasons.append(
++                f"只有 {len(body)} 字且不含任何谓词/判断标记，像名词短语——"
++                "多半是上一条的附加状语，被分号切了出来"
++            )
++        if body.count("（") != body.count("）"):
++            reasons.append("括号不配对，分号很可能切在了括号内部")
++        out.append({
++            "seq": i,
++            "text": body,
++            "status": "needs_review" if reasons else "clear",
++            "review_reasons": reasons,
++        })
++    return out
++
++
++def verify_lossless(original: str, rules: list[dict[str, Any]]) -> None:
++    """拆完拼回去必须覆盖原文每一个实义字符，不漏不增。不过就抛。"""
++    rejoined = "；".join(r["text"] for r in rules)
++    a, b = _norm(original), _norm(rejoined)
++    if a == b:
++        return
++    # 原文可能以分号收尾，或分号与中文句号混用——逐字符定位第一处差异再报
++    i = next((k for k in range(min(len(a), len(b))) if a[k] != b[k]), min(len(a), len(b)))
++    raise AssertionError(
++        "拆分不可逆：拼回去与原文不一致。\n"
++        f"  原文 {len(a)} 字 / 拼回 {len(b)} 字，首处差异在第 {i} 字\n"
++        f"  原文 …{a[max(0, i - 25):i + 25]}…\n"
++        f"  拼回 …{b[max(0, i - 25):i + 25]}…"
++    )
++
++
++def split_lens(profile: dict[str, Any], lens_name: str, *, profile_id: str) -> dict[str, Any]:
++    lenses = profile.get("market_lenses") or []
++    lens = next((x for x in lenses if x.get("name") == lens_name), None)
++    if lens is None:
++        raise SystemExit(f"画像里没有镜头 {lens_name!r}（有：{[x.get('name') for x in lenses]}）")
++    desc = str(lens.get("description") or "")
++    rules = split_description(desc)
++    verify_lossless(desc, rules)
++    slug = _slug(lens_name)
++    for n, r in enumerate(rules, start=1):
++        r["rule_id"] = f"{profile_id}.{slug}.{n:03d}"
++        r["text_sha256"] = _sha(r["text"])[:12]
++        r.pop("seq", None)
++    return {
++        "lens": lens_name,
++        "weight": lens.get("weight"),
++        "source_chars": len(desc),
++        "source_sha256": _sha(desc),
++        "rule_count": len(rules),
++        "clear": sum(1 for r in rules if r["status"] == "clear"),
++        "needs_review": sum(1 for r in rules if r["status"] == "needs_review"),
++        "rules": rules,
++    }
++
++
++def main(argv: list[str] | None = None) -> int:
++    ap = argparse.ArgumentParser(description="把画像的长 description 镜头拆成带稳定 ID 的规则条目（只读，不改源画像）")
++    ap.add_argument("profile", type=Path, help="画像 JSON 路径")
++    ap.add_argument("--lens", action="append", required=True, help="要拆的镜头名，可多次给出")
++    ap.add_argument("--out", type=Path, help="候选产物写到哪（不给则打到 stdout）")
++    args = ap.parse_args(argv)
++
++    profile = json.loads(args.profile.read_text(encoding="utf-8"))
++    pid = str(profile.get("id") or args.profile.stem)
++    result = {
++        "schema_version": 1,
++        "kind": "lens_split_candidate",
++        "profile_id": pid,
++        "profile_sha256": _sha(args.profile.read_text(encoding="utf-8")),
++        "note": "候选产物，未写回生产画像；needs_review 的条目需用户裁定后才能定稿",
++        "lenses": [split_lens(profile, name, profile_id=pid) for name in args.lens],
++    }
++    text = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
++    if args.out:
++        args.out.parent.mkdir(parents=True, exist_ok=True)
++        args.out.write_text(text, encoding="utf-8")
++        tot = sum(item["rule_count"] for item in result["lenses"])
++        rev = sum(item["needs_review"] for item in result["lenses"])
++        for item in result["lenses"]:
++            print(f"  {item['lens']}（weight {item['weight']}）：{item['source_chars']} 字 → "
++                  f"{item['rule_count']} 条（{item['clear']} 条清晰，{item['needs_review']} 条待裁定）")
++        print(f"→ {args.out}　合计 {tot} 条，其中 {rev} 条需要你裁定；逐字可还原已核验")
++    else:
++        sys.stdout.write(text)
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/test_split_monolithic_lens.py b/tests/test_split_monolithic_lens.py
+new file mode 100644
+index 00000000..2eef6a85
+--- /dev/null
++++ b/tests/test_split_monolithic_lens.py
+@@ -0,0 +1,137 @@
++"""拆分器：只拆不删、判不准不静默、逐字可还原。
++
++样本三类：
++- **正常**：手写的小段落（拆分器的启发式就是对着 SPT 调的，所以 SPT 本身算调试样本）。
++- **反例**：跨分号的复合规则 / 残句 / 括号被切断 / 还原校验本身必须会失败。
++- **未参与调试的验证样本**：风远与用户框架的全部镜头——启发式调参时没看过它们，
++  逐字还原必须同样成立。
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from scripts.split_monolithic_lens import (
++    split_description,
++    split_lens,
++    verify_lossless,
++)
++
++SNAPSHOT = Path("docs/cloud-research-context/snapshots/2026-10-07/profiles")
++
++
++# --------------------------------------------------------------------------- #
++# 正常样本
++# --------------------------------------------------------------------------- #
++def test_plain_semicolon_list_splits_one_rule_per_clause() -> None:
++    rules = split_description("主线缩量回踩支撑才认回流；放量杀跌后次日缩量是弱回流；二次量顶后老二级转横盘")
++    assert [r["text"] for r in rules] == [
++        "主线缩量回踩支撑才认回流",
++        "放量杀跌后次日缩量是弱回流",
++        "二次量顶后老二级转横盘",
++    ]
++    assert all(r["status"] == "clear" for r in rules)
++
++
++def test_condition_and_conclusion_joined_by_comma_stay_in_one_rule() -> None:
++    """作者用「，」连条件与结论、用「；」分条——这种情况不能被切断。"""
++    rules = split_description("左底确认优先放量+回归周均线，量不足则站稳周均线；缺口后放量普反才认有左底")
++    assert len(rules) == 2
++    assert "量不足则站稳周均线" in rules[0]["text"], "条件与结论被分号切断了"
++    assert all(r["status"] == "clear" for r in rules)
++
++
++# --------------------------------------------------------------------------- #
++# 反例
++# --------------------------------------------------------------------------- #
++def test_conclusion_severed_by_a_semicolon_is_flagged_not_silently_split() -> None:
++    """反例 1（本轮要求的那条）：故意把条件与结论用分号隔开。
++
++    机器判不准「否则不升级为主线」是独立规则还是上一条的后半截，
++    必须标出来交人裁，而不是挑一个看起来合理的切法然后不说。
++    """
++    rules = split_description("过渡性板块必须横盘后再次放量突破压力位；否则不升级为主线")
++    assert len(rules) == 2
++    assert rules[1]["status"] == "needs_review"
++    assert "否则" in rules[1]["review_reasons"][0]
++    assert "后半截" in rules[1]["review_reasons"][0]
++
++
++def test_bare_noun_phrase_fragment_is_flagged() -> None:
++    """反例 2：真实命中的那条——「临近突破状态」是上一条的附加状语。"""
++    rules = split_description("承接板块=底部N字+放量+离压力位远；临近突破状态；抱团补涨范式")
++    assert rules[1]["text"] == "临近突破状态"
++    assert rules[1]["status"] == "needs_review"
++    assert "名词短语" in rules[1]["review_reasons"][0]
++
++
++def test_semicolon_inside_parentheses_is_flagged_by_bracket_check() -> None:
++    """反例 3：分号切在括号内部 → 括号不配对，必须报出来。"""
++    rules = split_description("容量板块量顶（成交额占比上阈值；资金流入高位）同时出现")
++    assert any(r["status"] == "needs_review" for r in rules)
++    assert any("括号" in rsn for r in rules for rsn in r["review_reasons"])
++
++
++def test_lossless_check_actually_fails_when_a_rule_is_dropped() -> None:
++    """反例 4：还原校验本身不能是空的——少一条必须抛。"""
++    original = "甲；乙；丙"
++    rules = split_description(original)
++    verify_lossless(original, rules)                    # 完整时通过
++    with pytest.raises(AssertionError, match="拆分不可逆"):
++        verify_lossless(original, rules[:-1])           # 少一条必须抛
++
++
++def test_lossless_check_fails_when_text_is_quietly_edited() -> None:
++    """反例 5：悄悄润色一个字也必须被抓到（「只拆不删」同时意味着「只拆不改」）。"""
++    original = "主线缩量回踩支撑才认回流；二次量顶后老二级转横盘"
++    rules = split_description(original)
++    rules[0]["text"] = rules[0]["text"].replace("才认", "即可认")
++    with pytest.raises(AssertionError, match="拆分不可逆"):
++        verify_lossless(original, rules)
++
++
++# --------------------------------------------------------------------------- #
++# 真实画像：SPT（调试样本）
++# --------------------------------------------------------------------------- #
++@pytest.mark.skipif(not (SNAPSHOT / "sptfei.json").exists(), reason="快照不在")
++def test_spt_two_monolithic_lenses_split_losslessly() -> None:
++    profile = json.loads((SNAPSHOT / "sptfei.json").read_text(encoding="utf-8"))
++    total = 0
++    for name in ("量能状态机", "筹码与结构"):
++        out = split_lens(profile, name, profile_id="sptfei")   # 内部已跑 verify_lossless
++        assert out["rule_count"] >= 30
++        assert all(r["rule_id"].startswith(f"sptfei.{name}.") for r in out["rules"])
++        assert len({r["rule_id"] for r in out["rules"]}) == out["rule_count"], "ID 有重复"
++        assert all(len(r["text_sha256"]) == 12 for r in out["rules"])
++        total += out["rule_count"]
++    assert total >= 80, f"两个镜头合计只拆出 {total} 条，与实测 86 条差太多"
++
++
++@pytest.mark.skipif(not (SNAPSHOT / "sptfei.json").exists(), reason="快照不在")
++def test_rule_ids_are_stable_across_runs(tmp_path: Path) -> None:
++    profile = json.loads((SNAPSHOT / "sptfei.json").read_text(encoding="utf-8"))
++    a = split_lens(profile, "量能状态机", profile_id="sptfei")
++    b = split_lens(profile, "量能状态机", profile_id="sptfei")
++    assert [r["rule_id"] for r in a["rules"]] == [r["rule_id"] for r in b["rules"]]
++    assert [r["text_sha256"] for r in a["rules"]] == [r["text_sha256"] for r in b["rules"]]
++
++
++# --------------------------------------------------------------------------- #
++# 未参与调试的验证样本：风远 + 用户框架的全部镜头
++# --------------------------------------------------------------------------- #
++@pytest.mark.parametrize("pid", ["fengyuan", "user_framework"])
++def test_holdout_profiles_split_losslessly_too(pid: str) -> None:
++    """启发式是对着 SPT 调的；换两份没调过的画像，逐字还原必须同样成立。"""
++    path = SNAPSHOT / f"{pid}.json"
++    if not path.exists():
++        pytest.skip("快照不在")
++    profile = json.loads(path.read_text(encoding="utf-8"))
++    lenses = [x.get("name") for x in profile.get("market_lenses") or []]
++    assert lenses, f"{pid} 没有镜头"
++    for name in lenses:
++        out = split_lens(profile, name, profile_id=pid)   # 不过 verify_lossless 就抛
++        assert out["rule_count"] >= 1
++        assert out["clear"] + out["needs_review"] == out["rule_count"]
+-- 
+2.39.5
+

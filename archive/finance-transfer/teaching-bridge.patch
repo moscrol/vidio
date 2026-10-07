@@ -1,0 +1,535 @@
+From fa8bfe589c436191806968223290a68d396f5eb5 Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 11:56:39 +0000
+Subject: [PATCH 1/3] =?UTF-8?q?feat(river):=20=E6=95=99=E5=AD=A6=E6=A0=87?=
+ =?UTF-8?q?=E7=AD=BE=E6=8E=A5=E5=85=A5=E5=88=A4=E5=AE=9A=E8=B7=AF=E5=BE=84?=
+ =?UTF-8?q?=E2=80=94=E2=80=94=E4=BF=9D=E5=91=BD=E5=90=8D=E7=A9=BA=E9=97=B4?=
+ =?UTF-8?q?=E5=88=86=E7=A6=BB=E7=9A=84=E6=A1=A5?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+旁路库已算出 47 个 tf.* 标签，其中 16 个经 teaching_framework.river_objects
+搬上河切片（teaching_stage 对象）。但判定路径——情景树分枝、规则 DSL、
+judgment_maintenance 绑定条件——只认 SLICE_EVALUABLE_LABELS 那 4 个。
+结果是标签算出来了、也进河了，做判断的那条路却看不见它。
+
+实测这 16 个里有 9 个精确对应用户框架的核心概念：
+转点缺口判据 tf.cross_below_kind、站上周均 tf.above_week_ma、
+亏钱效应 tf.money_losing_day/streak、偏离度过高 tf.deviation_band、
+量相对均量 tf.amount_vs_ma20_pct、阶段 tf.stage_coarse/fine、转点 tf.turn_*。
+
+不并库，搭桥：
+- tf. 前缀强制且保留，裸名 above_week_ma 一律拒绝——2026-09-06 56d1f5fa88d9
+  「教学标签必须与供应商标签严格分离；供应商与教学命名空间不可混用」。
+- 单独的 TEACHING_LABEL_KINDS 表，不并进 ALL_LABELS / LABEL_KINDS。
+- 开放 14 个，显式留置 2 个并写明理由：tf.volume_band 按 2026-09-07 用户裁定
+  「三档不属于任何一段，只写出、不进计分」留置（判定路径上的谓词就是计分）；
+  tf.stage_evidence 是 JSON 结构，不是标量谓词值。
+- 开放表 ∪ 留置表 必须恰好等于 STAGE_LABELS，assert_teaching_catalog_parity() 守。
+  新增教学标签要么显式开放要么显式留置，不接受默认——adapters 当年手抄一份
+  四元组导致两处同名不同物，就是这个教训。
+
+缺旁路库时返回 (None, [])，判定走 Kleene 三值的 unknown，不是静默跳过也不当 false。
+若返回 false，一棵树会在旁路库缺席时悄悄走到另一个分枝，收据上看不出差别。
+0 也不是缺失：above_week_ma=0 是「在周均线下方」这个确定的假，旁路库存成
+value_num 0/1，用真值判断过滤会把它误降级成 unknown——方向性错误且无声。
+
+teaching_provenance() 给出 framework_version + ref + source_hash + recorded_at，
+收据里必须带：教学标签是事后重算的，版本换了读数可能就变。
+
+10 个新测试（正常 / 4 条反例 / 2 条未参与调试的验证样本：夹具里除开发日
+2026-01-12 外的全部交易日，断言不写死任何期望值，拿旁路库原始行做往返比对，
+外加常量探测防「永远返回同一个值」的实现蒙混）。
+相关回归 507 passed / 2 skipped。
+---
+ intelligence/services/river_derive.py         |   9 +-
+ .../services/river_teaching_bridge.py         | 203 +++++++++++++++++
+ intelligence/services/scenario_trees.py       |  16 +-
+ .../tests/test_river_teaching_bridge.py       | 206 ++++++++++++++++++
+ 4 files changed, 430 insertions(+), 4 deletions(-)
+ create mode 100644 intelligence/services/river_teaching_bridge.py
+ create mode 100644 intelligence/tests/test_river_teaching_bridge.py
+
+diff --git a/intelligence/services/river_derive.py b/intelligence/services/river_derive.py
+index dd8cb05a..b9dd55c8 100644
+--- a/intelligence/services/river_derive.py
++++ b/intelligence/services/river_derive.py
+@@ -132,7 +132,14 @@ SLICE_EVALUABLE_LABELS: dict[str, Callable[[RiverSlice], tuple[Any, list[str]]]]
+ 
+ 
+ def bind(label: str, sl: RiverSlice) -> tuple[Any, list[str]]:
+-    """注册标签在一片切片上的值与所用对象 ref。不在白名单 → 抛错（不猜、不静默 None）。"""
++    """注册标签在一片切片上的值与所用对象 ref。不在白名单 → 抛错（不猜、不静默 None）。
++
++    ``tf.*`` 走教学桥（``river_teaching_bridge``）：命名空间不合并，缺旁路库返回 ``(None, [])`` → unknown。
++    """
++    from intelligence.services import river_teaching_bridge as _bridge
++
++    if _bridge.is_teaching_label(label):
++        return _bridge.bind_teaching(label, sl)
+     if label not in ALL_LABELS:
+         raise LabelNotSliceEvaluable(f"{label!r} 不是注册标签（ALL_LABELS @ {LABEL_VERSION}）")
+     fn = SLICE_EVALUABLE_LABELS.get(label)
+diff --git a/intelligence/services/river_teaching_bridge.py b/intelligence/services/river_teaching_bridge.py
+new file mode 100644
+index 00000000..d93c272e
+--- /dev/null
++++ b/intelligence/services/river_teaching_bridge.py
+@@ -0,0 +1,203 @@
++"""授课框架标签 → 判定路径的**桥**：保命名空间分离，带身份消费。
++
++## 为什么是桥，不是并库
++
++旁路库里已经算好 47 个 ``tf.*`` 标签，其中落到河切片上的是 ``teaching_framework.river_objects``
++搬过去的那批（``teaching_stage`` 等对象，挂在盘面轨 ``__market__``）。但判定路径——情景树分枝条件、
++规则 DSL、``judgment_maintenance`` 的绑定条件——只认 ``river_derive.SLICE_EVALUABLE_LABELS`` 那 4 个。
++于是出现一个怪状态：**标签算出来了、也进河了，但做判断的那条路看不见它。**
++
++2026-09-06 纠偏 ``56d1f5fa88d9`` 明写「教学标签必须与供应商标签严格分离；供应商与教学命名空间不可混用」。
++所以这里**不**把 ``tf.*`` 并进 ``ALL_LABELS`` / ``LABEL_KINDS``，而是：
++
++- ``tf.`` 前缀是强制的、保留的身份标记。去掉前缀的裸名（``above_week_ma``）一律拒绝——
++  那是「混用命名空间」，正是 09-06 要防的事。
++- 单独一张 ``TEACHING_LABEL_KINDS`` 表，与供应商标签表平行，不合并。
++- 每次取值都回 ``teaching_stage`` 对象的 ``ref``，``teaching_provenance()`` 另给
++  ``framework_version`` + ``source_hash``，让收据里能看出「这个 true 是哪一版教学框架在哪天算的」。
++
++## 旁路库没接的时候
++
++``river.build_slice`` 不给 ``teaching_labels_db`` 时切片上就没有 ``teaching_*`` 对象。
++这时绑定函数返回 ``(None, [])`` → 判定走 Kleene 三值的 **unknown**，并在读数里留 ``no_observation``。
++
++**不是静默跳过，也不是当 false。** 「这条谓词没原料」和「这条谓词为假」是两回事，
++混起来就会让一棵树在旁路库缺席时悄悄走到另一个分枝上，而收据看不出差别。
++
++## SSOT 与防漂移
++
++``TEACHING_LABEL_KINDS`` 与 ``TEACHING_LABELS_WITHHELD`` 的并集必须**恰好等于**
++``teaching_framework.river_objects.STAGE_LABELS``，由 ``assert_teaching_catalog_parity()`` 守。
++这样新增教学标签时，要么显式开放、要么显式留置并写理由，不会有标签悄悄漏进或漏出判定路径——
++``adapters.SLICE_EVALUABLE_LABELS`` 当年手抄一份四元组导致两处同名不同物，就是这个教训。
++"""
++
++from __future__ import annotations
++
++from typing import Any
++
++from intelligence.services.river import RiverObject, RiverSlice
++from intelligence.services.river_window_contract import track_objects
++from intelligence.services.teaching_framework.river_objects import STAGE_LABELS
++
++TEACHING_NAMESPACE = "tf."
++TEACHING_STAGE_OBJECT = "teaching_stage"
++
++
++class TeachingLabelNotBridged(ValueError):
++    """``tf.*`` 标签没有开放给判定路径；消息里带留置理由，不静默。"""
++
++
++# 开放给判定路径的教学标签 → 值域类型。只开放 teaching_stage 对象搬上来的那批；
++# capital / narrative / briefing / breadth 几个对象是本轮未纳入的扩展面（见模块末 FUTURE）。
++TEACHING_LABEL_KINDS: dict[str, str] = {
++    # —— 大盘周期镜头（用户框架 weight 0.25）——
++    "tf.stage_coarse": "text",
++    "tf.stage_fine": "text",
++    "tf.above_week_ma": "bool",          # 「站上周均确认」/「收盘跌破周均线」
++    "tf.cross_below_kind": "text",       # 首次下穿 / 再次下穿
++    "tf.below_ma_cycle_day": "num",      # 周均线下方第几天
++    "tf.deviation_band": "text",         # 「高位的转点一般是偏离度过高」
++    "tf.turn_up": "bool",
++    "tf.turn_top": "bool",
++    "tf.turn_down": "bool",
++    # —— 情绪层镜头（用户框架 weight 0.2）——
++    "tf.money_losing_day": "bool",       # 「亏钱效应」
++    "tf.money_losing_streak": "num",     # 「亏钱效应趋缓」要的是连续天数的边际
++    "tf.limit_premium_ma5_pct": "num",
++    # —— 量（见顶量价时空）——
++    "tf.amount_vs_ma20_pct": "num",      # 「板块量相对 120 日均」的同族口径
++    "tf.new_high_1y_count": "num",
++}
++
++# 显式留置：算得出、进了河，但**不开放给判定**。每条必须有理由，理由必须可追到记录。
++TEACHING_LABELS_WITHHELD: dict[str, str] = {
++    "tf.volume_band": (
++        "2026-09-07 用户裁定：量能三档「不属于任何一段」，volume_band 维持只写出、不进计分"
++        "（docs/learning/teaching-framework/00-concept-label-skeleton.md §1.5）。"
++        "判定路径上的谓词就是计分，所以这里留置；要开放需用户重新裁定。"
++    ),
++    "tf.stage_evidence": "JSON 结构（命中/缺项/领先分），不是标量谓词值；要用请取其中具体字段另立标签。",
++}
++
++
++def assert_teaching_catalog_parity() -> None:
++    """开放表 ∪ 留置表 必须恰好等于河上真实搬运的那批教学标签。偏了就抛。"""
++    declared = set(TEACHING_LABEL_KINDS) | set(TEACHING_LABELS_WITHHELD)
++    actual = set(STAGE_LABELS)
++    missing = sorted(actual - declared)
++    extra = sorted(declared - actual)
++    if missing or extra:
++        raise TeachingLabelNotBridged(
++            "教学标签目录与 teaching_framework.river_objects.STAGE_LABELS 漂移："
++            f"未表态 {missing}；表里有但河上没有 {extra}。"
++            "新增教学标签必须显式开放或显式留置（带理由），不接受默认。"
++        )
++
++
++def is_teaching_label(label: str) -> bool:
++    return isinstance(label, str) and label.startswith(TEACHING_NAMESPACE)
++
++
++def teaching_kind(label: str) -> str:
++    """教学标签的值域类型；未开放 → 抛（带留置理由）。裸名不认。"""
++    if not is_teaching_label(label):
++        raise TeachingLabelNotBridged(
++            f"{label!r} 没有 {TEACHING_NAMESPACE!r} 前缀。教学标签必须带命名空间前缀引用"
++            "（2026-09-06 56d1f5fa88d9：供应商与教学命名空间不可混用）。"
++        )
++    kind = TEACHING_LABEL_KINDS.get(label)
++    if kind is not None:
++        return kind
++    reason = TEACHING_LABELS_WITHHELD.get(label)
++    if reason is not None:
++        raise TeachingLabelNotBridged(f"{label!r} 已留置，不开放给判定路径：{reason}")
++    raise TeachingLabelNotBridged(
++        f"{label!r} 不在教学标签开放表里（开放 {len(TEACHING_LABEL_KINDS)} 个，"
++        f"留置 {len(TEACHING_LABELS_WITHHELD)} 个）；若旁路库新增了它，先在 TEACHING_LABEL_KINDS 表态。"
++    )
++
++
++def _stage_object(sl: RiverSlice) -> RiverObject | None:
++    for o in track_objects(sl, "market"):
++        if o.object_type == TEACHING_STAGE_OBJECT:
++            return o
++    return None
++
++
++def _coerce(raw: Any, kind: str) -> Any | None:
++    """旁路库把 bool 存成 0/1 的 value_num，取回来要按声明的值域还原。
++
++    ``0`` 不是缺失——``above_week_ma = 0`` 是「在周均线下方」这个**确定的假**，
++    不能和「没这条读数」混成同一个 None。
++    """
++    if raw is None:
++        return None
++    if kind == "bool":
++        if isinstance(raw, bool):
++            return raw
++        if isinstance(raw, (int, float)):
++            return bool(raw)
++        return None
++    if kind == "num":
++        if isinstance(raw, bool) or not isinstance(raw, (int, float)):
++            return None
++        return float(raw)
++    if kind == "text":
++        if not isinstance(raw, str) or not raw.strip():
++            return None
++        return raw
++    return None
++
++
++def bind_teaching(label: str, sl: RiverSlice) -> tuple[Any, list[str]]:
++    """教学标签在一片切片上的值与 ref。
++
++    返回 ``(None, [])`` 的三种情形，判定路径一律当 **unknown**，不当 false：
++    旁路库没接（切片上没有 teaching_stage 对象）／当天这条标签没读数／值的类型与声明不符。
++    """
++    kind = teaching_kind(label)
++    obj = _stage_object(sl)
++    if obj is None:
++        return None, []
++    key = label.removeprefix(TEACHING_NAMESPACE)
++    if key not in obj.payload:
++        return None, []
++    value = _coerce(obj.payload.get(key), kind)
++    if value is None:
++        return None, []
++    return value, [obj.ref]
++
++
++def teaching_provenance(sl: RiverSlice) -> dict[str, Any] | None:
++    """这片切片上教学读数的身份：哪一版框架、哪条 ref、内容指纹。没接旁路库 → None。
++
++    收据里必须带上它——否则一个 ``tf.above_week_ma = false`` 看不出是哪一版教学框架算的，
++    而教学标签是**事后重算**的（``recorded_at`` 取 ``computed_at``），版本换了读数可能就变了。
++    """
++    obj = _stage_object(sl)
++    if obj is None:
++        return None
++    return {
++        "namespace": "teaching",
++        "ref": obj.ref,
++        "source_hash": obj.source_hash,
++        "framework_version": obj.payload.get("framework_version"),
++        "recorded_at": obj.recorded_at,
++    }
++
++
++# FUTURE：teaching_capital / teaching_narrative / teaching_briefing / teaching_breadth 四个对象
++# 另有 ~30 个市场级数值标签（龙虎榜、封单、竞价、广度、叙事覆盖）。本轮不开放，原因是它们还没有
++# 对应到用户框架里**已裁定**的判据；开放前应先走一遍「这条判据用户说过吗」，避免 agent 自造判准。
++__all__ = [
++    "TEACHING_NAMESPACE",
++    "TEACHING_LABEL_KINDS",
++    "TEACHING_LABELS_WITHHELD",
++    "TeachingLabelNotBridged",
++    "assert_teaching_catalog_parity",
++    "bind_teaching",
++    "is_teaching_label",
++    "teaching_kind",
++    "teaching_provenance",
++]
+diff --git a/intelligence/services/scenario_trees.py b/intelligence/services/scenario_trees.py
+index b3e13291..54ce9b6f 100644
+--- a/intelligence/services/scenario_trees.py
++++ b/intelligence/services/scenario_trees.py
+@@ -40,6 +40,7 @@ from typing import Any, Callable
+ from intelligence.services import checkpoints as checkpoints_svc
+ from intelligence.services import compliance_gate, observation_script, river_projection
+ from intelligence.services.methodology_backtest.rules import LABEL_KINDS, OPS_BY_KIND
++from intelligence.services import river_teaching_bridge as teaching_bridge
+ from intelligence.services.river_derive import SLICE_EVALUABLE_LABELS, LabelNotSliceEvaluable, bind
+ 
+ OBJECT_TYPE = "scenario_tree"
+@@ -201,13 +202,22 @@ def compile_condition(raw: Any, *, where: str) -> tuple[tuple[Predicate, ...] |
+             errs.append(Rejection(E_CONDITION_INVALID, w, "谓词必须是对象"))
+             continue
+         label, op, value = p.get("label"), p.get("op"), p.get("value")
+-        if label not in LABEL_KINDS:
++        # 教学命名空间（``tf.*``）走桥，不并进 ALL_LABELS —— 2026-09-06 56d1f5fa88d9
++        # 「教学标签必须与供应商标签严格分离」。桥见 river_teaching_bridge。
++        if teaching_bridge.is_teaching_label(label):
++            try:
++                kind = teaching_bridge.teaching_kind(str(label))
++            except teaching_bridge.TeachingLabelNotBridged as exc:
++                errs.append(Rejection(E_LABEL_NOT_SLICE_EVALUABLE, w, str(exc)))
++                continue
++        elif label not in LABEL_KINDS:
+             errs.append(Rejection(E_CONDITION_INVALID, w, f"label {label!r} 不是注册标签（ALL_LABELS）"))
+             continue
+-        if label not in SLICE_EVALUABLE_LABELS:
++        elif label not in SLICE_EVALUABLE_LABELS:
+             errs.append(Rejection(E_LABEL_NOT_SLICE_EVALUABLE, w, f"label {label!r} 需要历史或个股级原料，单日切片判不了；v0 拒绝（等 #35 派生对象）"))
+             continue
+-        _entity, kind = LABEL_KINDS[label]
++        else:
++            _entity, kind = LABEL_KINDS[label]
+         if op not in OPS_BY_KIND[kind]:
+             errs.append(Rejection(E_CONDITION_INVALID, w, f"op {op!r} 对 {kind} 标签不合法（允许 {OPS_BY_KIND[kind]}）"))
+             continue
+diff --git a/intelligence/tests/test_river_teaching_bridge.py b/intelligence/tests/test_river_teaching_bridge.py
+new file mode 100644
+index 00000000..33895cec
+--- /dev/null
++++ b/intelligence/tests/test_river_teaching_bridge.py
+@@ -0,0 +1,206 @@
++"""教学标签 → 判定路径的桥：命名空间保持分离、缺旁路库落 unknown、身份进收据。
++
++样本分三类，互不重叠（2026-10-02 纠偏 d0abda287494「验收同时覆盖未参与调试的题目」）：
++
++- **正常样本**：2026-01-12。桥接逻辑就是对着这一天的 payload 形状写出来的。
++- **反例**：旁路库缺席 / 命名空间混用 / 留置标签 / ``0`` 被当成缺失 —— 四条都必须失败得明明白白。
++- **未参与调试的验证样本**：夹具里除 01-12 以外的所有交易日。断言不写死任何期望值，
++  而是拿旁路库原始行与绑定结果做往返一致性比对，外加「不同日子必须给出不同读数」的常量探测。
++  这样这组断言既没有用到开发时的观察，也不会被「永远返回同一个值」的实现蒙混过关。
++"""
++
++from __future__ import annotations
++
++from pathlib import Path
++from typing import Any
++
++import pytest
++
++from intelligence.services import river_teaching_bridge as bridge
++from intelligence.services import scenario_trees as st
++from intelligence.services.river import RiverSlice
++from intelligence.services.teaching_framework.river_objects import STAGE_LABELS, teaching_objects
++from intelligence.tests.teaching_sidecar_fixture import build_sidecar
++
++DEV_DAY = "2026-01-12"  # 开发用的那一天
++
++
++@pytest.fixture
++def sidecar(tmp_path: Path) -> Path:
++    return build_sidecar(tmp_path / "labels.duckdb")
++
++
++def _slice(sidecar: Path, day: str) -> RiverSlice:
++    return RiverSlice(
++        as_of=day, entity_id="__market__", entity_name="全市场", knowledge_cutoff=day,
++        tracks={"market": list(teaching_objects(sidecar, day, top=2))},
++    )
++
++
++def _bare_slice(day: str = DEV_DAY) -> RiverSlice:
++    """没接旁路库的切片：盘面轨上一个 teaching_* 对象都没有。"""
++    return RiverSlice(
++        as_of=day, entity_id="__market__", entity_name="全市场", knowledge_cutoff=day, tracks={"market": []},
++    )
++
++
++# --------------------------------------------------------------------------- #
++# 正常样本：2026-01-12
++# --------------------------------------------------------------------------- #
++def test_open_teaching_labels_bind_on_a_slice_that_has_the_sidecar(sidecar: Path) -> None:
++    sl = _slice(sidecar, DEV_DAY)
++    value, refs = bridge.bind_teaching("tf.above_week_ma", sl)
++    assert value is False and refs == [f"history_teaching_labels:{DEV_DAY}:market"]
++    assert bridge.bind_teaching("tf.money_losing_day", sl)[0] is True
++    assert bridge.bind_teaching("tf.money_losing_streak", sl)[0] == 2.0
++    assert bridge.bind_teaching("tf.stage_coarse", sl)[0] == "左底向下"
++    assert bridge.bind_teaching("tf.deviation_band", sl)[0] == "below"
++    assert bridge.bind_teaching("tf.below_ma_cycle_day", sl)[0] == 1.0
++
++
++def test_teaching_predicate_compiles_into_a_scenario_tree_condition() -> None:
++    """判定路径的闸口放行 tf.*，且按声明的值域校验 op 与 value。"""
++    preds, errs = st.compile_condition(
++        {"all": [
++            {"label": "tf.above_week_ma", "op": "==", "value": False},
++            {"label": "tf.stage_coarse", "op": "in", "value": ["左底向下", "左底向上"]},
++            {"label": "tf.money_losing_streak", "op": ">=", "value": 2},
++        ]},
++        where="t",
++    )
++    assert errs == []
++    assert preds is not None and [p.label for p in preds] == [
++        "tf.above_week_ma", "tf.stage_coarse", "tf.money_losing_streak",
++    ]
++
++
++def test_identity_of_the_reading_is_recoverable(sidecar: Path) -> None:
++    """收据里必须看得出「哪一版教学框架、哪天、什么指纹」——教学标签是事后重算的。"""
++    prov = bridge.teaching_provenance(_slice(sidecar, DEV_DAY))
++    assert prov is not None
++    assert prov["namespace"] == "teaching"
++    assert prov["ref"] == f"history_teaching_labels:{DEV_DAY}:market"
++    assert prov["framework_version"]            # 非空
++    assert prov["source_hash"]                  # 非空
++    assert prov["recorded_at"]                  # computed_at，供 PIT 门过滤
++
++
++# --------------------------------------------------------------------------- #
++# 反例
++# --------------------------------------------------------------------------- #
++def test_without_the_sidecar_it_is_unknown_not_false() -> None:
++    """反例 1：旁路库没接 → (None, [])。
++
++    这是整座桥最要紧的一条。若此处返回 False，一棵情景树会在旁路库缺席时悄悄走到
++    另一个分枝，而收据上看不出任何差别。
++    """
++    sl = _bare_slice()
++    for label in bridge.TEACHING_LABEL_KINDS:
++        value, refs = bridge.bind_teaching(label, sl)
++        assert value is None and refs == [], f"{label} 在没有旁路库时必须是 unknown"
++    assert bridge.teaching_provenance(sl) is None
++
++
++def test_bare_name_without_namespace_prefix_is_rejected() -> None:
++    """反例 2：命名空间混用（2026-09-06 56d1f5fa88d9）。"""
++    with pytest.raises(bridge.TeachingLabelNotBridged, match="命名空间"):
++        bridge.teaching_kind("above_week_ma")
++    _preds, errs = st.compile_condition(
++        {"all": [{"label": "above_week_ma", "op": "==", "value": False}]}, where="t"
++    )
++    assert [r.detail for r in errs] == ["label 'above_week_ma' 不是注册标签（ALL_LABELS）"]
++
++
++def test_withheld_label_is_rejected_with_the_reason_quoted() -> None:
++    """反例 3：留置标签必须带理由被拒，不能静默放行、也不能无理由地拒。"""
++    with pytest.raises(bridge.TeachingLabelNotBridged, match="只写出、不进计分"):
++        bridge.teaching_kind("tf.volume_band")
++    _preds, errs = st.compile_condition(
++        {"all": [{"label": "tf.volume_band", "op": "==", "value": "shrink"}]}, where="t"
++    )
++    assert len(errs) == 1
++    assert "2026-09-07" in errs[0].detail and "不进计分" in errs[0].detail
++
++
++def test_zero_is_a_definite_false_not_a_missing_reading(sidecar: Path) -> None:
++    """反例 4：``above_week_ma = 0`` 是「在周均线下方」这个确定的假，不是「没读数」。
++
++    旁路库把 bool 存成 ``value_num`` 的 0/1；若实现用真值判断过滤，0 会被误当缺失，
++    于是「确定在周均线下方」会退化成 unknown——方向性错误，且无声。
++    """
++    value, refs = bridge.bind_teaching("tf.above_week_ma", _slice(sidecar, DEV_DAY))
++    assert value is False, "0 被当成缺失了"
++    assert refs, "确定的假也必须带 ref"
++
++
++def test_catalog_parity_guards_against_silent_drift(monkeypatch: pytest.MonkeyPatch) -> None:
++    """反例 5：旁路库新增标签而目录没表态 → 必须抛，不能默认开放或默认留置。"""
++    bridge.assert_teaching_catalog_parity()  # 当前应通过
++    monkeypatch.setattr(bridge, "STAGE_LABELS", (*STAGE_LABELS, "tf.brand_new_label"))
++    with pytest.raises(bridge.TeachingLabelNotBridged, match="未表态"):
++        bridge.assert_teaching_catalog_parity()
++
++
++# --------------------------------------------------------------------------- #
++# 未参与调试的验证样本：夹具里除 2026-01-12 以外的交易日
++# --------------------------------------------------------------------------- #
++def _sidecar_rows(sidecar: Path, day: str) -> dict[str, Any]:
++    import duckdb
++
++    con = duckdb.connect(str(sidecar), read_only=True)
++    try:
++        rows = con.execute(
++            """SELECT label, value_num, value_text FROM history_teaching_labels
++               WHERE entity_type = 'market' AND entity_id = 'market' AND status = 'ok' AND trade_date = ?""",
++            [day],
++        ).fetchall()
++    finally:
++        con.close()
++    return {r[0]: (r[2] if r[2] is not None else r[1]) for r in rows}
++
++
++def _holdout_days(sidecar: Path) -> list[str]:
++    import duckdb
++
++    con = duckdb.connect(str(sidecar), read_only=True)
++    try:
++        days = [str(r[0]) for r in con.execute(
++            """SELECT DISTINCT trade_date FROM history_teaching_labels
++               WHERE entity_type = 'market' AND entity_id = 'market' AND status = 'ok' ORDER BY trade_date"""
++        ).fetchall()]
++    finally:
++        con.close()
++    return [d for d in days if d != DEV_DAY]
++
++
++def test_holdout_days_round_trip_without_any_hardcoded_expectation(sidecar: Path) -> None:
++    """对每个未用于开发的交易日：绑定值必须等于旁路库原始值按声明值域的还原。
++
++    断言不写死任何读数，所以这组检查没有用到开发时对夹具的观察。
++    """
++    days = _holdout_days(sidecar)
++    assert len(days) >= 5, f"验证样本太少：{days}"
++    checked = 0
++    for day in days:
++        raw = _sidecar_rows(sidecar, day)
++        sl = _slice(sidecar, day)
++        for label, kind in bridge.TEACHING_LABEL_KINDS.items():
++            bound, refs = bridge.bind_teaching(label, sl)
++            if label not in raw:
++                assert bound is None and refs == [], f"{day} {label}：旁路库没有这条，却绑出了 {bound!r}"
++                continue
++            expected = bridge._coerce(raw[label], kind)
++            assert bound == expected, f"{day} {label}：绑定 {bound!r} ≠ 原始 {raw[label]!r} 还原 {expected!r}"
++            if expected is not None:
++                assert refs == [f"history_teaching_labels:{day}:market"]
++                checked += 1
++    assert checked >= 5, f"验证样本上真正比对到的读数只有 {checked} 条，太少"
++
++
++def test_holdout_days_are_not_all_the_same_reading(sidecar: Path) -> None:
++    """常量探测：若实现永远返回 01-12 的值或永远返回同一个常量，上一条也会通过，这条不会。"""
++    seen: set[Any] = set()
++    for day in _holdout_days(sidecar):
++        value, _refs = bridge.bind_teaching("tf.above_week_ma", _slice(sidecar, day))
++        seen.add(value)
++    assert len(seen) >= 2, f"所有验证日的 tf.above_week_ma 读数都一样（{seen}），疑似常量实现"
+-- 
+2.39.5
+

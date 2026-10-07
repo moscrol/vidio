@@ -79,3 +79,26 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 本次所有读数都是在 **Python 3.11 + `FWP_ALLOW_ANY_PYTHON=1`** 下取的，不是契约规定的
 3.12.13 `.venv-workbench`（那个 venv 不在版本库里，干净 clone 中不存在）。
 合并前要在正确解释器上复跑一次。每个补丁自带的 `docs/verification/*.md` 收据里已写明这一条。
+
+---
+
+## 2026-10-07 第二批：搭桥 / 拆画像 / 口径（用户已授权三项）
+
+**基线不同**：这三个补丁基于 `docs/cloud-research-context` 分支（PR #71，`148a09ec`），
+不是前五个补丁的 `main` 基线。两批互不依赖，可分别应用。
+
+| 补丁 | 内容 |
+|---|---|
+| `teaching-bridge.patch` | **P1 搭桥**。47 个 `tf.*` 教学标签中落到河上的 16 个，开放 14 个给判定路径，命名空间不合并。缺旁路库 → Kleene `unknown`，不是 false 也不是静默跳过 |
+| `profile-lens-split.patch` | **P2 拆 SPT**。`量能状态机`(1856字/52条) + `筹码与结构`(1037字/34条) → 86 条带稳定 ID 的条目，逐字可还原，1 条待用户裁定 |
+| `profile-boundary-scope.patch` | **P3 口径**。买卖/策略口径按 2026-09-20 `7fe048decc27` 改为按授权用途分档，三处同改 + 一致性检查器 |
+| `bridge-split-boundary-all-three.patch` | 上面三个的一把梭 |
+
+候选产物（不写回生产画像，供本机应用）：
+- `2026-10-07-sptfei-lens-split-candidate.json` —— SPT 86 条拆分结果
+- `2026-10-07-strategy-scope-candidate.json` —— 口径三处差异 + 来源记录 ID
+
+**验证**：干净 clone `git am` 三连成功 → 新测 **32 passed**，相关回归 **507 passed / 2 skipped**，ruff 干净。
+`git push` 到 finance 仍 403（与前五个补丁同因），故走补丁交付。
+
+⚠ 两个候选 JSON 里含画像内容，但均来自用户已授权公开的 PR #71 快照，不含新的私有信息。
