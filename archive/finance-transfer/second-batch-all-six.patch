@@ -1,7 +1,7 @@
 From fa8bfe589c436191806968223290a68d396f5eb5 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:39 +0000
-Subject: [PATCH 1/5] =?UTF-8?q?feat(river):=20=E6=95=99=E5=AD=A6=E6=A0=87?=
+Subject: [PATCH 1/6] =?UTF-8?q?feat(river):=20=E6=95=99=E5=AD=A6=E6=A0=87?=
  =?UTF-8?q?=E7=AD=BE=E6=8E=A5=E5=85=A5=E5=88=A4=E5=AE=9A=E8=B7=AF=E5=BE=84?=
  =?UTF-8?q?=E2=80=94=E2=80=94=E4=BF=9D=E5=91=BD=E5=90=8D=E7=A9=BA=E9=97=B4?=
  =?UTF-8?q?=E5=88=86=E7=A6=BB=E7=9A=84=E6=A1=A5?=
@@ -537,7 +537,7 @@ index 00000000..33895cec
 From e48c5a69d024fe1c25a6c44abd349c715e0f7d50 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:39 +0000
-Subject: [PATCH 2/5] =?UTF-8?q?feat(perspective):=20=E6=8A=8A=E3=80=8C?=
+Subject: [PATCH 2/6] =?UTF-8?q?feat(perspective):=20=E6=8A=8A=E3=80=8C?=
  =?UTF-8?q?=E4=B8=80=E4=B8=AA=E5=AD=97=E6=AE=B5=E5=A1=9E=E5=87=A0=E5=8D=81?=
  =?UTF-8?q?=E6=9D=A1=E8=A7=84=E5=88=99=E3=80=8D=E7=9A=84=E9=95=9C=E5=A4=B4?=
  =?UTF-8?q?=E6=8B=86=E6=88=90=E5=B8=A6=E7=A8=B3=E5=AE=9A=20ID=20=E7=9A=84?=
@@ -1569,7 +1569,7 @@ index 00000000..2eef6a85
 From 7436219bcbf460378484b2d7e973d87d5db0194f Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:53 +0000
-Subject: [PATCH 3/5] =?UTF-8?q?feat(perspective):=20=E4=B9=B0=E5=8D=96/?=
+Subject: [PATCH 3/6] =?UTF-8?q?feat(perspective):=20=E4=B9=B0=E5=8D=96/?=
  =?UTF-8?q?=E7=AD=96=E7=95=A5=E5=8F=A3=E5=BE=84=E6=8C=89=E8=B0=83=E7=94=A8?=
  =?UTF-8?q?=E6=96=B9=E8=BA=AB=E4=BB=BD=E5=88=86=E4=B8=89=E6=A1=A3=EF=BC=88?=
  =?UTF-8?q?=E5=80=99=E9=80=89=EF=BC=89=E2=80=94=E2=80=94=E6=9C=AC=E4=BA=BA?=
@@ -1982,7 +1982,7 @@ index 00000000..edb18195
 From 649af5db524d910a300f3d468695f6b86e7332ca Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 12:46:27 +0000
-Subject: [PATCH 4/5] =?UTF-8?q?feat(river):=20=E6=8A=8A=E6=97=81=E8=B7=AF?=
+Subject: [PATCH 4/6] =?UTF-8?q?feat(river):=20=E6=8A=8A=E6=97=81=E8=B7=AF?=
  =?UTF-8?q?=E5=BA=93=E7=AE=97=E4=BA=86=E5=8D=B4=E4=BB=8E=E6=9C=AA=E4=B8=8A?=
  =?UTF-8?q?=E6=B2=B3=E7=9A=84=209=20=E4=B8=AA=E5=91=A8=E6=9C=9F=E4=BD=8D?=
  =?UTF-8?q?=E7=BD=AE=E6=A0=87=E7=AD=BE=E6=90=AC=E4=B8=8A=E6=9D=A5=E5=B9=B6?=
@@ -2239,7 +2239,7 @@ index 33895cec..e6e5ede4 100644
 From b65f5e3ee4cf19cbed1d82f4d6fd6c64a12bc042 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 12:48:33 +0000
-Subject: [PATCH 5/5] =?UTF-8?q?docs(perspective):=20=E8=A3=81=E5=AE=9A=20s?=
+Subject: [PATCH 5/6] =?UTF-8?q?docs(perspective):=20=E8=A3=81=E5=AE=9A=20s?=
  =?UTF-8?q?ptfei.=E7=AD=B9=E7=A0=81=E4=B8=8E=E7=BB=93=E6=9E=84.007?=
  =?UTF-8?q?=E3=80=8C=E4=B8=B4=E8=BF=91=E7=AA=81=E7=A0=B4=E7=8A=B6=E6=80=81?=
  =?UTF-8?q?=E3=80=8D=E2=80=94=E2=80=94=E7=8B=AC=E7=AB=8B=E6=9D=A1=E7=9B=AE?=
@@ -2312,6 +2312,81 @@ index a01782d5..82db3638 100644
 +  ],
 +  "adjudications": 1
  }
+-- 
+2.39.5
+
+
+From dad79123a0c504856d4ac182a00654c2981edafd Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 13:03:50 +0000
+Subject: [PATCH 6/6] =?UTF-8?q?fix(river):=20=E5=85=84=E5=BC=9F=E4=BA=92?=
+ =?UTF-8?q?=E6=96=A5=E6=A3=80=E6=9F=A5=E5=AF=B9=20tf.*=20=E8=B0=93?=
+ =?UTF-8?q?=E8=AF=8D=E4=BC=9A=20KeyError=E2=80=94=E2=80=94=E5=8F=96?=
+ =?UTF-8?q?=E4=B8=8D=E5=88=B0=20kind=20=E7=AD=89=E4=BA=8E=E6=94=BE?=
+ =?UTF-8?q?=E8=A1=8C?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+_domain() 用 LABEL_KINDS[label][1] 取值域，而教学标签刻意不在 LABEL_KINDS 里
+（命名空间分离是整座桥的前提），于是任何带 tf.* 谓词的情景树在做兄弟节点
+互斥性检查时直接 KeyError。
+
+这是桥补丁自带的 bug，不是与既有补丁合并时引入的——在干净基线上单独复现。
+
+后果比报错更糟的那一面：若有人图省事改成「取不到 kind 就跳过检查」，
+两个重叠的分枝条件会双双登记成功，树同时走两条路，而且不报任何错。
+所以这里是补齐 kind 来源，不是绕过检查。
+
+补 1 个测试，覆盖 bool / num / text 三种值域。
+教学/河/情景树/判定回归 511 passed / 2 skipped。
+---
+ intelligence/services/scenario_trees.py          |  9 ++++++++-
+ intelligence/tests/test_river_teaching_bridge.py | 14 ++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/intelligence/services/scenario_trees.py b/intelligence/services/scenario_trees.py
+index 54ce9b6f..9f175d4c 100644
+--- a/intelligence/services/scenario_trees.py
++++ b/intelligence/services/scenario_trees.py
+@@ -242,7 +242,14 @@ def compile_condition(raw: Any, *, where: str) -> tuple[tuple[Predicate, ...] |
+ 
+ 
+ def _domain(label: str, siblings: list[tuple[Predicate, ...]]) -> list[Any]:
+-    kind = LABEL_KINDS[label][1]
++    # 教学标签刻意不在 LABEL_KINDS 里（命名空间分离），直接下标会 KeyError。
++    # 兄弟节点互斥性检查对 tf.* 谓词同样要做——取不到 kind 就跳过检查，
++    # 等于让两个重叠的分枝条件都登记成功，树会同时走两条路。
++    kind = (
++        teaching_bridge.teaching_kind(label)
++        if teaching_bridge.is_teaching_label(label)
++        else LABEL_KINDS[label][1]
++    )
+     if kind == "bool":
+         return [True, False]
+     if kind == "num":
+diff --git a/intelligence/tests/test_river_teaching_bridge.py b/intelligence/tests/test_river_teaching_bridge.py
+index e6e5ede4..b6578cea 100644
+--- a/intelligence/tests/test_river_teaching_bridge.py
++++ b/intelligence/tests/test_river_teaching_bridge.py
+@@ -287,3 +287,17 @@ def test_cycle_labels_are_unknown_when_the_cycle_object_is_absent(sidecar: Path)
+         assert bridge.bind_teaching(label, sl) == (None, []), f"{label} 应为 unknown"
+     # 同一片切片上 stage 的标签仍然照常可判，缺一个对象不该拖垮另一个
+     assert bridge.bind_teaching("tf.above_week_ma", sl)[0] is False
++
++
++def test_sibling_overlap_check_works_on_teaching_predicates() -> None:
++    """``_domain`` 取不到 tf.* 的 kind 会 KeyError，兄弟互斥检查就形同虚设。
++
++    后果不是报错而是**放行**：两个重叠的分枝条件都登记成功，树同时走两条路。
++    """
++    assert st._domain("tf.above_week_ma", []) == [True, False]
++    assert st._domain("tf.max_boards", []) == list(range(0, st.NUM_DOMAIN_MAX + 1))
++    text_domain = st._domain(
++        "tf.stage_coarse",
++        [(st.Predicate("tf.stage_coarse", "==", "左底向下"),)],
++    )
++    assert "左底向下" in text_domain and "__other__" in text_domain
 -- 
 2.39.5
 

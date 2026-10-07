@@ -94,7 +94,8 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 | `profile-boundary-scope.patch` | **P3 口径**。按调用方身份分三档，**本人自用档不设个股限制**（用户 10-07 第二次裁定）；对外产品档红线保留且只限个股层面。改为结构化 `output_policy` 字段，三处散文指向它 |
 | `teaching-cycle-labels.patch` | **搬运**。旁路库算了却从未上河的 9 个周期位置标签 → `teaching_cycle` 对象并开放判定。只搬不算,不新增任何计算或阈值。**用户框架概念可判定 5 → 20 / 21** |
 | `spt-007-adjudication.patch` | 裁定 `sptfei.筹码与结构.007`「临近突破状态」为独立条目,并挂 `definitional_gap`(9 次引用 0 次定义) |
-| `bridge-split-boundary-all-three.patch` | 上面五个的一把梭 |
+| `sibling-domain-keyerror-fix.patch` | **修 bug**。`_domain()` 对 `tf.*` 谓词 KeyError,兄弟节点互斥检查形同虚设。桥补丁自带,非合并引入 |
+| `second-batch-all-six.patch` | 第二批六个的一把梭 |
 
 候选产物（不写回生产画像，供本机应用）：
 - `2026-10-07-sptfei-lens-split-candidate.json` —— SPT 86 条拆分结果
@@ -104,3 +105,33 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 `git push` 到 finance 仍 403（与前五个补丁同因），故走补丁交付。
 
 ⚠ 两个候选 JSON 里含画像内容，但均来自用户已授权公开的 PR #71 快照，不含新的私有信息。
+
+
+---
+
+## ⚠ 两批补丁会冲突 —— 用 `ALL-ELEVEN-merged.patch`
+
+两批都改了 `intelligence/services/scenario_trees.py` 的 import 行和 `compile_condition` 闸口,
+**直接依次 `git am` 会在第二批第一个补丁处冲突**。
+
+已经替你解好了:
+
+```bash
+git clone -b docs/cloud-research-context https://github.com/moscrol/finance.git
+cd finance && git am ALL-ELEVEN-merged.patch      # 旧 5 + 新 6,冲突已解
+```
+
+解法是两边都保留:`text_domain_error`(旧补丁 3)与 `river_teaching_bridge`(新补丁 1)同时 import,
+闸口按 `tf.*` → 走桥 / 否则 → 原逻辑 分流。
+
+**组合验证**:11 个补丁全部落地 → 相关范围 **1471 passed / 46 skipped / 1 failed**。
+那 1 个失败(`test_ceiling_pit_fixture.py::test_temporal_classifier_...` 的 `InvalidInputException`)
+在**未打任何补丁的干净 clone 上同样失败**,是既有问题,与本批无关。
+另有 3 个文件因沙箱 `PermissionError` 无法收集,同样在干净 clone 上复现。
+
+## 本批最终读数
+
+| | 本轮前 | 本轮后 |
+|---|---|---|
+| 判定路径认得的标签 | 4 | 7(供应商)+ 23(教学)= 30 |
+| 用户框架概念可判定 | 5 / 21 | **20 / 21** |
