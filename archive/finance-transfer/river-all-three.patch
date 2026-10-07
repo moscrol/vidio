@@ -1,0 +1,2051 @@
+From be8d464c78d760c0b80a4af8a9cc9ad64817cab2 Mon Sep 17 00:00:00 2001
+From: moscrol <moscrol@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 08:47:15 +0000
+Subject: [PATCH 1/3] test(river): run the time-river contracts in CI and
+ reject non-boolean streaks
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+河的核心契约此前在 CI 上一次都没跑过：test_river_slice / _window / _query /
+_cutoff_guard 四个文件整份 skipif(not DB.exists())，而 .gitignore 排除 db/ 与
+*.duckdb，runner 上不可能有真库。干净 clone 实测 94 passed, 43 skipped——
+「全仓 8010 passed 门禁全绿」这个读数不包含这条河。
+
+不把真库测试改成跑夹具库：它们断言的是真实数据语义（.TI→.FP 换源日、
+资金轨 12% 覆盖、5/37 份文档挂 linked_sectors），合成库能让它们变绿但绿得
+没有意义，那是假门禁。真库测试一行未改。
+
+改为新增 tests/test_river_contract_on_fixture.py（26 用例，无需真库），
+只承载换一套数据也必须成立的不变量：六轨钦定、不得用空列表冒充零、幂等、
+可回溯、无前视四道门、实体归一、区间每片与单点逐字节相同。夹具库按
+schema.sql 现建，列改了会在 _require_tables 处直接报错，不会悄悄测一个
+已不存在的形状。
+
+同时修 derive_streak：market_stage 这类分类标签走不进 if d.value is True，
+此前返回 longest=0 且 status="ok"——一个看着完全正常的假零。4 个可求值标签
+里 3 个中招，且 scripts/river_window.py --label 把这个口子开在命令行上。
+加 _require_boolean 抛 LabelNotSliceEvaluable，点名类型与样例日。
+现有调用方只用 dual_red_strict（布尔），已加阳性对照。
+
+收据 docs/verification/2026-10-07-river-ci-contract-coverage.md
+---
+ .../2026-10-07-river-ci-contract-coverage.md  | 139 ++++++++
+ intelligence/services/river_derive.py         |  27 ++
+ tests/fixtures/__init__.py                    |   1 +
+ tests/fixtures/river_mini_db.py               | 284 +++++++++++++++
+ tests/test_river_contract_on_fixture.py       | 330 ++++++++++++++++++
+ 5 files changed, 781 insertions(+)
+ create mode 100644 docs/verification/2026-10-07-river-ci-contract-coverage.md
+ create mode 100644 tests/fixtures/__init__.py
+ create mode 100644 tests/fixtures/river_mini_db.py
+ create mode 100644 tests/test_river_contract_on_fixture.py
+
+diff --git a/docs/verification/2026-10-07-river-ci-contract-coverage.md b/docs/verification/2026-10-07-river-ci-contract-coverage.md
+new file mode 100644
+index 00000000..9a7d45ae
+--- /dev/null
++++ b/docs/verification/2026-10-07-river-ci-contract-coverage.md
+@@ -0,0 +1,139 @@
++# 时间长河契约进 CI + streak 类型门
++
++> 日期：2026-10-07
++> 分支：`fix/river-ci-contract-coverage`
++> 起因：外部质检发现两件事——(1) 河的核心契约在 CI 上一次都没跑过；(2) `derive_streak` 对非布尔标签返回假零。
++
++---
++
++## 1. 问题一：核心契约在 CI 上从未执行
++
++### 实测
++
++四个文件整份 `skipif(not DB.exists())`：
++
++| 文件 | 守什么 |
++|---|---|
++| `tests/test_river_slice.py` | 六轨联立、幂等、可回溯、无前视 |
++| `tests/test_river_window.py` | 区间特征与聚类 |
++| `tests/test_river_query.py` | 横扫纵扫 |
++| `tests/test_river_cutoff_guard.py` | 无前视守卫 |
++
++而 `.gitignore:78-79` 排除 `db/` 与 `*.duckdb`，`workbench-check.yml` 的 runner 上不可能有真库。
++
++干净 clone 上实测：
++
++```
++$ pytest tests/test_river_*.py intelligence/tests/test_river*.py -q
++94 passed, 43 skipped
++```
++
++**43 个 skip 全部是「需要真库」。** 也就是说 AGENTS.md 里「全仓 pytest 8010 passed、门禁全绿」这个读数**不包含这条河的核心契约**——它们只在开发机上跑过。
++
++这与本仓已经踩过的坑同形：`a41e86dfc` 把活测试误扫进 `scripts/archive/`，全树 pytest 停在 collection error 33 天，同期 187 张「≥10000 passed」的收据全部带着那个坏文件。收据看不出收窄，skip 也看不出未覆盖。
++
++### 为什么不是「把真库测试改成跑夹具库」
++
++那四个文件断言的是**真实数据语义**：
++
++- `test_实体身份跨供应商换源必须稳定` —— 2026 年 .TI → .FP 换源，两套代码重叠九个月、每个板块断点不同
++- `test_缺数留_None_不补零` —— 「资金轨只有 12% 的日子有数」
++- `test_产业基本面文档接进舆论轨` —— 「只有 5/37 份挂了 linked_sectors」
++
++合成库能让这些断言变绿，但绿得没有意义。那正是 AGENTS.md 反复警告的假门禁。**所以真库测试原样保留，一行未改。**
++
++### 做法
++
++新增 `tests/test_river_contract_on_fixture.py`（26 个用例，**不需要真库**），只承载**换一套数据也必须成立的不变量**：
++
++| 组 | 用例 |
++|---|---|
++| 结构 | 六轨钦定、不得用空列表冒充零、无覆盖实体报 `no_data`（阳性对照）、缺口原因在白名单、不做模糊匹配 |
++| 幂等与回溯 | 两次调用逐字段相同、每个对象带 `ref` + 16 位 `source_hash`、payload ≤ 20 字段、判断轨用稳定 id 且不串轨 |
++| 无前视四道门 | `cutoff > as_of` 拒绝、hindsight 签字后不报 strict、与 `require_strict` 互斥、strict 滤成 `pit_filtered`、空切片不得报 strict |
++| 实体归一 | 跨换源 `entity_id` 稳定、`alias_applied` 如实标记、`ref` 保留当天真实代码 |
++| 轨内口径 | 题材轨读整数列不解析字符串、舆论轨用 `created_at` 不用 `updated_at`、散文不进度量对象、`derivation=frozen_llm` |
++| 区间 | 每一片与单点切片逐字节相同、transition 带方向与相邻两天的 refs、派生可拆回到天 |
++
++夹具库 `tests/fixtures/river_mini_db.py` **按 `market_feature_store/schema.sql` 现建**，不手写 DDL——列改了夹具会在 `_require_tables` 或 INSERT 处直接报错，不会悄悄测一个已不存在的形状。
++
++夹具数据是故意构造来触达具体分支的，不是模拟真实行情：
++
++- `BARE_ENTITY`（冷门板块）一份研报都不发 → 舆论轨 `no_data` 有阳性对照
++- `ALIAS_ENTITY`（半导体）第 8 个交易日把代码从 `.TI` 换成 `.FP` + 别名表 → 换源归一可测
++- 研报的 `updated_at` 全设成区间最后一天（复刻真表被 09-02 批量重写抹平的形状）→ 舆论轨读错列会红
++- `up_stat` 字符串与 `up_stat_days / up_stat_boards` 整数列同时填 → 守「不要再去解析字符串」
++
++### 读数
++
++```
++$ pytest tests/test_river_contract_on_fixture.py -q
++26 passed in 6.16s          # 无真库
++```
++
++CI 上这条河的契约覆盖从 **0 → 26**。
++
++---
++
++## 2. 问题二：`derive_streak` 对非布尔标签返回假零
++
++### 实测
++
++```python
++>>> rd.derive_streak(win, "market_stage")
++payload: {"status": "ok", "longest": 0, "longest_end": null, "current": 0, "days": 15}
++```
++
++`market_stage` 取 `'震荡' / '主升' / '分歧'`，内层循环是 `if d.value is True`，永远走不进去。于是返回 `longest=0` 且 **`status="ok"`**——一个看着完全正常的读数，调用方没有任何线索知道自己问错了问题。
++
++注册标签实测分布：
++
++```
++ALL_LABELS              17
++SLICE_EVALUABLE_LABELS   4   （dual_red_strict / market_stage / limit_heat_rank / volume_surge）
++其中布尔型               1   （dual_red_strict）
++```
++
++**4 个可求值标签里 3 个传进 streak 都是假零。** `scripts/river_window.py --label` 从 CLI 收标签，等于把这个口子开在命令行上。
++
++### 做法
++
++`_require_boolean()`：区间内取到任何非 `None` 的非布尔值就抛 `LabelNotSliceEvaluable`（复用已有异常类），错误信息点名标签、类型、样例日与取值，并说清正确做法是先把分类标签投影成谓词再数连续段——**不替调用方猜一个取值**。
++
++### 回归面
++
++全仓 `derive_streak` 调用方只有 `dual_red_strict`（布尔）与 `scripts/river_window.py` 的 CLI 入参。前者不受影响（已加阳性对照用例 `test_streak_对布尔谓词仍然正常工作`），后者从「静默假零」变成「明确报错」。
++
++---
++
++## 3. 收据
++
++```
++$ pytest tests/test_river_*.py intelligence/tests/test_river*.py \
++         intelligence/tests/test_teaching_framework_river_objects.py \
++         intelligence/tests/test_scenario_trees.py -q
++189 passed, 44 skipped
++
++$ ruff check tests/test_river_contract_on_fixture.py tests/fixtures/ \
++             intelligence/services/river_derive.py
++All checks passed!
++```
++
++> 环境说明：本轮在 Python 3.11 + 独立 venv 上跑（`FWP_ALLOW_ANY_PYTHON=1`），
++> **不是** `test-environment.json` 声明的 3.12.13 / `.venv-workbench`。
++> 按本仓纪律，这个读数不可与正常环境的全量数字比较，合并前须在
++> `.venv-workbench` 上复跑 `ruff check . && pytest -q` 取正式收据。
++> 本轮改动面只有三个文件、无新依赖，但这条限制照写不省。
++
++---
++
++## 4. 未做（留给后续）
++
++质检同时发现、本轮**没动**的四条，都已在报告里记账，不在本 PR 范围：
++
++1. `window()` 默认只产 `cumulative`，另外四类派生要手工调；`cumulative` 的 `member_refs` 为空。
++2. `resolve_entity` 只认板块；指数 / 题材 / 个股实体入口未开（`config_theme_sector_link` 0 行）。
++3. `opinion_stage.dislocation()` 只比 题材 × 舆论 两维，盘面维未进——三维对照实际是二维。
++4. `environment_script`（环境剧本 / G-08）全仓零命中。
++
++第 1 条是小工单；第 2–4 条依赖 G-01 母本与标签词表扩充，是设计顺序问题不是欠债。
+diff --git a/intelligence/services/river_derive.py b/intelligence/services/river_derive.py
+index dd8cb05a..21eea3a9 100644
+--- a/intelligence/services/river_derive.py
++++ b/intelligence/services/river_derive.py
+@@ -211,6 +211,32 @@ def _values(win: RiverWindow, label: str) -> list[DayValue]:
+     return out
+ 
+ 
++def _require_boolean(label: str, vals: list[DayValue]) -> None:
++    """``streak`` 只对**布尔谓词**有意义；非布尔标签必须抛错，不得静默算成 0。
++
++    为什么要这道门：``derive_streak`` 的内层循环是 ``if d.value is True``，分类标签
++    （``market_stage`` 取 '震荡'/'主升'…）或数值标签（``limit_heat_rank``）永远走不进
++    这个分支，于是返回 ``longest=0, current=0`` 且 ``status="ok"``——**一个看着完全
++    正常的读数**，调用方没有任何线索知道它问错了问题。注册标签里只有少数是布尔，
++    传错的概率不低，而错了之后拿到的是假零不是异常，正是本仓反复强调的那类
++    「看起来完全合理、足以支撑一次错误归属分析」的数字。
++
++    连续段语义对分类标签不是没有，而是**另一个对象**：某个取值连续出现几天，
++    要先把标签投影成谓词（``market_stage == '主升'``）再数。那是调用方的建模决定，
++    本函数不替它猜一个取值。
++    """
++    bad = [d for d in vals if d.value is not None and not isinstance(d.value, bool)]
++    if not bad:
++        return
++    sample = bad[0]
++    kinds = sorted({type(d.value).__name__ for d in bad})
++    raise LabelNotSliceEvaluable(
++        f"streak 只接布尔谓词，{label!r} 在区间内取到 {kinds} 值"
++        f"（如 {sample.day}={sample.value!r}）。"
++        " 分类/数值标签请先投影成谓词再数连续段——直接传进来会得到 longest=0 的假零读数。"
++    )
++
++
+ # --------------------------------------------------------------------------- #
+ # streak：连续 N 日谓词为真
+ # --------------------------------------------------------------------------- #
+@@ -224,6 +250,7 @@ def derive_streak(win: RiverWindow, label: str, *, gap_policy: str = "unverifiab
+     if gap_policy == "skip":
+         raise ValueError("streak 是连续量：缺天跳过继续数等于把「不知道」当成「连着」，不接受 skip")
+     vals = _values(win, label)
++    _require_boolean(label, vals)
+     missing = [d.day for d in vals if d.value is None]
+     refs = [r for d in vals for r in d.refs]
+     rule = {"name": f"streak:{label}", "version": "v1"}
+diff --git a/tests/fixtures/__init__.py b/tests/fixtures/__init__.py
+new file mode 100644
+index 00000000..fbf069b8
+--- /dev/null
++++ b/tests/fixtures/__init__.py
+@@ -0,0 +1 @@
++"""时间长河等契约测试的共享夹具。"""
+diff --git a/tests/fixtures/river_mini_db.py b/tests/fixtures/river_mini_db.py
+new file mode 100644
+index 00000000..632bd3ea
+--- /dev/null
++++ b/tests/fixtures/river_mini_db.py
+@@ -0,0 +1,284 @@
++"""时间长河契约测试用的最小夹具库。
++
++**为什么要有这个文件。** `tests/test_river_slice.py` / `test_river_window.py` /
++`test_river_query.py` / `test_river_cutoff_guard.py` 四个文件整份
++``skipif(not DB.exists())``，而 ``.gitignore`` 把 ``db/`` 与 ``*.duckdb`` 全排除——
++GitHub Actions 的 runner 上不可能有真库。于是这条河**最核心的契约（六轨联立、
++无前视、幂等、可回溯）在 CI 上一次都没跑过**，只在开发机上验证过。本仓已经有过
++「活测试被误扫进 archive、全树 pytest 停摆 33 天没人发现」的前科，同一类风险
++不该在这条河上留第二个入口。
++
++**为什么不是直接把这个库喂给那四个文件。** 它们断言的是**真实数据语义**：
++2026 年板块供应商 .TI → .FP 的换源日、2026-01 那次回填批次让累计覆盖失真、
++资金轨只有 12% 的日子有数、`fact_theme_fundamental_doc` 只有 5/37 份挂了
++linked_sectors。合成库能让这些断言「变绿」，但绿得毫无意义——那正是本仓
++反复警告的假门禁（AGENTS.md「红灯或无结论的 PR 照样能点合并」那一节）。
++所以**真库测试原样保留**，本夹具只承载**可移植的契约断言**：那些不依赖任何
++真实世界读数、换一套数据也必须成立的不变量。
++
++**为什么从 ``schema.sql`` 建表而不是手写 DDL。** 手写 DDL 会和真 schema 悄悄漂开，
++夹具于是测的是一个已经不存在的形状。从 SSOT 建表的代价是本模块要容忍
++schema.sql 里少数非 DDL 片段（中文注释行被 ``;`` 切碎），收益是**列改了夹具会
++立刻报错**——``_require_tables`` 显式断言河要用的十张表都建出来了，建不出就抛错，
++不静默降级成「少测几条」。
++
++用法::
++
++    from tests.fixtures.river_mini_db import build_mini_db
++    db = build_mini_db(tmp_path / "mini.duckdb")
++    sl = slice_river("2026-08-31", "算力租赁", db_path=db, checkpoints_path=...)
++"""
++
++from __future__ import annotations
++
++import json
++import re
++from datetime import date, timedelta
++from pathlib import Path
++
++SCHEMA = Path(__file__).resolve().parents[2] / "market_feature_store" / "schema.sql"
++
++# 河要用到的表。建不出任何一张就抛错——夹具少一张表 = 对应那条轨恒缺口，
++# 断言会「通过」但什么都没守住。
++REQUIRED_TABLES = (
++    "fact_market_daily",
++    "fact_sector_daily",
++    "fact_sector_stock_daily",
++    "fact_stock_daily",
++    "fact_theme_flow_daily",
++    "fact_theme_limit_heat_daily",
++    "fact_theme_limit_stock_daily",
++    "fact_theme_fundamental_doc",
++    "fact_research_report_catalog",
++    "config_sector_alias",
++)
++
++# ---- 夹具的世界观（故意构造，用来触达具体分支，不是模拟真实行情）----------- #
++START = date(2026, 8, 17)
++DAYS = 15  # 交易日数（跳过周末）
++
++ENTITY = "算力租赁"
++ENTITY_CODE = "801080.TI"
++
++# 换源实体：前半段挂旧代码 .TI，后半段挂新代码 .FP，别名表把旧映到新。
++# 用来守「entity_id 跨换源稳定 / alias_applied 如实标记 / ref 不被归一改写」。
++ALIAS_ENTITY = "半导体"
++ALIAS_OLD_CODE = "801081.TI"
++ALIAS_NEW_CODE = "801081.FP"
++ALIAS_SWITCH_INDEX = 8  # 第 8 个交易日起换成新代码
++
++# 无卖方覆盖的实体：用来守「舆论轨缺口是 no_data 且 detail 写明原因」。
++BARE_ENTITY = "冷门板块"
++BARE_CODE = "801099.TI"
++
++RECORDED_HOUR = "18:00:00"  # 所有事实行的 updated_at：当日盘后
++
++
++def trading_days(start: date = START, count: int = DAYS) -> list[str]:
++    """跳过周末的连续交易日。夹具不处理法定节假日——河的契约不依赖日历正确性，
++    依赖它的是 `trading_days.py`，那是另一个对象的测试。"""
++    out: list[str] = []
++    d = start
++    while len(out) < count:
++        if d.weekday() < 5:
++            out.append(d.isoformat())
++        d += timedelta(days=1)
++    return out
++
++
++def _statements(sql: str) -> list[str]:
++    """把 schema.sql 切成可执行语句。
++
++    先剥块注释与整行 ``--`` 注释再按 ``;`` 切：schema.sql 的行尾注释里有中文句号与
++    分号，不剥的话会把一条 CREATE TABLE 切成三段，报出三个看不懂的 Parser Error。
++    """
++    sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.S)
++    sql = "\n".join(line for line in sql.splitlines() if not line.strip().startswith("--"))
++    return [s.strip() for s in sql.split(";") if s.strip()]
++
++
++def _require_tables(con) -> None:
++    present = {r[0] for r in con.execute("SELECT table_name FROM information_schema.tables").fetchall()}
++    missing = [t for t in REQUIRED_TABLES if t not in present]
++    if missing:
++        raise RuntimeError(
++            f"夹具库缺表 {missing}——schema.sql 可能改过名或本模块的解析漏了语句。"
++            " 不要靠跳过这些表继续跑：少一张表那条轨就恒缺口，断言会假绿。"
++        )
++
++
++def build_mini_db(path: str | Path) -> str:
++    """按 ``schema.sql`` 建库并灌入确定性夹具数据，返回库路径。
++
++    数据全部由下标算出，无随机、无当前时间依赖——同一份代码两次构建的库里
++    每一行都相同，否则「幂等」那条断言守的就是夹具的稳定性而不是河的。
++    """
++    import duckdb
++
++    path = Path(path)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    if path.exists():
++        path.unlink()
++
++    con = duckdb.connect(str(path))
++    try:
++        for stmt in _statements(SCHEMA.read_text(encoding="utf-8")):
++            try:
++                con.execute(stmt)
++            except Exception:  # noqa: BLE001
++                # schema.sql 里混有少量非 DDL 片段（被注释里的分号切出来的残行）。
++                # 逐条容错、最后用 _require_tables 兜底：关心的是「河要的表在不在」，
++                # 不是「每条语句都跑通」。
++                continue
++        _require_tables(con)
++        _seed(con)
++    finally:
++        con.close()
++    return str(path)
++
++
++def _seed(con) -> None:
++    days = trading_days()
++    stages = ["震荡", "震荡", "主升", "主升", "主升", "分歧", "分歧", "主升",
++              "主升", "退潮", "退潮", "震荡", "震荡", "主升", "主升"]
++
++    for i, day in enumerate(days):
++        rec = f"{day} {RECORDED_HOUR}"
++        stage = stages[i % len(stages)]
++        pct = round(((i * 37) % 13) - 4 + 0.5, 2)
++
++        con.execute(
++            """INSERT OR REPLACE INTO fact_market_daily
++               (trade_date, market_stage, total_amount, amount_ma20, advancers, limit_up, limit_down,
++                sh_week_ma, sh_deviation_pct, sh_index_close, sh_index_pct_chg, volume_state,
++                source, updated_at)
++               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'fixture',?)""",
++            [day, stage, 1.5e12 + (i % 5) * 8e10, 1.6e12, 2500 + i * 40, 60 + (i * 7) % 40,
++             10 + i % 7, 3300.0, round(i * 0.3 - 2, 2), 3300 + i * 9, pct, "放量", rec],
++        )
++        con.execute(
++            """INSERT OR REPLACE INTO ops_sector_universe_snapshot_daily
++               (trade_date, snapshot_id, provider_source, sector_count,
++                declared_relationship_count, status, captured_at)
++               VALUES (?, 'snap1', 'fixture', 3, 3, 'published', ?)""",
++            [day, rec],
++        )
++
++        alias_code = ALIAS_OLD_CODE if i < ALIAS_SWITCH_INDEX else ALIAS_NEW_CODE
++        sectors = [
++            (ENTITY_CODE, ENTITY),
++            (alias_code, ALIAS_ENTITY),
++            (BARE_CODE, BARE_ENTITY),
++        ]
++        for code, name in sectors:
++            con.execute(
++                """INSERT OR REPLACE INTO fact_sector_daily_generation
++                   (trade_date, sector_universe_snapshot_id, sector_ts_code, sector_name,
++                    sw_l1, pct_chg, amount, diff_ratio, strength, source, updated_at)
++                   VALUES (?, 'snap1', ?, ?, ?, ?, ?, ?, ?, 'fixture', ?)""",
++                [day, code, name, name, pct, 8e10 + i * 1e9, 0.6, round(1 + i * 0.1, 2), rec],
++            )
++            con.execute(
++                """INSERT OR REPLACE INTO fact_sector_stock_daily_generation
++                   (trade_date, sector_universe_snapshot_id, sector_ts_code, sector_name,
++                    stock_ts_code, stock_name, price, pct_chg, amount,
++                    fund_flow_1d, fund_flow_5d, limit_times, high_status_label,
++                    source, updated_at)
++                   VALUES (?, 'snap1', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'fixture', ?)""",
++                [day, code, name, f"300{i:03d}.SZ", f"{name}龙头", 100.0 + i, pct, 5.5e9,
++                 3e8 - i * 2e7, 7.7e8, i % 4, f"{i % 4}板", rec],
++            )
++            con.execute(
++                """INSERT OR REPLACE INTO fact_theme_limit_heat_daily
++                   (trade_date, sector_ts_code, sector_name, dimension, scope,
++                    limit_up_count, total_count, limit_up_ratio, source, updated_at)
++                   VALUES (?, ?, ?, 'concept', 'all', ?, 30, ?, 'fixture', ?)""",
++                [day, code, name, (i * 3) % 9, round(((i * 3) % 9) / 30, 4), rec],
++            )
++            # 涨停成分：up_stat 是「1/1」这种字符串，sync 已把它解析成两个整数列。
++            # 题材轨断言读的是整数列，夹具必须把两边都填上，否则守不住「不要再去解析字符串」。
++            con.execute(
++                """INSERT OR REPLACE INTO fact_theme_limit_stock_daily
++                   (trade_date, sector_ts_code, sector_name, stock_ts_code, stock_name,
++                    price, pct_chg, amount, limit_times, limit_status, first_limit_time,
++                    up_stat, up_stat_days, up_stat_boards, high_status, high_status_label,
++                    source, updated_at)
++                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '涨停', '09:35:00', ?, ?, ?, ?, ?, 'fixture', ?)""",
++                [day, code, name, f"300{i:03d}.SZ", f"{name}龙头", 100.0 + i, 10.0, 5.5e9,
++                 1 + i % 3, f"{1 + i % 3}/{1 + i % 3}", 1 + i % 3, 1 + i % 3,
++                 f"{1 + i % 3}板", f"{1 + i % 3}板", rec],
++            )
++            con.execute(
++                """INSERT OR REPLACE INTO fact_theme_flow_daily
++                   (trade_date, theme_code, theme_name, total_fund, total_amount,
++                    stock_count, fund_caliber, source, updated_at)
++                   VALUES (?, ?, ?, ?, ?, 30, 'main', 'fixture', ?)""",
++                [day, f"T{code}", name, 4e8 - i * 1e7, 8.8e10, rec],
++            )
++            con.execute(
++                """INSERT OR REPLACE INTO fact_stock_daily
++                   (trade_date, stock_ts_code, stock_name, close, pre_close, pct_chg,
++                    amount, turnover, source, updated_at)
++                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'fixture', ?)""",
++                [day, f"300{i:03d}.SZ", f"{name}龙头", 100.0 + i, 99.0 + i, pct, 5.5e9, 4.1, rec],
++            )
++
++    # 别名表：旧代码 → 新代码。note 照真表的口径写清「归一身份不归一可比性」。
++    con.execute(
++        """INSERT OR REPLACE INTO config_sector_alias
++           (alias, sector_ts_code, sector_name, confidence, note, updated_at)
++           VALUES (?, ?, ?, 1.0, '两套口径成分不同，跨切换日数值不可直接比较', ?)""",
++        [ALIAS_OLD_CODE, ALIAS_NEW_CODE, ALIAS_ENTITY, f"{days[0]} {RECORDED_HOUR}"],
++    )
++
++    # 研报：标签是 JSON 数组（`_report_tags` 用 json.loads 解析，逗号串会被整条丢掉）。
++    # 只给 ENTITY 与 ALIAS_ENTITY 发覆盖，BARE_ENTITY 一份都不给——
++    # 「无覆盖 → no_data 缺口」这条分支要有阳性对照才算守住。
++    for n, day in enumerate(days[:6]):
++        con.execute(
++            """INSERT OR REPLACE INTO fact_research_report_catalog
++               (report_id, title, report_date, report_type, is_hot, sector_tags,
++                concept_tags, stock_count, stocks, created_at, source, updated_at)
++               VALUES (?,?,?,?,?,?,?,?,?,?,'fixture',?)""",
++            [n + 1, f"{ENTITY}深度 {n + 1}", day, "深度", n % 2 == 0,
++             json.dumps([ENTITY], ensure_ascii=False), json.dumps([ENTITY], ensure_ascii=False),
++             1, json.dumps([f"300{n:03d}.SZ"]),
++             f"{day} 09:00:00",
++             # updated_at 故意设成全表同一天（复刻真表被批量重写抹平的形状），
++             # 逼着舆论轨去读 created_at——读错列这条断言会红。
++             f"{days[-1]} 23:00:00"],
++        )
++
++    con.execute(
++        """INSERT OR REPLACE INTO fact_theme_fundamental_doc
++           (document_pk, title, produced_at, workflow_name, analysis_type, core_theme,
++            verification_points, linked_themes, linked_sectors, kb_path, source, updated_at)
++           VALUES (1, ?, ?, 'fixture-flow', '产业链', ?, ?, ?, ?, 'kb/fixture.md', 'fixture', ?)""",
++        [f"{ENTITY}产业链梳理", f"{days[2]}T10:00:00", f"{ENTITY}的核心逻辑是算力租赁价格",
++         json.dumps(["订单兑现"], ensure_ascii=False), json.dumps([ENTITY], ensure_ascii=False),
++         # linked_sectors 是 **dict 列表**（`{sector_code, sector_name}`），不是字符串列表。
++         # 写成字符串列表时 `_fundamental_docs` 的 `x.get(...)` 会整条跳过，
++         # 文档静默接不上——这正是 2026-09-06 审计发现「整表无生产读取方」的形状。
++         json.dumps([{"sector_code": ENTITY_CODE, "sector_name": ENTITY}], ensure_ascii=False),
++         f"{days[2]} 10:00:00"],
++    )
++
++
++def checkpoint_fixture(as_of: str, entity: str = ENTITY) -> dict:
++    """判断轨夹具记录。形状逐字段照抄真实 checkpoints.jsonl，不简化。
++
++    `conftest.py` 会 delenv ``FORESIGHT_USERS_DIR``（防测试读写真人目录），所以
++    判断轨必须显式喂文件，否则它在测试进程里恒为缺口——依赖它的断言会永远
++    跳过，是假门禁。
++    """
++    return {
++        "id": f"ck-{as_of}-fixture",
++        "ts": f"{as_of}T16:31:49+00:00",
++        "claim": f"[{as_of}][旧逻辑唤醒] {entity}：旧逻辑唤醒将获得新证据支撑",
++        "category": "theme_evidence",
++        "themes": [entity],
++        "stocks": [],
++        "metric": {"type": "kb_evidence", "op": ">=", "target": 1.0, "target_name": entity},
++        "due": "2026-09-07",
++        "source": "test-fixture",
++    }
+diff --git a/tests/test_river_contract_on_fixture.py b/tests/test_river_contract_on_fixture.py
+new file mode 100644
+index 00000000..006a6f8d
+--- /dev/null
++++ b/tests/test_river_contract_on_fixture.py
+@@ -0,0 +1,330 @@
++"""时间长河的**可移植**契约测试——不需要真库，CI 上必跑。
++
++与 `test_river_slice.py` 的分工（不要合并这两个文件）：
++
++- `test_river_slice.py` 断言**真实数据语义**：供应商 .TI → .FP 的换源日、2026-01
++  那次回填批次让累计覆盖失真、`fact_theme_fundamental_doc` 只有 5/37 份挂了
++  linked_sectors。这些只有真库能证，所以它整份 ``skipif(not DB.exists())`` 是**对的**，
++  本文件不去替它变绿——那会变成本仓反复警告的假门禁。
++- 本文件断言**换一套数据也必须成立的不变量**：六轨齐全、缺轨报 Gap 不用空列表冒充、
++  幂等、可回溯、无前视四道门、实体归一。这些此前**在 CI 上一次都没跑过**，
++  因为 ``.gitignore`` 把 ``db/`` 与 ``*.duckdb`` 全排除，runner 上没有真库。
++
++夹具库由 `tests/fixtures/river_mini_db.py` 按 `market_feature_store/schema.sql` 现建，
++所以 schema 改了列名，夹具会在 `_require_tables` 或 INSERT 处直接报错，
++不会悄悄测一个已经不存在的形状。
++"""
++
++from __future__ import annotations
++
++import json
++from dataclasses import replace
++from pathlib import Path
++
++import pytest
++
++from intelligence.services.river import (
++    TRACKS,
++    Gap,
++    RiverObject,
++    RiverSlice,
++    slice_river,
++)
++from tests.fixtures.river_mini_db import (
++    ALIAS_ENTITY,
++    ALIAS_OLD_CODE,
++    BARE_ENTITY,
++    ENTITY,
++    build_mini_db,
++    checkpoint_fixture,
++    trading_days,
++)
++
++DAYS = trading_days()
++AS_OF = DAYS[10]
++BEFORE_SWITCH = DAYS[2]
++AFTER_SWITCH = DAYS[12]
++
++
++@pytest.fixture(scope="module")
++def db(tmp_path_factory: pytest.TempPathFactory) -> str:
++    return build_mini_db(tmp_path_factory.mktemp("river-fixture") / "mini.duckdb")
++
++
++@pytest.fixture(scope="module")
++def ck(tmp_path_factory: pytest.TempPathFactory) -> Path:
++    path = tmp_path_factory.mktemp("river-fixture-ck") / "checkpoints.jsonl"
++    path.write_text(json.dumps(checkpoint_fixture(AS_OF), ensure_ascii=False) + "\n", encoding="utf-8")
++    return path
++
++
++@pytest.fixture(scope="module")
++def sl(db: str, ck: Path) -> RiverSlice:
++    return slice_river(AS_OF, ENTITY, db_path=db, checkpoints_path=ck)
++
++
++# --------------------------------------------------------------------------- #
++# 结构：六轨齐全，缺轨报 Gap
++# --------------------------------------------------------------------------- #
++def test_六个维度就是终局钦定的那六条(sl: RiverSlice) -> None:
++    """初版把「板块」单列、漏了「舆论」，与终局 §3 + F9 对不上。钉死，防再漂。"""
++    assert TRACKS == ("market", "theme", "opinion", "capital", "stock", "judgment")
++    assert set(sl.tracks) == set(TRACKS)
++
++
++def test_每条轨要么有对象要么是缺口_不得用空列表冒充零(sl: RiverSlice) -> None:
++    for track, result in sl.tracks.items():
++        assert isinstance(result, (list, Gap)), track
++        if isinstance(result, list):
++            assert result, f"{track} 返回空列表——空列表冒充「这条轨为零」，应返回 Gap"
++
++
++def test_无覆盖的实体舆论轨报_no_data_阳性对照(db: str, ck: Path) -> None:
++    """夹具故意不给 BARE_ENTITY 发任何研报。取不到这个缺口 = 这条用例没触达分支。"""
++    bare = slice_river(AS_OF, BARE_ENTITY, db_path=db, checkpoints_path=ck)
++    opinion = bare.tracks["opinion"]
++    assert isinstance(opinion, Gap), "无卖方覆盖的板块，舆论轨必须是缺口"
++    assert opinion.reason == "no_data"
++    assert opinion.detail, "缺口必须说清为什么缺，否则下游无法判断能不能补"
++
++
++def test_缺轨返回_Gap_且原因在白名单内(sl: RiverSlice) -> None:
++    for gap in sl.gaps:
++        assert gap.reason in {"no_data", "no_source", "entity_unresolved", "pit_filtered"}
++        assert gap.detail
++
++
++def test_实体解析不做模糊匹配(db: str, ck: Path) -> None:
++    """「算力」不是板块名，必须解析失败并六轨全缺，不能猜成「算力租赁」。"""
++    sl_ = slice_river(AS_OF, "算力", db_path=db, checkpoints_path=ck)
++    assert len(sl_.gaps) == len(TRACKS)
++    assert all(g.reason == "entity_unresolved" for g in sl_.gaps)
++
++
++# --------------------------------------------------------------------------- #
++# 幂等与可回溯
++# --------------------------------------------------------------------------- #
++def test_幂等_同一入参两次调用逐字段相同(db: str, ck: Path) -> None:
++    a = slice_river(AS_OF, ENTITY, db_path=db, checkpoints_path=ck).to_dict()
++    b = slice_river(AS_OF, ENTITY, db_path=db, checkpoints_path=ck).to_dict()
++    assert json.dumps(a, sort_keys=True, default=str) == json.dumps(b, sort_keys=True, default=str)
++
++
++def test_每个对象都能回溯到主数据(sl: RiverSlice) -> None:
++    assert sl.objects, "前提失效：夹具切片一个对象都没有，下面的断言等于没跑"
++    for obj in sl.objects:
++        assert isinstance(obj, RiverObject)
++        assert obj.ref and ":" in obj.ref, obj
++        assert obj.source_hash and len(obj.source_hash) == 16, obj
++        assert obj.valid_from <= AS_OF, obj
++
++
++def test_索引层不持有主数据副本(sl: RiverSlice) -> None:
++    """payload 只放读切片所需的字段，不整表搬运（终局 §9 / F4 的可测化）。"""
++    for obj in sl.objects:
++        assert len(obj.payload) <= 20, f"{obj.ref} payload 字段过多，像在复制主数据"
++
++
++def test_判断轨的_ref_用记录自带的稳定_id(sl: RiverSlice) -> None:
++    judgment = sl.tracks["judgment"]
++    assert not isinstance(judgment, Gap), "判断轨夹具没被读到——这条断言又变回假门禁了"
++    for obj in judgment:
++        assert obj.ref == f"checkpoints.jsonl:{checkpoint_fixture(AS_OF)['id']}"
++        assert obj.recorded_at, "判断轨是唯一原生带记录时刻的轨，不该为 None"
++        assert obj.valid_from == AS_OF
++
++
++def test_判断轨按实体精确匹配_不串轨(db: str, ck: Path) -> None:
++    other = slice_river(AS_OF, ALIAS_ENTITY, db_path=db, checkpoints_path=ck)
++    assert isinstance(other.tracks["judgment"], Gap)
++
++
++# --------------------------------------------------------------------------- #
++# 无前视：四道门
++# --------------------------------------------------------------------------- #
++def test_cutoff_晚于_as_of_直接拒绝(db: str, ck: Path) -> None:
++    """默认拒绝而不是默认放行：传 2099 会让所有对象通过 PIT 检查，
++    回放结果因此偏乐观且自称可信。"""
++    with pytest.raises(ValueError, match="事后视角"):
++        slice_river(AS_OF, ENTITY, knowledge_cutoff="2099-01-01", db_path=db, checkpoints_path=ck)
++
++
++def test_hindsight_显式签字后不得报_strict(db: str, ck: Path) -> None:
++    sl_ = slice_river(AS_OF, ENTITY, knowledge_cutoff=DAYS[-1], allow_hindsight=True,
++                      db_path=db, checkpoints_path=ck)
++    assert sl_.hindsight is True
++    assert sl_.pit_grade != "strict"
++
++
++def test_allow_hindsight_与_require_strict_互斥(db: str, ck: Path) -> None:
++    with pytest.raises(ValueError, match="互斥"):
++        slice_river(AS_OF, ENTITY, knowledge_cutoff=DAYS[-1], allow_hindsight=True,
++                    require_strict=True, db_path=db, checkpoints_path=ck)
++
++
++def test_require_strict_滤掉晚于_cutoff_的对象(db: str, ck: Path) -> None:
++    """无前视红线：不能只降档、把决定推给下游。"""
++    early = DAYS[0]
++    loose = slice_river(AS_OF, ENTITY, knowledge_cutoff=early, db_path=db, checkpoints_path=ck)
++    strict = slice_river(AS_OF, ENTITY, knowledge_cutoff=early, require_strict=True,
++                         db_path=db, checkpoints_path=ck)
++    assert any(o.recorded_at and o.recorded_at[:10] > early for o in loose.objects), (
++        "前提失效：这一天已经没有晚于 cutoff 的对象了，本用例证不了滤除行为"
++    )
++    assert not strict.objects, "require_strict 下不应留下任何晚于 cutoff 的对象"
++    assert any(g.reason == "pit_filtered" for g in strict.gaps)
++
++
++def test_空切片不得报_strict(db: str, ck: Path) -> None:
++    """``all([])`` 恒真——空切片报 strict 会让「六轨全缺」伪装成「全部通过 PIT」。"""
++    empty = slice_river(AS_OF, ENTITY, knowledge_cutoff="2020-01-02", require_strict=True,
++                        db_path=db, checkpoints_path=ck)
++    assert not empty.objects
++    assert empty.pit_grade == "trade_date_only"
++
++
++# --------------------------------------------------------------------------- #
++# 实体归一：身份稳定，可比性另说
++# --------------------------------------------------------------------------- #
++def test_实体身份跨供应商换源必须稳定(db: str, ck: Path) -> None:
++    """夹具在第 8 个交易日把 ALIAS_ENTITY 的代码从 .TI 换成 .FP。
++    不归一的话，同一个板块在换源前后是两个 entity_id，区间与队列查询会把它悄悄劈成两个实体。"""
++    before = slice_river(BEFORE_SWITCH, ALIAS_ENTITY, db_path=db, checkpoints_path=ck)
++    after = slice_river(AFTER_SWITCH, ALIAS_ENTITY, db_path=db, checkpoints_path=ck)
++    assert before.entity_id == after.entity_id, "跨换源日 entity_id 不一致，河上实体断代了"
++    assert before.alias_applied is True and after.alias_applied is False, (
++        "alias_applied 没如实标记——前提失效则本用例证不了归一行为"
++    )
++
++
++def test_ref_保留当天真实代码不被归一改写(db: str, ck: Path) -> None:
++    """entity_id 归一，但 ref 指向的是那一行真实数据——改了就回溯不过去。"""
++    sl_ = slice_river(BEFORE_SWITCH, ALIAS_ENTITY, db_path=db, checkpoints_path=ck)
++    refs = [o.ref for o in sl_.objects if o.entity_id != "__market__" and "fact_sector_daily" in o.ref]
++    assert refs, "这一天的盘面轨没有板块量价对象，本用例证不了 ref 行为"
++    assert all(ALIAS_OLD_CODE in r for r in refs), f"ref 被归一改写了：{refs[:2]}"
++
++
++# --------------------------------------------------------------------------- #
++# 轨内口径
++# --------------------------------------------------------------------------- #
++def test_题材轨用已解析的整数而不是字符串(sl: RiverSlice) -> None:
++    """sync 已经把「1/1」解析成 up_stat_days / up_stat_boards 两个整数存好了，
++    2026-09-05 审计发现整数列全仓无人读、下游还在解析字符串。"""
++    theme = sl.tracks["theme"]
++    assert not isinstance(theme, Gap), "夹具每天都有涨停成分，前提失效"
++    # 题材轨同时发 stage（阶段，派生自时间线）与 event（当日涨停成分）两类对象，
++    # up_stat_* 只在后者上。不筛类型会把阶段对象也要求带涨停字段，是断言写错不是实现错。
++    events = [o for o in theme if o.object_type == "event"]
++    assert events, "夹具每天都有涨停成分，题材轨应有 event 对象"
++    for obj in events:
++        assert "up_stat_days" in obj.payload
++        days = obj.payload["up_stat_days"]
++        assert days is None or isinstance(days, int), f"应是整数而不是字符串：{days!r}"
++
++
++def test_舆论轨用_created_at_不用_updated_at(sl: RiverSlice) -> None:
++    """夹具把研报的 ``updated_at`` 全部设成区间最后一天（复刻真表被批量重写抹平的形状）。
++    读错列会让舆论轨对象变成「未来才记下来的」，这条断言就会红。"""
++    opinion = sl.tracks["opinion"]
++    assert not isinstance(opinion, Gap), "夹具给了卖方覆盖，前提失效"
++    for obj in opinion:
++        assert obj.recorded_at, obj.ref
++        assert obj.recorded_at[:10] <= AS_OF, f"{obj.ref} 的 recorded_at 晚于切片日"
++
++
++def test_产业文档不参与任何度量(sl: RiverSlice) -> None:
++    """core_theme / verification_points 是散文：可读、可进 prompt，但不可重算。
++    它们只能待在 payload 里，不得混进覆盖度量那个对象。"""
++    opinion = sl.tracks["opinion"]
++    assert not isinstance(opinion, Gap)
++    coverage = [o for o in opinion if o.object_type == "label"]
++    assert coverage, "舆论轨应有一个覆盖度量对象"
++    for obj in coverage:
++        assert "core_theme" not in obj.payload
++        assert "verification_points" not in obj.payload
++
++
++def test_散文对象的_derivation_是_frozen_llm(sl: RiverSlice) -> None:
++    """09-06 spec §4.2 两类派生：只有 deterministic 的能进条件与统计。
++    产业文档是模型写一次的散文，必须标 frozen_llm，否则会被当成可重算的事实。"""
++    opinion = sl.tracks["opinion"]
++    assert not isinstance(opinion, Gap)
++    docs = [o for o in opinion if o.object_type == "narrative_version"]
++    assert docs, "产业文档没接上——审计发现的那张无人读的表又断了"
++    for d in docs:
++        assert d.derivation == "frozen_llm", f"{d.ref} 的 derivation 应为 frozen_llm"
++
++
++# --------------------------------------------------------------------------- #
++# 区间派生：线状特征
++# --------------------------------------------------------------------------- #
++@pytest.fixture(scope="module")
++def win(db: str, ck: Path):
++    from intelligence.services.river_window_contract import window
++
++    return window(DAYS[0], DAYS[-1], ENTITY, knowledge_cutoff=DAYS[-1],
++                  db_path=db, checkpoints_path=ck)
++
++
++def test_区间每一片与单点切片逐字节相同(win, db: str, ck: Path) -> None:
++    """``window()`` 今天是逐日调 ``slice_river``；日后若加按区间批量取数的快路径，
++    正确性靠这条断言守，不靠信任。"""
++    for sl_ in win.slices:
++        # 区间里每一天都用同一个 C 读：对 day < end 的天，C > day 在**单点**语义里叫
++        # hindsight，所以 window() 取片时传 allow_hindsight=True，再把 hindsight 标记改成
++        # **区间级**的（C > end 才算）。复现时必须照做，否则比的是两种不同口径。
++        same = slice_river(sl_.as_of, ENTITY, knowledge_cutoff=DAYS[-1], allow_hindsight=True,
++                           db_path=db, checkpoints_path=ck)
++        # `replace(sl, hindsight=...)` 会重跑 __post_init__，pit_grade 随之由区间级标记
++        # 重算——所以复现时也要走同一个 replace，比的才是同一个口径。
++        same = replace(same, hindsight=False)
++        assert sl_.hindsight is False, "区间级 hindsight：C 不晚于 end 时整段都不是事后视角"
++        assert json.dumps(sl_.to_dict(), sort_keys=True, default=str) == json.dumps(
++            same.to_dict(), sort_keys=True, default=str
++        ), sl_.as_of
++
++
++def test_transition_抓出跃迁且每次都能回溯到相邻两天(win) -> None:
++    """这是「线」而不是「点的罗列」的最小证据：带日期、带方向、带源行。"""
++    from intelligence.services import river_derive as rd
++
++    obj = rd.derive_transitions(win, "market_stage")
++    assert obj.payload["status"] == "ok"
++    transitions = obj.payload["transitions"]
++    assert transitions, "夹具的 market_stage 逐日变化，必须抓到跃迁；抓不到说明派生断了"
++    for t in transitions:
++        assert t["from"] != t["to"]
++        assert len(t["refs"]) == 2, "跃迁要能回溯到相邻两天各自的源行"
++    assert obj.validity_kind == "range"
++    assert obj.payload["pit_grade"] in {"strict", "trade_date_only"}
++
++
++def test_streak_拒绝非布尔标签_不返回假零(win) -> None:
++    """回归：``market_stage`` 是分类标签，此前会静默返回 longest=0 且 status=ok。
++
++    那个 0 看着像一个正常读数，调用方无从知道自己问错了问题。
++    """
++    from intelligence.services.river_derive import LabelNotSliceEvaluable, derive_streak
++
++    with pytest.raises(LabelNotSliceEvaluable, match="只接布尔谓词"):
++        derive_streak(win, "market_stage")
++
++
++def test_streak_对布尔谓词仍然正常工作(win) -> None:
++    """阳性对照：加了类型门之后，布尔标签这条路不能被一起堵死。"""
++    from intelligence.services.river_derive import derive_streak
++
++    obj = derive_streak(win, "dual_red_strict")
++    assert obj.payload["status"] in {"ok", "unverifiable"}
++    if obj.payload["status"] == "ok":
++        assert isinstance(obj.payload["longest"], int)
++        assert obj.payload["days"] == len(win.slices)
++
++
++def test_派生对象可拆回到天(win) -> None:
++    from intelligence.services import river_derive as rd
++
++    obj = rd.derive_transitions(win, "market_stage")
++    assert obj.payload["member_refs"], "member_refs 为空 = 区间派生回溯不到天"
++    assert all(":" in r for r in obj.payload["member_refs"])
+-- 
+2.39.5
+
+
+From 2d233e670a94975b12801cffe21efb616b3045d1 Mon Sep 17 00:00:00 2001
+From: moscrol <moscrol@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 09:38:38 +0000
+Subject: [PATCH 2/3] =?UTF-8?q?feat(river):=20=E6=8A=8A=E5=B7=B2=E6=B3=A8?=
+ =?UTF-8?q?=E5=86=8C=E4=BD=86=E6=B2=A1=E6=8E=A5=E7=BA=BF=E7=9A=84=E6=A0=87?=
+ =?UTF-8?q?=E7=AD=BE=E6=8E=A5=E8=BF=9B=E5=88=87=E7=89=87=EF=BC=8C=E5=8F=AF?=
+ =?UTF-8?q?=E5=88=A4=E8=AF=8D=E6=B1=87=204=20=E2=86=92=207?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+SLICE_EVALUABLE_LABELS 不是实现细节，是整条河的表达力上限：情景树的分枝条件、
+judgment_maintenance 的谓词、研究演化的可判观测目录，三者都只认这张白名单。
+它此前有 4 个词，其中只有 market_stage 有段位语义——于是 ALL_LABELS 登记了 17 个
+标签、旁路库躺着 174 万行标签值，而判读层能说的话只有「大盘在某阶段 + 两三个布尔」。
+白名单少一个词不会让任何测试变红，只会让一种判读表达不出来。
+
+接上 multi_period_resonance / opinion_stage / lifecycle_stage。三个都已在
+ALL_LABELS 注册、切片里也已经算好，只是没接线：
+
+- multi_period_resonance 两边都是布尔列直接投影，无阈值
+- opinion_stage 两边都调 opinion_stage.derive_stage(hits, day, knowledge_cutoff=day)
+- lifecycle_stage 两边都是 theme_lifecycle_timeline.derive_stages 的 daily 逐日态
+
+不新造标签名（G-16，新增测试钉死）、不动阈值、不升 LABEL_VERSION、不重算——
+绑定函数只从切片已有对象上取值，重算等于把同一口径实现第三遍。
+
+附带三处：
+_sector_quote() 显式按 sector_ts_code 选量价行。原来靠顺序取第一个 label 对象，
+量价行缺而热度行在的那天会取到热度行，因为热度行没有 pct_chg 等键、.get 全返回
+None，结果「碰巧」仍是缺原料。量价行存在时行为完全不变，只是把巧合变成约定。
+
+adapters.SLICE_EVALUABLE_LABELS 原是手抄的四元组，改为从 river_derive 派生。
+手抄件只会往一个方向出错：河扩了词、抄件没跟上，新标签在 01 目录里不出现，
+功能悄悄不生效且没有任何测试会红。
+
+剩下 10 个标签为什么仍不绑定逐条写进注释。其中 limit_up/first_board/new_high_1y
+是真红线：河的实体是板块，绑定个股标签只能绑成聚合，那是另一个标签要新名字。
+
+夹具同步补：扩张前 7 个标签有 4 个在夹具里恒为 None，相关断言全是假绿。补了四条
+逐日序列让真/假/缺三态齐全，其中放量阈值刻意放了一个恰好等于 10.0 的日子——
+边界写成 >= 而非 > 时只有这一格会红。覆盖本身由新测试守住，以后加标签忘了喂值直接红。
+副作用：lifecycle_stage 现在真的走过 发酵→主升，区间派生第一次有了 market_stage
+之外的第二个跃迁源。
+
+读数：契约测试 26→37；parity 2→4（新增 SQL↔绑定层逐格比对）；
+受影响面全量 673 passed / 43 skipped 零回归；ruff 全绿。
+收据 docs/verification/2026-10-07-river-label-binding-expansion.md
+---
+ ...026-10-07-river-label-binding-expansion.md | 154 +++++++++++++++
+ .../services/research_evolution/adapters.py   |  10 +-
+ intelligence/services/river_derive.py         | 114 ++++++++++-
+ .../tests/test_label_binding_parity.py        |  60 ++++--
+ tests/fixtures/river_mini_db.py               |  52 ++++-
+ tests/test_river_contract_on_fixture.py       | 179 ++++++++++++++++++
+ 6 files changed, 545 insertions(+), 24 deletions(-)
+ create mode 100644 docs/verification/2026-10-07-river-label-binding-expansion.md
+
+diff --git a/docs/verification/2026-10-07-river-label-binding-expansion.md b/docs/verification/2026-10-07-river-label-binding-expansion.md
+new file mode 100644
+index 00000000..07b58804
+--- /dev/null
++++ b/docs/verification/2026-10-07-river-label-binding-expansion.md
+@@ -0,0 +1,154 @@
++# 河的可判标签词汇：4 → 7（已注册标签接线，口径不动）
++
++日期：2026-10-07
++前置：`docs/verification/2026-10-07-river-ci-contract-coverage.md`（本次测试跑在它引入的夹具库上）
++
++---
++
++## 1. 问题
++
++`river_derive.SLICE_EVALUABLE_LABELS` 是**整条河的表达力上限**，不是一个内部实现细节：
++
++| 下游 | 怎么用它 |
++|---|---|
++| `scenario_trees.compile_condition` | 分枝条件的 label 不在里面 → `E_LABEL_NOT_SLICE_EVALUABLE`，整棵树拒绝登记 |
++| `judgment_maintenance.conditions` | 同一张白名单，谓词只能落在里面 |
++| `research_evolution.adapters` | 可判观测目录只枚举它 |
++
++扩张前它有 4 个词：`dual_red_strict` / `volume_surge` / `market_stage` / `limit_heat_rank`。
++其中只有 `market_stage` 有段位语义。于是情景树能表达的 if/then 实际上只有
++「大盘在某阶段 + 两三个布尔」，而 `ALL_LABELS` 里登记了 17 个标签、旁路库里躺着
++174 万行标签值。**引擎是好的，能说的话太少。**
++
++这件事此前不会让任何测试变红：白名单少一个词，只会让一种判读表达不出来。
++
++## 2. 改了什么
++
++接上三个**已经在 `ALL_LABELS` 里注册、切片里也已经算好、只是没接线**的标签：
++
++| 标签 | 类型 | 取自 | 标签层同口径吗 |
++|---|---|---|---|
++| `multi_period_resonance` | sector / bool | 盘面轨量价行的同名列 | 是：两边都是布尔列的直接投影，无阈值 |
++| `opinion_stage` | theme / text | 舆论轨的 `stage` 对象 | 是：两边都调 `opinion_stage.derive_stage(hits, day, knowledge_cutoff=day)` |
++| `lifecycle_stage` | theme / text | 题材轨的 `stage` 对象 | 是：两边都是 `theme_lifecycle_timeline.derive_stages` 的 `daily=` 逐日态 |
++
++**三件没有做的事**（这次扩张的边界）：
++
++- 没有新造标签名 —— G-16 红线。新增测试 `test_白名单里的名字必须都是已注册标签` 把它钉死。
++- 没有动任何阈值、没有升 `LABEL_VERSION` —— 口径一个字没改，只是河这边本来能判却没判。
++- 没有重算 —— 绑定函数只从切片已有的对象上**取**值。重算等于把同一口径实现第三遍。
++
++另外三处：
++
++1. **`_sector_quote()`**：盘面轨同时发两个 `object_type="label"`（量价行、涨停热度行）。
++   原来 `_first(..., "label")` 靠顺序取第一个，量价行缺而热度行在的那天会取到热度行——
++   因为热度行没有 `pct_chg` 等键，`.get` 全返回 None，结果「碰巧」仍是「缺原料」。
++   改为按 `sector_ts_code` 显式选行。**量价行存在时行为完全不变**，只是把巧合变成约定。
++2. **`adapters.SLICE_EVALUABLE_LABELS` 去掉手抄副本**，改为 `tuple(river_derive.SLICE_EVALUABLE_LABELS)`。
++   手抄件只会往一个方向出错：河扩了词、抄件没跟上 → 新标签在 01 的目录里不出现，
++   **功能悄悄不生效，没有任何测试会红**。
++3. **剩下 10 个标签为什么仍不绑定，逐条写进了代码注释**，省得下次有人重新判断一遍。
++   其中 `limit_up / first_board / new_high_1y` 是真正的红线：河的实体是板块，
++   在板块切片上「绑定」个股标签只能绑成某种聚合，而那是**另一个标签**，要新名字。
++
++## 3. 夹具也补了
++
++扩张前跑一遍发现：夹具库里 7 个标签有 4 个**恒为 None**
++（`volume_surge` / `limit_heat_rank` / `multi_period_resonance` 整列空，`dual_red_strict` 恒 False）。
++所有关于它们的断言都会通过而什么都没验到。
++
++补了四条逐日序列（`DIFF_RATIO_BY_DAY` / `RESONANCE_BY_DAY` / `VOLUME_PCT_BY_DAY` / `HEAT_RANK_BY_DAY`），
++让每个标签在 15 天里真 / 假 / 缺三种结局都出现过。`VOLUME_PCT_BY_DAY` 里刻意放了一个
++**恰好等于阈值 10.0** 的日子：边界写成 `>=` 而不是 `>` 时，只有这一格会红。
++
++这件事本身由 `test_夹具必须让每个可判标签都出现过非空值` 守住——以后再加标签，
++忘了喂值会直接红，并把人指回 `*_BY_DAY`。
++
++副作用（正面的）：`lifecycle_stage` 现在在夹具里真的走过 发酵 → 主升，
++于是区间派生第一次有了 `market_stage` 之外的第二个跃迁源。
++
++## 4. 读数
++
++```
++$ FWP_ALLOW_ANY_PYTHON=1 .venv-qc/bin/python -m pytest \
++    tests/test_river_contract_on_fixture.py -q
++37 passed in 17.00s                                    # 扩张前 26
++
++$ ... -m pytest intelligence/tests/test_label_binding_parity.py -q
++4 passed in 1.04s                                      # 扩张前 2
++
++$ ... -m pytest <全部 import 了 river_derive / scenario_trees /
++    research_evolution / SLICE_EVALUABLE 的测试> tests/test_river_*.py
++    intelligence/tests/test_river*.py
++    intelligence/tests/test_methodology_backtest.py -q
++673 passed, 43 skipped, 15 subtests passed in 162.62s
++
++$ ruff check <5 个改动文件>
++All checks passed!
++```
++
++贯通验证：
++
++```
++adapters 可判标签: ('dual_red_strict', 'volume_surge', 'market_stage', 'limit_heat_rank',
++                   'multi_period_resonance', 'opinion_stage', 'lifecycle_stage')
++scenario_trees 看到: 同上
++```
++
++夹具区间上每个标签的实际取值分布（15 天）：
++
++| 标签 | 非空 | 取值集合 |
++|---|---|---|
++| `dual_red_strict` | 13/15 | False, True |
++| `volume_surge` | 13/15 | False, True |
++| `market_stage` | 15/15 | 主升, 分歧, 退潮, 震荡 |
++| `limit_heat_rank` | 13/15 | 1 … 15 |
++| `multi_period_resonance` | 12/15 | False, True |
++| `opinion_stage` | 15/15 | 萌芽, 扩散 |
++| `lifecycle_stage` | 14/15 | 发酵, 主升 |
++
++## 5. 新增的 11 条契约
++
++| 测试 | 守什么 |
++|---|---|
++| `test_夹具必须让每个可判标签都出现过非空值` | 恒空列 = 假绿，直接红 |
++| `test_新接线的标签在切片上真的出值并带_ref` ×3 | 出值 **且** 带 ref（只出值会让 member_refs 静默为空） |
++| `test_白名单里的名字必须都是已注册标签` | G-16：河不新造标签名 |
++| `test_下游看到的可判名单与河完全一致` | 杀掉手抄副本漂移 |
++| `test_resonance_是布尔列的直接投影_不做任何解释` | 绑定层不得自作主张 |
++| `test_lifecycle_取当天读数而不是段落表的事后视角` | PIT：不得取 `segment_hindsight.stage` |
++| `test_opinion_stage_取舆论轨已算好的那个对象_不重算` | 不出现第三份实现 |
++| `test_新标签立刻可以作为情景树的分枝条件` | **本次扩张的验收**；并反向验仍判不了的标签照旧被拒 |
++| `test_lifecycle_跃迁可被_derive_transitions_抓出` | 新的线状对象；并钉住「缺一天 → unverifiable，不是没跃迁」 |
++| `test_resonance_两层同判` + `test_resonance_夹具覆盖三种结局` | SQL ↔ 绑定层逐格 parity |
++
++## 6. 一处已知且故意保留的不对称
++
++`opinion_stage` 在两层的实体口径不同：
++
++- 标签层按 `sector_ts_code` 归并该代码历史上的**全部曾用名**再取研报命中并集（实测 `990380.FP` 有两个名字）；
++- 河这边只用当前切片的 `entity_name` **一个名字**匹配。
++
++改过名的板块，在改名前后会有口径不同的日子。**没有在绑定层偷偷补**：
++河的实体归一属于 `resolve_entity` / `config_sector_alias` 的职责，那才是该修的地方
++（实测 `config_sector_alias` 0 行，见质检报告 P2）。此处只在 `_bind_opinion_stage`
++的 docstring 里写明，避免下游以为两边恒等。
++
++## 7. 没有解决的
++
++- **词汇仍然不够。** 7 个词里只有 3 个有段位语义。母本 §1.4 的十个旗标（B 类阈值空白）
++  才是真正的解锁点，那是创始人的判断不是工程量。这次只是把**已经造好但没接线**的部分接上。
++- `amount_rank_top10` / `mainline_flag` 仍判不了：前者要当日 published 名单的横截面，
++  后者要 `fact_mainline_sector_daily`，两者都不在六轨取数范围内。
++- `window()` 仍只默认挂 `cumulative`，`cumulative.member_refs` 仍为空（质检 P2，未动）。
++
++## 8. ⚠ 合并前必做
++
++本文全部读数取自 **Python 3.11 + `.venv-qc` + `FWP_ALLOW_ANY_PYTHON=1`**，
++不是契约规定的 3.12.13 `.venv-workbench`（该 venv 不在版本库里，干净 clone 中不存在）。
++conftest 的不可比告警全程在打。
++
++顺带记录一个与本改动无关、但在 3.11 下暴露的事实：
++`skills/duckdb-backfill/scripts/qa_local_vs_fupanhui.py:172` 用了 3.12 才允许的
++嵌套同引号 f-string，3.11 上 `tests/test_qa_local_vs_fupanhui.py` 直接收集失败。
++这从侧面印证了解释器门禁的必要性。
+diff --git a/intelligence/services/research_evolution/adapters.py b/intelligence/services/research_evolution/adapters.py
+index 4b14e9bc..a440a1c3 100644
+--- a/intelligence/services/research_evolution/adapters.py
++++ b/intelligence/services/research_evolution/adapters.py
+@@ -23,6 +23,7 @@ from typing import Any, Mapping, Protocol, Sequence
+ from intelligence.services import checkpoints as checkpoints_svc
+ from intelligence.services import judgments as judgments_svc
+ from intelligence.services import research_queue as research_queue_svc
++from intelligence.services import river_derive
+ from intelligence.services import scenario_trees as scenario_trees_svc
+ from intelligence.services.research_evolution.contracts import (
+     ERR_REF_UNRESOLVABLE,
+@@ -30,8 +31,13 @@ from intelligence.services.research_evolution.contracts import (
+     gap,
+ )
+ 
+-# 01 只能编译这四个标签（``conditions.compile_binding_condition``）；UI 不该让用户选到别的。
+-SLICE_EVALUABLE_LABELS: tuple[str, ...] = ("dual_red_strict", "volume_surge", "market_stage", "limit_heat_rank")
++# 01 能编译的标签集（``conditions.compile_binding_condition``）；UI 不该让用户选到别的。
++#
++# 原先是一份手抄的四元组。手抄的那刻两边是一致的，但白名单在 river_derive 那边扩了之后
++# 这里不会跟着动，结果是：河已经能判的标签，01 的目录里看不到，而且没有任何测试会红——
++# 一个只会在「新功能悄悄不生效」这个方向出错的副本。改为从唯一来源派生，顺序按
++# river_derive 的声明顺序（dict 保序），下游拿到的名单永远等于河真正能判的名单。
++SLICE_EVALUABLE_LABELS: tuple[str, ...] = tuple(river_derive.SLICE_EVALUABLE_LABELS)
+ 
+ 
+ # --------------------------------------------------------------------------- #
+diff --git a/intelligence/services/river_derive.py b/intelligence/services/river_derive.py
+index 21eea3a9..7b7b5f07 100644
+--- a/intelligence/services/river_derive.py
++++ b/intelligence/services/river_derive.py
+@@ -24,6 +24,13 @@
+ 切片里放的是原料字段不是编译后的标签值，所以这里有一层「标签绑定」把注册标签落到 payload 上：
+ 只收单日切片能判的那些（``SLICE_EVALUABLE_LABELS``），阈值 ``from labels import``，不复制数字。
+ 需要历史的标签（``dual_red_streak / diff_ratio_turn_up / ma5_*``）由本模块的 streak / transition 派生表达，不做单日绑定。
++
++**白名单是整条河的表达力上限**：情景树的分枝条件、规则 DSL、研究演化的可判观测，
++三者都只认这张表里的名字（``scenario_trees.py`` 与 ``research_evolution.adapters``
++直接 import 它）。白名单有几个词，这条河就只能说出几种话——所以每新接一个**已注册**
++标签，不是加一列数据，是给判读多一个可用的概念。2026-10-07 从 4 个扩到 7 个：
++补上的 ``multi_period_resonance / opinion_stage / lifecycle_stage`` 全都是切片里
++**本来就算好了、只是没接线**的值，口径一个字没改，``LABEL_VERSION`` 不动。
+ """
+ 
+ from __future__ import annotations
+@@ -69,6 +76,22 @@ def _num(v: Any) -> float | None:
+         return None
+ 
+ 
++def _sector_quote(sl: RiverSlice) -> RiverObject | None:
++    """盘面轨里那条来自 ``fact_sector_daily`` 的量价行。
++
++    盘面轨同时发两个 ``object_type="label"``：量价行与涨停热度行（``source_view="limit_heat"``）。
++    按出现顺序取第一个在量价行存在时恰好对；但**量价行缺、热度行在**的那一天，
++    ``_first(..., "label")`` 取到的是热度行——它没有 ``pct_chg`` 等键，``.get`` 全返回 None，
++    于是结果「碰巧」仍是「缺原料」。碰巧对的代价是：热度表哪天多出一个同名列，绑定就会
++    静默读错一张表且不报错。这里按 ``sector_ts_code`` 存在与否显式选行，把巧合变成约定。
++    """
++    for o in track_objects(sl, "market"):
++        if o.object_type == "label" and o.payload.get("source_view") != "limit_heat":
++            if "sector_ts_code" in o.payload or "pct_chg" in o.payload:
++                return o
++    return None
++
++
+ def _bind_dual_red_strict(sl: RiverSlice) -> tuple[bool | None, list[str]]:
+     """与 ``labels.py`` 的 ``dual_red_strict`` **同一套三值逻辑**：任一已知条件为假即 False，
+     只有「已知的都为真、却有输入缺失」才是 None。
+@@ -78,7 +101,7 @@ def _bind_dual_red_strict(sl: RiverSlice) -> tuple[bool | None, list[str]]:
+     两条路径上得到不同的真值，且没有任何地方会报错（09-12 复核抓到：pct=1 / diff=NULL /
+     amount=100 时标签层判 0、这里判未知）。一致性由 ``test_river_derive_matches_labels_layer`` 钉住。
+     """
+-    o = _first(track_objects(sl, "market"), "label")
++    o = _sector_quote(sl)
+     if o is None:
+         return None, []
+     p = o.payload
+@@ -122,14 +145,103 @@ def _bind_limit_heat_rank(sl: RiverSlice) -> tuple[float | None, list[str]]:
+     return None, []
+ 
+ 
++def _bind_multi_period_resonance(sl: RiverSlice) -> tuple[bool | None, list[str]]:
++    """``fact_sector_daily.multi_period_resonance`` 的直接投影。
++
++    标签层是 ``CASE WHEN multi_period_resonance IS NULL THEN NULL WHEN … THEN 1 ELSE 0 END``
++    （labels.py 的布尔列投影），没有阈值、没有派生，所以这里也只做三值映射：
++    缺列 / 缺行 / 列为 NULL → None，其余按 Python 真值判。
++
++    不写 ``bool(v)`` 兜底任意类型：该列在 schema 里是 BOOLEAN，真库若哪天变成 0/1 整数或
++    'Y'/'N' 字符串，``bool("N")`` 会判成 True 而且不报错。只认 bool，其余交给下面的显式分支。
++    """
++    o = _sector_quote(sl)
++    if o is None:
++        return None, []
++    v = o.payload.get("multi_period_resonance")
++    if v is None:
++        return None, [o.ref]
++    if isinstance(v, bool):
++        return v, [o.ref]
++    n = _num(v)
++    if n is not None:  # 整数 0/1 列：真库换型时仍可判，且口径与 SQL 的 CASE 一致
++        return bool(n != 0), [o.ref]
++    raise LabelNotSliceEvaluable(
++        f"multi_period_resonance 读到非布尔非数值的 {type(v).__name__} 值 {v!r}；"
++        " 上游列型变了，绑定层拒绝猜——改口径请同时改 labels.py 的投影并升 LABEL_VERSION"
++    )
++
++
++def _bind_opinion_stage(sl: RiverSlice) -> tuple[str | None, list[str]]:
++    """舆论生命周期段（萌芽 / 扩散 / 拥挤 / 退热 / 证伪 / unverifiable）。
++
++    切片的舆论轨已经调过 ``opinion_stage.derive_stage(hits, as_of, knowledge_cutoff=as_of)``
++    并把结果发成 ``object_type="stage"``；标签层 ``_build_opinion_stage_labels`` 调的是
++    **同一个函数、同一组参数**。所以这里不重算，只取那个对象的 ``stage`` ——重算等于把
++    同一口径实现两遍，正是 parity 测试要防的东西。
++
++    该板块名从未被研报 tag 命中的日子，舆论轨整条是 ``Gap("opinion","no_data")``，
++    这里返回 None，与标签层的「不落行 = NULL」对上。
++
++    ⚠ 一处**已知且故意保留**的不对称：标签层按 ``sector_ts_code`` 归并该代码历史上的
++    全部曾用名再取命中并集（实测 990380.FP 有两个名字），河这边只用当前切片的
++    ``entity_name`` 一个名字匹配。改过名的板块在改名前后会出现两层口径不同的日子。
++    不在这里偷偷补：河的实体归一走 ``resolve_entity`` / ``config_sector_alias``，
++    那才是该修的地方（实测该表 0 行，见质检 P2）。此处只把差异写明，避免下游以为两边恒等。
++    """
++    o = _first(track_objects(sl, "opinion"), "stage")
++    if o is None:
++        return None, []
++    v = o.payload.get("stage")
++    return (v if isinstance(v, str) and v else None), [o.ref]
++
++
++def _bind_lifecycle_stage(sl: RiverSlice) -> tuple[str | None, list[str]]:
++    """题材生命周期七段（酝酿 / 首发 / 发酵 / 主升 / 分歧 / 退潮 / 回流）的当日读数。
++
++    题材轨的 ``theme_lifecycle_stage_object`` 与标签层的 ``_build_lifecycle_stage_labels``
++    是同一台状态机（``theme_lifecycle_timeline.derive_stages`` 的 ``daily=`` 逐日态），
++    labels.py 的 docstring 已写明「随机抽 30 格两边逐字节相等（测试钉住）」。这里同样只取不算。
++
++    取的是 ``payload["stage"]``（站在当天的读数），**不是**
++    ``payload["segment_hindsight"]["stage"]`` —— 后者是段落表的事后视角（起点回溯、短段合并），
++    两者可以不同，而 PIT 下只有前者可用。段外（首个盘面信号之前 / 段间空档）题材轨不发
++    stage 对象，这里返回 None，对应标签层的 NULL；那是 gap，不是「酝酿」。
++    """
++    for o in track_objects(sl, "theme"):
++        if o.object_type == "stage" and o.payload.get("mapping_version"):
++            v = o.payload.get("stage")
++            return (v if isinstance(v, str) and v else None), [o.ref]
++    return None, []
++
++
+ # 白名单：单日切片能判的注册标签 → 绑定函数。值域：bool（谓词）或标量（stage / rank，用于 transition）。
++#
++# 只收 ``ALL_LABELS`` 里已登记的名字（``bind`` 会先查），这里扩的是「已注册但还没接线」的那部分，
++# 不新造标签名、不动任何阈值、不升 ``LABEL_VERSION``——口径一个字没改，只是河这边原本能判却没判。
+ SLICE_EVALUABLE_LABELS: dict[str, Callable[[RiverSlice], tuple[Any, list[str]]]] = {
+     "dual_red_strict": _bind_dual_red_strict,
+     "volume_surge": _bind_volume_surge,
+     "market_stage": _bind_market_stage,
+     "limit_heat_rank": _bind_limit_heat_rank,
++    "multi_period_resonance": _bind_multi_period_resonance,
++    "opinion_stage": _bind_opinion_stage,
++    "lifecycle_stage": _bind_lifecycle_stage,
+ }
+ 
++# 为什么剩下 10 个注册标签仍然不在上面（写下来，省得下次有人重新判断一遍）：
++#   amount_rank_top10        切片只有本实体的 amount，没有当日 published 名单的横截面，排名算不出来
++#   mainline_flag            fact_mainline_sector_daily 不在六轨任何一轨的取数范围内
++#   limit_heat_rank_jump     要前一交易日的名次 → 用 derive_transitions(limit_heat_rank) 表达
++#   dual_red_streak          就是 derive_streak("dual_red_strict") 本身，重复绑定等于两处口径
++#   diff_ratio_turn_up       要相邻前一日 → 区间派生，不是单日
++#   ma5_peak_confirmed       SignalDetector 要全程 fact_market_daily 序列
++#   ma5_valley_confirmed     同上
++#   limit_up / first_board / new_high_1y
++#                            个股级标签。河的实体是板块，个股轨给的是成员列表；
++#                            在板块切片上「绑定」它们只能绑成某种聚合（几只涨停 / 占比），
++#                            而那是**另一个标签**，需要新名字 + LABEL_VERSION，踩 G-16 红线。
++
+ 
+ def bind(label: str, sl: RiverSlice) -> tuple[Any, list[str]]:
+     """注册标签在一片切片上的值与所用对象 ref。不在白名单 → 抛错（不猜、不静默 None）。"""
+diff --git a/intelligence/tests/test_label_binding_parity.py b/intelligence/tests/test_label_binding_parity.py
+index eb3ea4d7..f6cfea44 100644
+--- a/intelligence/tests/test_label_binding_parity.py
++++ b/intelligence/tests/test_label_binding_parity.py
+@@ -35,6 +35,12 @@ CASES: dict[str, tuple[float | None, float | None, float | None]] = {
+     "amount_null_others_pass": (1.0, None, 20.0),  # 同上，缺的是 amount → None
+ }
+ 
++# multi_period_resonance 是布尔列的直接投影，没有阈值，所以它的「三值」全部来自源列本身。
++# 挂在同一批 CASES 的代码上，复用同一个最小合成库，不再多建一个。
++RESONANCE: dict[str, bool | None] = {
++    code: (None, True, False)[i % 3] for i, code in enumerate(CASES)
++}
++
+ 
+ @pytest.fixture(scope="module")
+ def sql_labels(tmp_path_factory: pytest.TempPathFactory) -> dict[str, float | None]:
+@@ -52,7 +58,7 @@ def sql_labels(tmp_path_factory: pytest.TempPathFactory) -> dict[str, float | No
+         rows = []
+         for code, (pct, amt, diff) in CASES.items():
+             for d in (PREV, DAY):
+-                rows.append((d, "legacy", f"{code}.TI", code, pct, amt, diff, None))
++                rows.append((d, "legacy", f"{code}.TI", code, pct, amt, diff, RESONANCE[code]))
+         con.executemany(
+             "INSERT INTO fact_sector_daily_generation (trade_date, sector_universe_snapshot_id,"
+             " sector_ts_code, sector_name, pct_chg, amount, diff_ratio, multi_period_resonance)"
+@@ -65,19 +71,26 @@ def sql_labels(tmp_path_factory: pytest.TempPathFactory) -> dict[str, float | No
+     con = duckdb.connect(str(lab), read_only=True)
+     try:
+         got = {}
+-        for code in CASES:
+-            row = con.execute(
+-                "SELECT value_num FROM history_labels WHERE entity_id=? AND label='dual_red_strict' AND trade_date=?",
+-                [f"{code}.TI", DAY],
+-            ).fetchone()
+-            got[code] = None if row is None else row[0]
++        for label in ("dual_red_strict", "multi_period_resonance"):
++            for code in CASES:
++                row = con.execute(
++                    "SELECT value_num FROM history_labels WHERE entity_id=? AND label=? AND trade_date=?",
++                    [f"{code}.TI", label, DAY],
++                ).fetchone()
++                got[(label, code)] = None if row is None else row[0]
+         return got
+     finally:
+         con.close()
+ 
+ 
+-def _slice_for(pct: float | None, amt: float | None, diff: float | None) -> RiverSlice:
+-    payload = {"pct_chg": pct, "amount": amt, "diff_ratio": diff}
++def _slice_for(
++    pct: float | None, amt: float | None, diff: float | None, resonance: bool | None = None
++) -> RiverSlice:
++    # sector_ts_code 必须在 payload 里：绑定层按它认出「这是量价行不是涨停热度行」。
++    payload = {
++        "sector_ts_code": "E", "pct_chg": pct, "amount": amt, "diff_ratio": diff,
++        "multi_period_resonance": resonance,
++    }
+     market = [
+         RiverObject(
+             track="market", entity_id="E", object_type="label",
+@@ -94,9 +107,9 @@ def test_river_derive_matches_labels_layer(sql_labels: dict[str, float | None])
+     """逐格比对：SQL 的 1/0/NULL 与绑定层的 True/False/None 必须一一对应。"""
+     mismatches = []
+     for code, (pct, amt, diff) in CASES.items():
+-        sql_value = sql_labels[code]
++        sql_value = sql_labels[("dual_red_strict", code)]
+         expected = None if sql_value is None else bool(sql_value)
+-        bound, refs = bind("dual_red_strict", _slice_for(pct, amt, diff))
++        bound, refs = bind("dual_red_strict", _slice_for(pct, amt, diff, RESONANCE[code]))
+         if bound != expected:
+             mismatches.append(f"{code}: SQL={sql_value!r}→{expected!r} vs 绑定={bound!r}")
+         assert refs, f"{code}: 绑定必须带 member ref"
+@@ -105,5 +118,28 @@ def test_river_derive_matches_labels_layer(sql_labels: dict[str, float | None])
+ 
+ def test_parity_covers_every_three_valued_branch(sql_labels: dict[str, float | None]) -> None:
+     """夹具本身要真的覆盖三种结局，否则这条一致性测试可能在只有一种值时假绿。"""
+-    values = {sql_labels[c] for c in CASES}
++    values = {sql_labels[("dual_red_strict", c)] for c in CASES}
++    assert values == {0.0, 1.0, None}, values
++
++
++def test_resonance_两层同判(sql_labels: dict[tuple[str, str], float | None]) -> None:
++    """``multi_period_resonance``：标签层的 SQL CASE 与绑定层的三值映射逐格比对。
++
++    这个标签没有阈值，看着不可能错——但「不可能错」正是没人去钉的理由，而布尔列在
++    真库换型（BOOLEAN → 0/1 → 'Y'/'N'）时恰好是静默出错的那类：``bool("N")`` 是 True。
++    """
++    mismatches = []
++    for code, (pct, amt, diff) in CASES.items():
++        sql_value = sql_labels[("multi_period_resonance", code)]
++        expected = None if sql_value is None else bool(sql_value)
++        bound, refs = bind("multi_period_resonance", _slice_for(pct, amt, diff, RESONANCE[code]))
++        if bound != expected:
++            mismatches.append(f"{code}: 源列={RESONANCE[code]!r} SQL={sql_value!r}→{expected!r} vs 绑定={bound!r}")
++        if expected is not None:
++            assert refs, f"{code}: 绑定必须带 member ref"
++    assert not mismatches, "resonance 两层判断不一致：\n" + "\n".join(mismatches)
++
++
++def test_resonance_夹具覆盖三种结局(sql_labels: dict[tuple[str, str], float | None]) -> None:
++    values = {sql_labels[("multi_period_resonance", c)] for c in CASES}
+     assert values == {0.0, 1.0, None}, values
+diff --git a/tests/fixtures/river_mini_db.py b/tests/fixtures/river_mini_db.py
+index 632bd3ea..30e76c6b 100644
+--- a/tests/fixtures/river_mini_db.py
++++ b/tests/fixtures/river_mini_db.py
+@@ -137,6 +137,32 @@ def build_mini_db(path: str | Path) -> str:
+     return str(path)
+ 
+ 
++# 下面四条逐日序列的唯一目的，是让每个「单日切片可判」的注册标签在这 15 天里
++# **三种结局都出现过**（真 / 假 / 缺原料）。不这么做，测试会在「整列恒为 None」
++# 上假绿：断言照样通过，但它什么都没验到——这正是本仓反复点名的假门禁形状。
++# 覆盖本身由 test_夹具必须让每个可判标签都出现过真_假_缺三种结局 守住。
++#
++# diff_ratio：阈值 DUAL_RED_DIFF_RATIO_GT=10。>10 且 pct>0 且 amount>500 → dual_red_strict True。
++#   None 用来打出三值逻辑的「已知的都为真、仍有缺失」那一格。
++#   注意不能整列为 0：>90% published 板块 diff_ratio=0 会被判成 data_gap 日。
++DIFF_RATIO_BY_DAY: tuple[float | None, ...] = (
++    0.6, 12.0, 15.0, 11.5, None, 0.6, 13.0, 14.0, 0.6, None, 12.5, 0.6, 16.0, 11.0, 0.6,
++)
++# multi_period_resonance：布尔列直接投影，三值全覆盖。
++RESONANCE_BY_DAY: tuple[bool | None, ...] = (
++    None, True, True, False, None, False, True, True, False, None, True, False, True, True, False,
++)
++# amount_vs_yesterday_pct：阈值 VOLUME_SURGE_PCT=10，严格大于才算放量。
++#   刻意放一个恰好等于 10.0 的日子——边界用 > 还是 >= 写错时，只有这一格会红。
++VOLUME_PCT_BY_DAY: tuple[float | None, ...] = (
++    None, 25.0, 30.0, 10.0, -5.0, 3.0, 18.0, 22.0, -12.0, None, 15.0, 2.0, 28.0, 9.99, -3.0,
++)
++# 涨停热度名次：1 名次越小越热；留两天 None 给「当天没进榜」。
++HEAT_RANK_BY_DAY: tuple[int | None, ...] = (
++    None, 12, 7, 3, 2, 8, 4, 1, 5, None, 6, 15, 2, 3, 9,
++)
++
++
+ def _seed(con) -> None:
+     days = trading_days()
+     stages = ["震荡", "震荡", "主升", "主升", "主升", "分歧", "分歧", "主升",
+@@ -146,14 +172,20 @@ def _seed(con) -> None:
+         rec = f"{day} {RECORDED_HOUR}"
+         stage = stages[i % len(stages)]
+         pct = round(((i * 37) % 13) - 4 + 0.5, 2)
++        diff = DIFF_RATIO_BY_DAY[i]
++        resonance = RESONANCE_BY_DAY[i]
++        vol_pct = VOLUME_PCT_BY_DAY[i]
++        heat_rank = HEAT_RANK_BY_DAY[i]
+ 
+         con.execute(
+             """INSERT OR REPLACE INTO fact_market_daily
+-               (trade_date, market_stage, total_amount, amount_ma20, advancers, limit_up, limit_down,
++               (trade_date, market_stage, total_amount, amount_ma20, amount_vs_yesterday_pct,
++                advancers, limit_up, limit_down,
+                 sh_week_ma, sh_deviation_pct, sh_index_close, sh_index_pct_chg, volume_state,
+                 source, updated_at)
+-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'fixture',?)""",
+-            [day, stage, 1.5e12 + (i % 5) * 8e10, 1.6e12, 2500 + i * 40, 60 + (i * 7) % 40,
++               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'fixture',?)""",
++            [day, stage, 1.5e12 + (i % 5) * 8e10, 1.6e12, vol_pct,
++             2500 + i * 40, 60 + (i * 7) % 40,
+              10 + i % 7, 3300.0, round(i * 0.3 - 2, 2), 3300 + i * 9, pct, "放量", rec],
+         )
+         con.execute(
+@@ -174,9 +206,11 @@ def _seed(con) -> None:
+             con.execute(
+                 """INSERT OR REPLACE INTO fact_sector_daily_generation
+                    (trade_date, sector_universe_snapshot_id, sector_ts_code, sector_name,
+-                    sw_l1, pct_chg, amount, diff_ratio, strength, source, updated_at)
+-                   VALUES (?, 'snap1', ?, ?, ?, ?, ?, ?, ?, 'fixture', ?)""",
+-                [day, code, name, name, pct, 8e10 + i * 1e9, 0.6, round(1 + i * 0.1, 2), rec],
++                    sw_l1, pct_chg, amount, diff_ratio, strength, multi_period_resonance,
++                    source, updated_at)
++                   VALUES (?, 'snap1', ?, ?, ?, ?, ?, ?, ?, ?, 'fixture', ?)""",
++                [day, code, name, name, pct, 8e10 + i * 1e9, diff, round(1 + i * 0.1, 2),
++                 resonance, rec],
+             )
+             con.execute(
+                 """INSERT OR REPLACE INTO fact_sector_stock_daily_generation
+@@ -191,9 +225,9 @@ def _seed(con) -> None:
+             con.execute(
+                 """INSERT OR REPLACE INTO fact_theme_limit_heat_daily
+                    (trade_date, sector_ts_code, sector_name, dimension, scope,
+-                    limit_up_count, total_count, limit_up_ratio, source, updated_at)
+-                   VALUES (?, ?, ?, 'concept', 'all', ?, 30, ?, 'fixture', ?)""",
+-                [day, code, name, (i * 3) % 9, round(((i * 3) % 9) / 30, 4), rec],
++                    limit_up_count, total_count, limit_up_ratio, rank, source, updated_at)
++                   VALUES (?, ?, ?, 'concept', 'all', ?, 30, ?, ?, 'fixture', ?)""",
++                [day, code, name, (i * 3) % 9, round(((i * 3) % 9) / 30, 4), heat_rank, rec],
+             )
+             # 涨停成分：up_stat 是「1/1」这种字符串，sync 已把它解析成两个整数列。
+             # 题材轨断言读的是整数列，夹具必须把两边都填上，否则守不住「不要再去解析字符串」。
+diff --git a/tests/test_river_contract_on_fixture.py b/tests/test_river_contract_on_fixture.py
+index 006a6f8d..9d0d6320 100644
+--- a/tests/test_river_contract_on_fixture.py
++++ b/tests/test_river_contract_on_fixture.py
+@@ -328,3 +328,182 @@ def test_派生对象可拆回到天(win) -> None:
+     obj = rd.derive_transitions(win, "market_stage")
+     assert obj.payload["member_refs"], "member_refs 为空 = 区间派生回溯不到天"
+     assert all(":" in r for r in obj.payload["member_refs"])
++
++
++# --------------------------------------------------------------------------- #
++# 标签词汇：白名单是整条河的表达力上限
++#
++# 这一组测的不是「某个标签算得对不对」（那是 parity 测试的事），而是**白名单本身**：
++# 它有几个词、每个词是不是真能在切片上出值、下游拿到的名单是不是同一份。
++# 之所以要专门钉：白名单少一个词，河就少一种说法，而少说一种话**不会让任何测试变红**。
++# --------------------------------------------------------------------------- #
++def test_夹具必须让每个可判标签都出现过非空值() -> None:
++    """阳性对照的阳性对照。
++
++    若某个标签在整个夹具区间恒为 None，所有关于它的断言都会「通过」而什么都没验到——
++    本仓反复点名的那种绿。这条在 15 天里逐个标签数非空格子，恒空直接红，
++    并把人指回夹具的 *_BY_DAY 序列。
++    """
++    pytest.importorskip("duckdb")
++    from intelligence.services.river_derive import SLICE_EVALUABLE_LABELS, bind
++
++    import tests.fixtures.river_mini_db as fx
++
++    path = build_mini_db(Path(str(fx.__file__)).parent / "_vocab_tmp.duckdb")
++    try:
++        empty: list[str] = []
++        for label in SLICE_EVALUABLE_LABELS:
++            seen = set()
++            for day in DAYS:
++                s = slice_river(day, ENTITY, db_path=path, allow_hindsight=True)
++                v, _ = bind(label, s)
++                if v is not None:
++                    seen.add(v)
++            if not seen:
++                empty.append(label)
++        assert not empty, (
++            f"这些标签在夹具的 {len(DAYS)} 天里恒为 None，关于它们的断言都是假绿："
++            f"{empty}；去 tests/fixtures/river_mini_db.py 的 *_BY_DAY 序列里给它们喂值"
++        )
++    finally:
++        Path(path).unlink(missing_ok=True)
++
++
++@pytest.mark.parametrize("label", ["multi_period_resonance", "opinion_stage", "lifecycle_stage"])
++def test_新接线的标签在切片上真的出值并带_ref(sl: RiverSlice, label: str) -> None:
++    """接线有没有接上，看的是「出值 + 带 ref」两件事一起成立。
++
++    只断言出值不够：绑定函数返回 ``(值, [])`` 也能让值看起来对，但派生对象的
++    ``member_refs`` 会是空的，于是「可拆回到天」这条契约在它身上静默失效
++    （``cumulative.member_refs`` 为空就是现成的例子，见质检 P2）。
++    """
++    from intelligence.services.river_derive import bind
++
++    value, refs = bind(label, sl)
++    assert value is not None, f"{label} 在 {AS_OF} 应能判出值（夹具这天有原料）"
++    assert refs, f"{label} 判出了 {value!r} 却没带 ref，下游拆不回源行"
++    assert all(r in {o.ref for o in sl.objects} for r in refs), f"{label} 的 ref 不在本切片对象里"
++
++
++def test_白名单里的名字必须都是已注册标签() -> None:
++    """G-16 红线：河不新造标签名。
++
++    绑定层是最容易破这条线的地方——写个新函数塞进 dict 就能让情景树用上一个
++    ``ALL_LABELS`` 里没有的词，而且跑得通。那样一来「标签」就有两个互不知道的注册表，
++    ``label_version`` 也不再能描述派生对象实际用了什么口径。
++    """
++    from intelligence.services.methodology_backtest.labels import ALL_LABELS
++    from intelligence.services.river_derive import SLICE_EVALUABLE_LABELS
++
++    unknown = sorted(set(SLICE_EVALUABLE_LABELS) - set(ALL_LABELS))
++    assert not unknown, f"绑定层出现了未注册标签 {unknown}；要新标签请先进 labels.py 并升 LABEL_VERSION"
++
++
++def test_下游看到的可判名单与河完全一致() -> None:
++    """``research_evolution.adapters`` 与 ``scenario_trees`` 必须读同一份白名单。
++
++    adapters 原本手抄了一份四元组。手抄件只会往一个方向出错：河扩了词、抄件没跟上，
++    于是新标签在 01 的目录里不出现——**功能悄悄不生效，没有任何测试会红**。
++    """
++    from intelligence.services import scenario_trees
++    from intelligence.services.research_evolution import adapters
++    from intelligence.services.river_derive import SLICE_EVALUABLE_LABELS
++
++    expected = tuple(SLICE_EVALUABLE_LABELS)
++    assert tuple(adapters.SLICE_EVALUABLE_LABELS) == expected
++    assert tuple(scenario_trees.SLICE_EVALUABLE_LABELS) == expected
++
++
++def test_resonance_是布尔列的直接投影_不做任何解释(sl: RiverSlice) -> None:
++    """标签层是 ``CASE WHEN … IS NULL THEN NULL WHEN … THEN 1 ELSE 0 END``，没有阈值。
++    绑定层若自作主张（比如把 0 当缺失、把字符串 'N' 当真），两条路径会对同一天给出
++    不同真值且无人报错。这里直接拿源行的原值比。"""
++    from intelligence.services.river_derive import bind
++
++    quote = next(
++        o for o in sl.objects
++        if o.track == "market" and o.object_type == "label" and "sector_ts_code" in o.payload
++    )
++    raw = quote.payload.get("multi_period_resonance")
++    value, _ = bind("multi_period_resonance", sl)
++    assert value == (None if raw is None else bool(raw)), f"源行 {raw!r} 投影成了 {value!r}"
++
++
++def test_lifecycle_取当天读数而不是段落表的事后视角(sl: RiverSlice) -> None:
++    """题材轨的 stage 对象同时带 ``stage``（站在当天）与 ``segment_hindsight``
++    （段落表的事后视角：起点回溯、短段合并）。两者可以不同，而 PIT 下只有前者可用。
++    绑定取错会让「当时就知道」这件事凭空成立——最难发现的那类前视。"""
++    from intelligence.services.river_derive import bind
++
++    stage_obj = next(
++        o for o in sl.objects
++        if o.track == "theme" and o.object_type == "stage" and o.payload.get("mapping_version")
++    )
++    value, refs = bind("lifecycle_stage", sl)
++    assert value == stage_obj.payload["stage"]
++    assert refs == [stage_obj.ref]
++
++
++def test_opinion_stage_取舆论轨已算好的那个对象_不重算(sl: RiverSlice) -> None:
++    """切片的舆论轨已经调过 ``opinion_stage.derive_stage``，标签层调的是同一个函数。
++    绑定层若重算一遍，就有了第三份实现，而三份实现迟早不一致。"""
++    from intelligence.services.river_derive import bind
++
++    stage_obj = next(o for o in sl.objects if o.track == "opinion" and o.object_type == "stage")
++    value, refs = bind("opinion_stage", sl)
++    assert value == stage_obj.payload["stage"]
++    assert refs == [stage_obj.ref]
++
++
++def test_新标签立刻可以作为情景树的分枝条件() -> None:
++    """这条是整次扩张的**验收**：词汇扩了，判读层要真的能用上。
++
++    情景树的编译器只认 ``SLICE_EVALUABLE_LABELS``（它直接 import 那个 dict），
++    所以「白名单多了三个词」与「情景树多了三种分枝」之间不该有第二道闸。
++    这里正反各验一次：新标签编得过，仍不可判的标签照旧被拒。
++    """
++    from intelligence.services import scenario_trees as st
++
++    ok, errs = st.compile_condition(
++        {"all": [{"label": "lifecycle_stage", "op": "in", "value": ["主升", "分歧"]},
++                 {"label": "multi_period_resonance", "op": "==", "value": True}]},
++        where="node.test",
++    )
++    assert not errs, f"新标签应能编译成条件，却被拒：{errs}"
++    assert ok is not None
++
++    _, errs2 = st.compile_condition(
++        {"all": [{"label": "ma5_peak_confirmed", "op": "==", "value": True}]}, where="node.neg"
++    )
++    assert any(e.code == st.E_LABEL_NOT_SLICE_EVALUABLE for e in errs2), (
++        "仍然判不了的标签必须继续被拒——否则这次扩张顺手放进来了一个河其实算不出的词"
++    )
++
++
++def test_lifecycle_跃迁可被_derive_transitions_抓出(win) -> None:
++    """扩词汇的直接产物：多了一类**线状**对象。
++
++    扩张之前 ``derive_transitions`` 只能跑在 ``market_stage`` 上——整条河唯一一个
++    有段位语义的词。接上 ``lifecycle_stage`` 之后，「这个题材什么时候从发酵走到主升」
++    第一次成为可机读的派生对象，而不是要人去翻 15 天的原始行。
++
++    顺带钉住一处容易被当成 bug 的**正确行为**：题材在首个盘面信号之前没有段
++    （夹具第 1 天就是这种日子），默认 ``gap_policy="unverifiable"`` 下整个对象判
++    unverifiable 并写明缺哪天——缺一天不是「没跃迁」。要数跃迁就得显式选 ``break``，
++    把「那天不知道」这件事签字画押地当成中断。两条路径都验，否则只验了舒服的那条。
++    """
++    from intelligence.services import river_derive as rd
++
++    default = rd.derive_transitions(win, "lifecycle_stage")
++    assert default.object_type == "transition"
++    assert default.payload["status"] == "unverifiable", "段外的那天必须让整个对象降级，不能默默跳过"
++    assert any(g.startswith("missing:") for g in default.payload["gaps_applied"]), "要写明缺的是哪天"
++    assert "count" not in default.payload, "unverifiable 的对象不得同时给出一个像是结论的计数"
++
++    counted = rd.derive_transitions(win, "lifecycle_stage", gap_policy="break")
++    assert counted.payload["status"] == "ok"
++    assert counted.payload["count"] >= 1, "夹具里 lifecycle_stage 确实换过段，应至少抓到一次跃迁"
++    for t in counted.payload["transitions"]:
++        assert t["from"] != t["to"], "跃迁两端必须不同，否则是把「没变」记成了变化"
++        assert t["day"] in DAYS
++    assert counted.payload["member_refs"], "跃迁对象必须能拆回到源行"
+-- 
+2.39.5
+
+
+From 3f225892ff8471c660523d019d28d72320151a08 Mon Sep 17 00:00:00 2001
+From: moscrol <moscrol@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 09:58:21 +0000
+Subject: [PATCH 3/3] =?UTF-8?q?feat(rules):=20=E6=96=87=E6=9C=AC=E8=B0=93?=
+ =?UTF-8?q?=E8=AF=8D=E6=A3=80=E6=9F=A5=E5=8F=96=E5=80=BC=E5=9F=9F=E2=80=94?=
+ =?UTF-8?q?=E2=80=94=E5=86=99=E9=94=99=E4=B8=80=E4=B8=AA=E8=AF=8D=E4=B8=8D?=
+ =?UTF-8?q?=E8=AF=A5=E5=BE=97=E5=88=B0=E4=B8=80=E6=9D=A1=E6=B0=B8=E4=B8=8D?=
+ =?UTF-8?q?=E5=91=BD=E4=B8=AD=E7=9A=84=E8=A7=84=E5=88=99?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+来自一次 agent 真实消费实验。把三个 text 标签接进白名单之后，agent 写分枝条件
+必须填一个取值，而编译器此前只查字符（不许有 SQL 味），不查这个词在不在词表里：
+
+  lifecycle_stage '主升段'  → 编译过、零报错、命中 0/15 天
+  opinion_stage   '过热'    → 同上
+  market_stage    '主升阶段' → 同上（绑定层给的是归一后的「主升」）
+
+「条件从未成立」与「条件今天没成立」在读数上长得一模一样，没有任何地方会说一声。
+这和 derive_streak 对分类标签返回 longest=0 且 status=ok 是同一个形状的错。
+
+market_stage 更糟：词表其实存在，但埋在 method_validation/flywheel.py:1092 的一个
+正则里 (主升|反弹|横盘|顶部横盘|底部横盘|下跌|探底)，没有任何地方声明它是词表。
+
+新增 rules.text_domain_error()，规则 DSL 与情景树编译器共用，不抄第二份。
+两类标签分开，不一刀切成有限枚举：
+
+- 本仓自己派生的（opinion_stage / lifecycle_stage）→ 封闭词表，直接拒，
+  词表从各自 SSOT 现取，测试钉住不得抄副本
+- 上游拥有取值的（market_stage）→ OPEN_TEXT_LABELS，不得声明有限词表。
+  normalize_market_stage 的 docstring 明写规则是 data-driven 而非有限别名表，
+  硬编会在供应商新增段位时误杀合法条件。改为检查「值必须已是归一形式」
+  （normalize(v)==v），不需要词表就能逮住最可能犯的那个错。
+  新增 test_market_stage_不得声明有限词表 守住这条「不要做的事」。
+
+报错把合法词表直接摊出来，agent 看完报错就能自我纠正。
+反向验证：'反弹' 在夹具里一次没出现但仍放行——不能为拦错词而误杀上游新段位。
+
+读数：契约测试 37→48；受影响面 1155 passed / 49 skipped 零回归；ruff 全绿。
+实验数据与结论附在收据末尾（可表达性 5/9→9/9，压缩率 88:1）。
+---
+ ...026-10-07-river-label-binding-expansion.md | 108 ++++++++++++++++++
+ .../services/methodology_backtest/rules.py    |  74 +++++++++++-
+ intelligence/services/scenario_trees.py       |  15 ++-
+ tests/test_river_contract_on_fixture.py       |  77 +++++++++++++
+ 4 files changed, 270 insertions(+), 4 deletions(-)
+
+diff --git a/docs/verification/2026-10-07-river-label-binding-expansion.md b/docs/verification/2026-10-07-river-label-binding-expansion.md
+index 07b58804..d07ab291 100644
+--- a/docs/verification/2026-10-07-river-label-binding-expansion.md
++++ b/docs/verification/2026-10-07-river-label-binding-expansion.md
+@@ -152,3 +152,111 @@ conftest 的不可比告警全程在打。
+ `skills/duckdb-backfill/scripts/qa_local_vs_fupanhui.py:172` 用了 3.12 才允许的
+ 嵌套同引号 f-string，3.11 上 `tests/test_qa_local_vs_fupanhui.py` 直接收集失败。
+ 这从侧面印证了解释器门禁的必要性。
++
++---
++
++# 附：agent 真实消费实验（同日追加）
++
++扩张做完后的质疑是对的——「词汇变多」是不是只是个好听的数字。所以真跑了一次对照实验：
++同一组操盘手问题，分别在**扩张前 4 词**与**扩张后 7 词**的白名单下走河的公开接口，
++不碰内部表、不读 SQL。
++
++⚠ 夹具是合成数据，所以**任何关于行情的结论都是假的**。实验测的是**消费力学**
++（要几步、吞多少原始事实、哪些问题根本问不出来），这部分与数据真假无关。
++
++## 1. 可表达性：5/9 → 9/9
++
++| 问题 | 4 词 | 7 词 |
++|---|---|---|
++| 此刻这个板块在什么状态 | ✅ 4 个标签 | ✅ 7 个标签 |
++| `market_stage` 什么时候换的段 | ✅ 6 次跃迁 | ✅ 6 次跃迁 |
++| `lifecycle_stage` 什么时候换的段 | ❌ 白名单里没这个词 | ✅ `2026-08-20 发酵→主升` |
++| `opinion_stage` 什么时候换的段 | ❌ 同上 | ✅ `2026-08-19 萌芽→扩散` |
++| 连续双红几天 | ✅ longest=3 | ✅ longest=3 |
++| 「题材主升 **且** 多周期共振」的日子 | ❌ 编译被拒 ×2 | ✅ 5 天 |
++| 盘面/题材/舆论三口径此刻各自怎么说 | ❌ 只拿到 1/3 | ✅ 3/3 |
++| 每个读数能不能拆回源行 | ✅ | ✅ |
++| 无覆盖实体：报缺口还是编数 | ✅ 如实报 Gap | ✅ 如实报 Gap |
++
++第 3、4、6、7 行是这次扩张的全部增量。其中第 7 行（三口径联立）是质检报告里
++「联立 = 五段缺一不发」那条设计意图第一次真的能走通——扩张前三条里有两条问不出来。
++
++## 2. 压缩率 88 : 1
++
++```
++15 天区间的原始切片    117,639 字符 / 204 个对象
++同样信息的结构化答案     1,335 字符
++压缩率                    88.1 : 1   （agent 少读 98.9% 的字符）
++```
++
++「同样信息」= 三条跃迁序列 + 一条 streak + 当日 7 个标签读数，每一项都带 `refs`。
++这不是摘要——是**无损的**：每个结论都能拆回原始行，原始行随时可按 ref 取回。
++
++## 3. 自描述：大部分可以，有一个洞
++
++一个没读过源码的 agent 能自己发现：
++
++- ✅ 可判词汇可枚举（`SLICE_EVALUABLE_LABELS`）
++- ✅ 每个标签的类型与合法算子可查（`LABEL_KINDS` / `OPS_BY_KIND`）
++- ✅ 问一个不存在的标签，报错 actionable：
++  `'ma5_peak_confirmed' 需要历史或个股级原料，单日切片判不了；用 streak / transition 派生表达`
++
++**洞**：text 标签的**取值**从哪来？
++
++```
++lifecycle_stage  value='主升段'   编译过  命中 0/15 天   ❗不在词表内
++opinion_stage    value='过热'     编译过  命中 0/15 天   ❗不在词表内
++market_stage     value='主升阶段'  编译过  命中 0/15 天   （根本查不到词表）
++```
++
++编译器此前只查字符白名单（不许有 SQL 味），**不查值在不在词表里**。写错一个字，
++条件编译通过、运行零报错、永远命中 0 天——而「从未成立」与「今天没成立」在读数上
++长得一模一样。**这和 derive_streak 对分类标签返回 longest=0 是同一个形状的错。**
++
++`market_stage` 更糟：词表确实存在，但埋在
++`method_validation/flywheel.py:1092` 的一个正则里 `(主升|反弹|横盘|顶部横盘|底部横盘|下跌|探底)`，
++没有任何地方把它声明成词表。agent 唯一可靠的办法是先扫一遍历史统计取值分布再写条件——
++「数据没有自带坐标系，消费方必须自己重建」的最小实例。
++
++## 4. 据此追加的修复：文本谓词取值域检查
++
++新增 `rules.text_domain_error(label, value)`，由规则 DSL 与情景树编译器**共用**（不抄第二份）。
++两类标签分开处理，**不一刀切成有限枚举**：
++
++- **本仓自己派生的**（`opinion_stage` / `lifecycle_stage`）→ 封闭词表，值不在里面直接拒。
++  词表从各自 SSOT 现取（`opinion_stage.STAGES` / `theme_stage_vocab.CANONICAL_STAGES`），
++  测试钉住不得抄副本。
++- **上游供应商拥有取值的**（`market_stage`）→ `OPEN_TEXT_LABELS`，**不得声明有限词表**。
++  `normalize_market_stage` 的 docstring 明写规则是 data-driven 而非有限别名表，
++  硬编一张表会在供应商新增段位时把合法条件判成非法，比漏判更糟。
++  但有一件与枚举无关、一定能查的事：**值必须已经是归一形式**（`normalize(v) == v`）。
++  这正好逮住最可能犯的那个错，且不需要任何词表。
++
++效果：
++
++```
++lifecycle_stage '主升段'   → 拒：不在词表里；合法取值：['酝酿','首发','发酵','主升','分歧','退潮','回流']
++opinion_stage   '过热'     → 拒：不在词表里；合法取值：['萌芽','扩散','拥挤','退热','证伪','unverifiable']
++market_stage    '主升阶段'  → 拒：不是归一形式，绑定层给出的是 '主升'，请写 '主升'
++market_stage    '反弹'     → 放行（夹具里一次没出现，但它是上游合法段位）
++```
++
++报错把合法词表直接摊给调用方——agent 看完报错就能自我纠正，不用回去读源码。
++最后一行是关键的**反向**验证：不能为了拦住错词而误杀合法的新段位。
++
++读数：`1155 passed, 49 skipped, 30 subtests passed`（全部 import 了 river_derive /
++scenario_trees / research_evolution / methodology_backtest / judgment_maintenance 的测试）；
++契约测试 37 → 48；ruff 全绿。
++
++## 5. 顺带更正质检报告里的一条结论
++
++质检报告 P2 写「`window()` 的 `cumulative.member_refs` 为空」。夹具上实测
++**45 条，不为空**。该结论要么是真库特有、要么是我当时读错了，在此更正。
++`window()` 默认只挂 `cumulative` 一种派生（而非五种）这一条仍然成立。
++
++## 6. 实验没能证明的
++
++- **行情分析质量没有被证明。** 夹具是合成数据，9/9 可回答说明的是「问题接得住」，
++  不是「答案对」。要证后者必须在真库上重跑。
++- **`market_stage` 的词表仍未声明**，只是挡住了未归一的写法。真正的解法是 G-05
++  （质检报告里标注为阻塞 G-07/08/09/15 的那条），这次没动。
+diff --git a/intelligence/services/methodology_backtest/rules.py b/intelligence/services/methodology_backtest/rules.py
+index fb308291..f0018a64 100644
+--- a/intelligence/services/methodology_backtest/rules.py
++++ b/intelligence/services/methodology_backtest/rules.py
+@@ -86,6 +86,68 @@ OPS_BY_KIND: dict[str, tuple[str, ...]] = {
+     "num": ("==", "!=", ">", ">=", "<", "<=", "in", "not_in"),
+     "text": ("==", "!=", "in", "not_in"),
+ }
++
++
++# --------------------------------------------------------------------------- #
++# 文本标签的取值域
++#
++# 为什么必须有这一层：文本谓词此前只过字符白名单（不许有 SQL 味），**不查值在不在词表里**。
++# 于是 ``{"label": "lifecycle_stage", "op": "in", "value": ["主升段"]}`` 编译通过、运行零报错、
++# 永远命中 0 天——而「条件从未成立」与「条件今天没成立」在读数上长得一模一样。
++# 这和 derive_streak 对分类标签返回 longest=0 是同一个形状的错：一个看着完全合理的空结果。
++#
++# 两类标签要分开对待，不能一刀切成有限枚举：
++# --------------------------------------------------------------------------- #
++
++def _closed_text_domains() -> dict[str, tuple[str, ...]]:
++    """**本仓自己派生**的文本标签 → 封闭词表。值不在里面就是 bug，可以直接拒。
++
++    词表从各自的 SSOT 现取，不在这里抄第二份——抄一份就等着两边漂移。
++    """
++    from intelligence.services.opinion_stage import STAGES as _OPINION_STAGES
++    from intelligence.services.theme_stage_vocab import CANONICAL_STAGES as _LIFECYCLE_STAGES
++
++    return {
++        # derive_stage 的五段，外加「命中过研报但近 90 日为 0」的 unverifiable。
++        "opinion_stage": (*_OPINION_STAGES, "unverifiable"),
++        # theme_stage_vocab 钦定的七段（八阶段已降为读法层别名，不再是标签值）。
++        "lifecycle_stage": tuple(_LIFECYCLE_STAGES),
++    }
++
++
++# **上游供应商拥有**取值的文本标签：不得声明有限枚举。
++# market_stage 的值来自 fact_market_daily，normalize_market_stage 的 docstring 明写
++# 「the suffix rule is intentionally data-driven rather than a finite alias list so a newly
++# introduced upstream stage gets the same canonical treatment」——硬编一张表会在供应商
++# 新增一个段位时把合法条件判成非法，比漏判更糟。
++#
++# 但有一件事与枚举无关、且一定能查：**值必须已经是归一形式**。绑定层返回的是
++# normalize_market_stage(原值)，所以写成「主升阶段」的条件对着「主升」永远不命中。
++# 这正是 river_derive 自己在注释里点名过的坑。判据是 normalize(v) == v，不需要任何词表。
++OPEN_TEXT_LABELS: tuple[str, ...] = ("market_stage",)
++
++
++def text_domain_error(label: str, value: str) -> str | None:
++    """文本谓词的取值检查。返回 None = 通过，否则返回要报给用户的那句话。"""
++    closed = _closed_text_domains()
++    if label in closed:
++        if value in closed[label]:
++            return None
++        return (
++            f"{value!r} 不在 {label} 的词表里；合法取值：{list(closed[label])}。"
++            " 这个条件即便登记成功也永远不会命中，而「从未成立」与「今天没成立」在读数上长得一样。"
++        )
++    if label in OPEN_TEXT_LABELS:
++        from intelligence.services.market_stage import normalize_market_stage
++
++        canonical = normalize_market_stage(value)
++        if canonical != value:
++            return (
++                f"{value!r} 不是归一形式，绑定层给出的是 {canonical!r}，这个条件永远不会命中。"
++                f" 请写 {canonical!r}。（{label} 的取值由上游供应商决定，本仓不声明有限词表，"
++                " 只检查归一形式。）"
++            )
++    return None
+ SET_OPS = ("in", "not_in")
+ SUCCESS_OPS = (">", ">=", "<", "<=")
+ METRICS = ("fwd_return", "max_return", "days_to_peak", "drawdown_after_peak")
+@@ -211,7 +273,7 @@ def _unknown_keys(doc: dict[str, Any], allowed: set[str], path: str, errors: lis
+         errors.append(RuleError(f"{path}.{key}" if path else key, "未知字段（白名单外的键一律拒绝）"))
+ 
+ 
+-def _check_text_value(v: Any, path: str, errors: list[RuleError]) -> bool:
++def _check_text_value(v: Any, path: str, errors: list[RuleError], label: str | None = None) -> bool:
+     if not isinstance(v, str):
+         errors.append(RuleError(path, f"文本标签的值必须是字符串，得到 {type(v).__name__}"))
+         return False
+@@ -220,6 +282,12 @@ def _check_text_value(v: Any, path: str, errors: list[RuleError]) -> bool:
+             RuleError(path, f"文本值 {v!r} 含白名单外字符（只允许字母数字下划线/中文/·/-；不接受任何 SQL 片段）")
+         )
+         return False
++    # 字符合法 ≠ 取值合法。不查这一层，写错一个词会得到一条永不命中的规则且全程零报错。
++    if label is not None:
++        msg = text_domain_error(label, v)
++        if msg is not None:
++            errors.append(RuleError(path, msg))
++            return False
+     return True
+ 
+ 
+@@ -267,7 +335,7 @@ def _validate_predicate(doc: Any, path: str, errors: list[RuleError]) -> Predica
+         for i, item in enumerate(raw_value):
+             item_path = f"{path}.value[{i}]"
+             if kind == "text":
+-                if not _check_text_value(item, item_path, errors):
++                if not _check_text_value(item, item_path, errors, label=label):
+                     return None
+                 items.append(item)
+             else:
+@@ -287,7 +355,7 @@ def _validate_predicate(doc: Any, path: str, errors: list[RuleError]) -> Predica
+             return None
+         value = float(raw_value)
+     else:
+-        if not _check_text_value(raw_value, f"{path}.value", errors):
++        if not _check_text_value(raw_value, f"{path}.value", errors, label=label):
+             return None
+         value = raw_value
+     return Predicate(label=label, op=op, value=value, lag=int(lag), entity_type=entity, kind=kind)
+diff --git a/intelligence/services/scenario_trees.py b/intelligence/services/scenario_trees.py
+index b3e13291..0d02e216 100644
+--- a/intelligence/services/scenario_trees.py
++++ b/intelligence/services/scenario_trees.py
+@@ -39,7 +39,7 @@ from typing import Any, Callable
+ 
+ from intelligence.services import checkpoints as checkpoints_svc
+ from intelligence.services import compliance_gate, observation_script, river_projection
+-from intelligence.services.methodology_backtest.rules import LABEL_KINDS, OPS_BY_KIND
++from intelligence.services.methodology_backtest.rules import LABEL_KINDS, OPS_BY_KIND, text_domain_error
+ from intelligence.services.river_derive import SLICE_EVALUABLE_LABELS, LabelNotSliceEvaluable, bind
+ 
+ OBJECT_TYPE = "scenario_tree"
+@@ -211,6 +211,19 @@ def compile_condition(raw: Any, *, where: str) -> tuple[tuple[Predicate, ...] |
+         if op not in OPS_BY_KIND[kind]:
+             errs.append(Rejection(E_CONDITION_INVALID, w, f"op {op!r} 对 {kind} 标签不合法（允许 {OPS_BY_KIND[kind]}）"))
+             continue
++        # 取值域：文本标签写错一个词，条件永远不命中而全程零报错（「从未成立」与
++        # 「今天没成立」在读数上长得一样）。词表检查落在 rules.text_domain_error，
++        # 与规则 DSL 共用一套判据，不在这里抄第二份。
++        if kind == "text":
++            cand = value if isinstance(value, (list, tuple)) else [value]
++            bad = [
++                (v, text_domain_error(label, v))
++                for v in cand
++                if isinstance(v, str) and text_domain_error(label, v) is not None
++            ]
++            if bad:
++                errs.append(Rejection(E_CONDITION_INVALID, w, bad[0][1]))
++                continue
+         if op in ("in", "not_in"):
+             if not isinstance(value, (list, tuple)) or not value:
+                 errs.append(Rejection(E_CONDITION_INVALID, w, f"{op} 的 value 要非空列表"))
+diff --git a/tests/test_river_contract_on_fixture.py b/tests/test_river_contract_on_fixture.py
+index 9d0d6320..368d242c 100644
+--- a/tests/test_river_contract_on_fixture.py
++++ b/tests/test_river_contract_on_fixture.py
+@@ -507,3 +507,80 @@ def test_lifecycle_跃迁可被_derive_transitions_抓出(win) -> None:
+         assert t["from"] != t["to"], "跃迁两端必须不同，否则是把「没变」记成了变化"
+         assert t["day"] in DAYS
+     assert counted.payload["member_refs"], "跃迁对象必须能拆回到源行"
++
++
++# --------------------------------------------------------------------------- #
++# 文本标签的取值域
++#
++# 由一次「agent 真实消费」实验挖出来的：扩张后把三个 text 标签接进白名单，
++# agent 写分枝条件时必须填一个取值——而编译器此前只查字符（不许有 SQL 味），
++# **不查这个词在不在词表里**。写错一个字，条件编译通过、运行零报错、永远命中 0 天。
++# 「从未成立」与「今天没成立」在读数上长得一模一样，和 derive_streak 的假零同形。
++# --------------------------------------------------------------------------- #
++@pytest.mark.parametrize(
++    ("label", "value", "should_pass"),
++    [
++        ("lifecycle_stage", "主升", True),      # 词表内
++        ("lifecycle_stage", "主升段", False),   # 本仓自己的七段里没有这个词
++        ("opinion_stage", "拥挤", True),
++        ("opinion_stage", "过热", False),       # 像行话，但不是 derive_stage 的输出
++        ("market_stage", "主升", True),
++        ("market_stage", "主升阶段", False),    # 未归一：绑定层给的是「主升」
++        # 「反弹」在夹具 15 天里一次没出现，但它是上游合法段位。必须放行——
++        # market_stage 的取值由供应商决定，硬编有限词表会在上游新增段位时误杀。
++        ("market_stage", "反弹", True),
++    ],
++)
++def test_文本条件的取值必须真能命中(label: str, value: str, should_pass: bool) -> None:
++    from intelligence.services import scenario_trees as st
++
++    _, errs = st.compile_condition(
++        {"all": [{"label": label, "op": "in", "value": [value]}]}, where="node.x"
++    )
++    if should_pass:
++        assert not errs, f"{label}={value!r} 是合法取值，不该被拒：{[e.detail for e in errs]}"
++    else:
++        assert errs, f"{label}={value!r} 永远命中不了，必须在编译期就拒绝"
++
++
++def test_取值被拒时要把合法词表摊给调用方() -> None:
++    """报错只说「非法」等于把人/agent 推回去读源码。
++
++    封闭词表的标签要列出全部合法值；market_stage 这种上游拥有取值的，
++    要给出归一后的正确写法。两种都要让对方**看完报错就能改对**。
++    """
++    from intelligence.services import scenario_trees as st
++
++    _, errs = st.compile_condition(
++        {"all": [{"label": "lifecycle_stage", "op": "==", "value": "主升段"}]}, where="n"
++    )
++    assert errs and "酝酿" in errs[0].detail and "回流" in errs[0].detail, "要把七段全列出来"
++
++    _, errs2 = st.compile_condition(
++        {"all": [{"label": "market_stage", "op": "==", "value": "主升阶段"}]}, where="n"
++    )
++    assert errs2 and "'主升'" in errs2[0].detail, "要直接给出归一后的正确写法"
++
++
++def test_market_stage_不得声明有限词表() -> None:
++    """守住一条**不要做的事**。
++
++    ``normalize_market_stage`` 的 docstring 明写规则是 data-driven 而非有限别名表，
++    为的是上游新增段位时自动获得同样的归一处理。若哪天有人给 market_stage 加了封闭词表，
++    一个合法的新段位会被判成非法——比漏判更糟，且会在上游变更的当天才爆。
++    """
++    from intelligence.services.methodology_backtest import rules
++
++    assert "market_stage" in rules.OPEN_TEXT_LABELS
++    assert "market_stage" not in rules._closed_text_domains()  # noqa: SLF001
++
++
++def test_词表从各自的_SSOT_现取而不是抄一份() -> None:
++    """抄一份就等着漂移：词表改了、校验还按旧表拒，错误信息里列的也是旧词。"""
++    from intelligence.services.methodology_backtest import rules
++    from intelligence.services.opinion_stage import STAGES
++    from intelligence.services.theme_stage_vocab import CANONICAL_STAGES
++
++    domains = rules._closed_text_domains()  # noqa: SLF001
++    assert domains["lifecycle_stage"] == tuple(CANONICAL_STAGES)
++    assert domains["opinion_stage"] == (*STAGES, "unverifiable")
+-- 
+2.39.5
+
