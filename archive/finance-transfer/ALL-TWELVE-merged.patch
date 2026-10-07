@@ -1,7 +1,7 @@
-From fae380ec34afb179030eb63bc48d8f5e42c07eb5 Mon Sep 17 00:00:00 2001
+From e537ac3c44556a64a1e28577a2b0c54655b78d54 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 08:47:15 +0000
-Subject: [PATCH 01/11] test(river): run the time-river contracts in CI and
+Subject: [PATCH 01/12] test(river): run the time-river contracts in CI and
  reject non-boolean streaks
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -868,10 +868,10 @@ index 00000000..006a6f8d
 2.39.5
 
 
-From 9e525fed13f08584dd70f8ea88fb8642ee3ec8a6 Mon Sep 17 00:00:00 2001
+From 802bcf6edb6f29505fddb2c849d599abb39ad65d Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 09:38:38 +0000
-Subject: [PATCH 02/11] =?UTF-8?q?feat(river):=20=E6=8A=8A=E5=B7=B2?=
+Subject: [PATCH 02/12] =?UTF-8?q?feat(river):=20=E6=8A=8A=E5=B7=B2?=
  =?UTF-8?q?=E6=B3=A8=E5=86=8C=E4=BD=86=E6=B2=A1=E6=8E=A5=E7=BA=BF=E7=9A=84?=
  =?UTF-8?q?=E6=A0=87=E7=AD=BE=E6=8E=A5=E8=BF=9B=E5=88=87=E7=89=87=EF=BC=8C?=
  =?UTF-8?q?=E5=8F=AF=E5=88=A4=E8=AF=8D=E6=B1=87=204=20=E2=86=92=207?=
@@ -1651,10 +1651,10 @@ index 006a6f8d..9d0d6320 100644
 2.39.5
 
 
-From e280863a2d198670d38eb372329a5ca0ddc66dc8 Mon Sep 17 00:00:00 2001
+From 7f43389eb2b6907521a83d7ec72d7d54fbaed321 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 09:58:21 +0000
-Subject: [PATCH 03/11] =?UTF-8?q?feat(rules):=20=E6=96=87=E6=9C=AC?=
+Subject: [PATCH 03/12] =?UTF-8?q?feat(rules):=20=E6=96=87=E6=9C=AC?=
  =?UTF-8?q?=E8=B0=93=E8=AF=8D=E6=A3=80=E6=9F=A5=E5=8F=96=E5=80=BC=E5=9F=9F?=
  =?UTF-8?q?=E2=80=94=E2=80=94=E5=86=99=E9=94=99=E4=B8=80=E4=B8=AA=E8=AF=8D?=
  =?UTF-8?q?=E4=B8=8D=E8=AF=A5=E5=BE=97=E5=88=B0=E4=B8=80=E6=9D=A1=E6=B0=B8?=
@@ -2050,10 +2050,10 @@ index 9d0d6320..368d242c 100644
 2.39.5
 
 
-From 439a2c289cf3fd3847cb17076dde04c8149a31b8 Mon Sep 17 00:00:00 2001
+From a09426f577d6cf51a15994840e185fbd8ca4fb19 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 10:13:06 +0000
-Subject: [PATCH 04/11] =?UTF-8?q?feat(perspective):=20=E8=A7=86=E8=A7=92?=
+Subject: [PATCH 04/12] =?UTF-8?q?feat(perspective):=20=E8=A7=86=E8=A7=92?=
  =?UTF-8?q?=E2=86=94=E6=B2=B3=20=E6=98=A0=E5=B0=84=E8=A1=A8=20+=20?=
  =?UTF-8?q?=E5=8F=AF=E6=B6=88=E8=B4=B9=E6=80=A7=E5=AE=A1=E8=AE=A1=E2=80=94?=
  =?UTF-8?q?=E2=80=94=E6=8A=8A=E3=80=8C=E5=AF=B9=E4=B8=8D=E4=B8=8A=E3=80=8D?=
@@ -2889,10 +2889,10 @@ index 00000000..25cf88cf
 2.39.5
 
 
-From d2f77aab872ad06cf432354c94889ef48387f73f Mon Sep 17 00:00:00 2001
+From 42a67920330dc4118aeb2cf703cf62c8a08ae8a8 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 10:22:08 +0000
-Subject: [PATCH 05/11] =?UTF-8?q?feat(perspective):=20=E7=94=BB=E5=83=8F?=
+Subject: [PATCH 05/12] =?UTF-8?q?feat(perspective):=20=E7=94=BB=E5=83=8F?=
  =?UTF-8?q?=E7=9A=84=E8=84=B1=E6=95=8F=E5=AF=BC=E5=87=BA=E2=80=94=E2=80=94?=
  =?UTF-8?q?=E5=88=86=E4=BA=AB=E6=A1=86=E6=9E=B6=EF=BC=8C=E4=B8=8D=E5=88=86?=
  =?UTF-8?q?=E4=BA=AB=E6=9D=A5=E6=BA=90?=
@@ -3286,10 +3286,10 @@ index 00000000..683eb1e8
 2.39.5
 
 
-From c19d035ac2ea30eaa502e7ce8dc706e1d916c9aa Mon Sep 17 00:00:00 2001
+From 1111c5ba1cf1792f458151588db33c021eaeff3b Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:39 +0000
-Subject: [PATCH 06/11] =?UTF-8?q?feat(river):=20=E6=95=99=E5=AD=A6?=
+Subject: [PATCH 06/12] =?UTF-8?q?feat(river):=20=E6=95=99=E5=AD=A6?=
  =?UTF-8?q?=E6=A0=87=E7=AD=BE=E6=8E=A5=E5=85=A5=E5=88=A4=E5=AE=9A=E8=B7=AF?=
  =?UTF-8?q?=E5=BE=84=E2=80=94=E2=80=94=E4=BF=9D=E5=91=BD=E5=90=8D=E7=A9=BA?=
  =?UTF-8?q?=E9=97=B4=E5=88=86=E7=A6=BB=E7=9A=84=E6=A1=A5?=
@@ -3822,10 +3822,10 @@ index 00000000..33895cec
 2.39.5
 
 
-From 4cad46b019e73a2d51281391db742f63dbe44834 Mon Sep 17 00:00:00 2001
+From 5a130412835d6e9687063a56b03d0db2583e11cc Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:39 +0000
-Subject: [PATCH 07/11] =?UTF-8?q?feat(perspective):=20=E6=8A=8A=E3=80=8C?=
+Subject: [PATCH 07/12] =?UTF-8?q?feat(perspective):=20=E6=8A=8A=E3=80=8C?=
  =?UTF-8?q?=E4=B8=80=E4=B8=AA=E5=AD=97=E6=AE=B5=E5=A1=9E=E5=87=A0=E5=8D=81?=
  =?UTF-8?q?=E6=9D=A1=E8=A7=84=E5=88=99=E3=80=8D=E7=9A=84=E9=95=9C=E5=A4=B4?=
  =?UTF-8?q?=E6=8B=86=E6=88=90=E5=B8=A6=E7=A8=B3=E5=AE=9A=20ID=20=E7=9A=84?=
@@ -4854,10 +4854,10 @@ index 00000000..2eef6a85
 2.39.5
 
 
-From e320a8539c22d8bb445267fcbba40d0cfc099d7f Mon Sep 17 00:00:00 2001
+From e4525c808a8db950ebb24d87bd80547e2b5a8d6f Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 11:56:53 +0000
-Subject: [PATCH 08/11] =?UTF-8?q?feat(perspective):=20=E4=B9=B0=E5=8D=96/?=
+Subject: [PATCH 08/12] =?UTF-8?q?feat(perspective):=20=E4=B9=B0=E5=8D=96/?=
  =?UTF-8?q?=E7=AD=96=E7=95=A5=E5=8F=A3=E5=BE=84=E6=8C=89=E8=B0=83=E7=94=A8?=
  =?UTF-8?q?=E6=96=B9=E8=BA=AB=E4=BB=BD=E5=88=86=E4=B8=89=E6=A1=A3=EF=BC=88?=
  =?UTF-8?q?=E5=80=99=E9=80=89=EF=BC=89=E2=80=94=E2=80=94=E6=9C=AC=E4=BA=BA?=
@@ -5267,10 +5267,10 @@ index 00000000..edb18195
 2.39.5
 
 
-From fbd9104f6f1e605625ec524da5075d28e24d690e Mon Sep 17 00:00:00 2001
+From cebb36e6796ab98c55f9b2cb5d0b41f82e178d97 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 12:46:27 +0000
-Subject: [PATCH 09/11] =?UTF-8?q?feat(river):=20=E6=8A=8A=E6=97=81?=
+Subject: [PATCH 09/12] =?UTF-8?q?feat(river):=20=E6=8A=8A=E6=97=81?=
  =?UTF-8?q?=E8=B7=AF=E5=BA=93=E7=AE=97=E4=BA=86=E5=8D=B4=E4=BB=8E=E6=9C=AA?=
  =?UTF-8?q?=E4=B8=8A=E6=B2=B3=E7=9A=84=209=20=E4=B8=AA=E5=91=A8=E6=9C=9F?=
  =?UTF-8?q?=E4=BD=8D=E7=BD=AE=E6=A0=87=E7=AD=BE=E6=90=AC=E4=B8=8A=E6=9D=A5?=
@@ -5524,10 +5524,10 @@ index 33895cec..e6e5ede4 100644
 2.39.5
 
 
-From ad4b1853c4bf53573441fe1755931ec066b7f292 Mon Sep 17 00:00:00 2001
+From 2c1b339b76eb925ef10aa5a18098c9e3536f2dc2 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 12:48:33 +0000
-Subject: [PATCH 10/11] =?UTF-8?q?docs(perspective):=20=E8=A3=81=E5=AE=9A?=
+Subject: [PATCH 10/12] =?UTF-8?q?docs(perspective):=20=E8=A3=81=E5=AE=9A?=
  =?UTF-8?q?=20sptfei.=E7=AD=B9=E7=A0=81=E4=B8=8E=E7=BB=93=E6=9E=84.007?=
  =?UTF-8?q?=E3=80=8C=E4=B8=B4=E8=BF=91=E7=AA=81=E7=A0=B4=E7=8A=B6=E6=80=81?=
  =?UTF-8?q?=E3=80=8D=E2=80=94=E2=80=94=E7=8B=AC=E7=AB=8B=E6=9D=A1=E7=9B=AE?=
@@ -5604,10 +5604,10 @@ index a01782d5..82db3638 100644
 2.39.5
 
 
-From b089450cbcbdf8f7bb287404b039855f91399189 Mon Sep 17 00:00:00 2001
+From 6e79006aaed71da1cb2ae2ab3daae0c2b3a09683 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@arena.local>
 Date: Wed, 7 Oct 2026 13:03:50 +0000
-Subject: [PATCH 11/11] =?UTF-8?q?fix(river):=20=E5=85=84=E5=BC=9F=E4=BA=92?=
+Subject: [PATCH 11/12] =?UTF-8?q?fix(river):=20=E5=85=84=E5=BC=9F=E4=BA=92?=
  =?UTF-8?q?=E6=96=A5=E6=A3=80=E6=9F=A5=E5=AF=B9=20tf.*=20=E8=B0=93?=
  =?UTF-8?q?=E8=AF=8D=E4=BC=9A=20KeyError=E2=80=94=E2=80=94=E5=8F=96?=
  =?UTF-8?q?=E4=B8=8D=E5=88=B0=20kind=20=E7=AD=89=E4=BA=8E=E6=94=BE?=
@@ -5675,6 +5675,364 @@ index e6e5ede4..b6578cea 100644
 +        [(st.Predicate("tf.stage_coarse", "==", "左底向下"),)],
 +    )
 +    assert "左底向下" in text_domain and "__other__" in text_domain
+-- 
+2.39.5
+
+
+From 1e6aa012f84181bd06c8139fa3893bdb883d6ba8 Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 13:59:41 +0000
+Subject: [PATCH 12/12] =?UTF-8?q?feat(river):=20=E6=9D=BF=E5=9D=97?=
+ =?UTF-8?q?=E5=B1=82=E7=9A=84=E8=83=8C=E7=A6=BB=E4=BA=8B=E4=BB=B6=E6=8E=A5?=
+ =?UTF-8?q?=E4=B8=8A=E5=88=A4=E5=AE=9A=E8=B7=AF=E5=BE=84=E2=80=94=E2=80=94?=
+ =?UTF-8?q?=E6=A1=A5=E7=AC=AC=E4=B8=80=E6=AC=A1=E7=A6=BB=E5=BC=80=E7=9B=98?=
+ =?UTF-8?q?=E9=9D=A2=E8=BD=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+桥此前只认 market 轨：_object_for 写死 track_objects(sl, "market")，
+河上 65 个教学标签也全是 entity_type='market'。于是规则 DSL 的板块层只有
+dual_red_streak 一个、个股层 0 个——择时那层很厚，择股那两层基本是空的。
+
+而板块/个股层的 MACD 背离其实早就算了也落库了：scripts/teaching_framework.py:1309
+STRUCTURE_ENTITY_LABELS 四个标签，entity_type = sector / stock，口径齐全
+（摆动低点前后各 swing_k 天唯一最低；两低=观察、三低=确认、fail_horizon 内
+跌破锚点=失效、两高 DIF 递降=顶背离）。出处是创始人 09-08「MACD 底背离和
+缠论的用法能结合起来吗」、第二十三段「板块和个股层面我也希望可以用」。
+
+本次只搬不算，口径一个字没动：
+- river_objects: STRUCTURE_LABELS + _structure_object，按 (entity_type, entity_id)
+  取行，对象挂实体自己的轨（板块 → theme），不是 __market__。
+- river: 切片装配时按这一天库里真实的代码取（旁路库 entity_id 是「事件日当天的
+  代码」），放在 alias 改写之前，让它照常被规范成 canonical_id。
+- 桥: _TRACK_OF_OBJECT 路由表取代写死的 "market"；4 个标签开放，目录一致性
+  断言扩到 STRUCTURE_LABELS。
+
+板块层 1 → 5。
+
+个股层仍是 0，而且不是本次没做——是做不了：resolve_entity 只解析 fact_sector_daily，
+河上根本不存在以个股为主体的切片。上一轮我估的「个股层 0→4」是错的，那需要
+实体解析与个股轨的改造，不是搬标签。已在报告里更正。
+
+一个刻意的限制：这 4 个是事件标签，只落事件日。「今天没事件」与「旁路库没接」
+在读数上长得一样，所以绑定取 present→True / absent→unknown。能写「出现底背离
+确认」，写不出「没有顶背离」。绑成 False 会让后者在旁路库缺席时悄悄成立——
+正是 rules 里「『从未成立』与『今天没成立』在读数上长得一样」防的同一个坑。
+要能表达「没有」，得旁路库先落一条覆盖行，不在本次。
+
+6 个测试：板块级绑定走通、轨归属正面钉住（防静默找错轨）、换个没事件的板块必须
+unknown 且不拖垮同片的市场级标签、不传实体时市场级输出逐字节不变、
+背离与 tf.mainline_volume_top3 合成一条跨层情景树条件可编译。
+
+教学/河/情景树/判定回归 516 passed / 2 skipped（本次前 511）。
+更大范围 1556 passed / 5 failed，那 5 个在 stash 掉本改动后同样失败，既有问题。
+---
+ intelligence/services/river.py                |  16 ++-
+ .../services/river_teaching_bridge.py         |  25 +++-
+ .../teaching_framework/river_objects.py       |  61 +++++++++-
+ .../tests/test_river_teaching_bridge.py       | 109 ++++++++++++++++++
+ 4 files changed, 201 insertions(+), 10 deletions(-)
+
+diff --git a/intelligence/services/river.py b/intelligence/services/river.py
+index f13a6cc0..3fe7e563 100644
+--- a/intelligence/services/river.py
++++ b/intelligence/services/river.py
+@@ -1139,12 +1139,18 @@ def slice_river(
+     if teaching_labels_db is not None:
+         from intelligence.services.teaching_framework.river_objects import teaching_objects
+ 
+-        teaching = teaching_objects(teaching_labels_db, as_of)
++        # 结构事件（背离）是**实体级**的，按这一天库里真实的代码取（旁路库 entity_id
++        # 取「事件日当天的代码」，见 scripts/teaching_framework.py:1316），不是 canonical_id。
++        # 下面 alias_applied 那段会把它改写成 canonical，顺序不能反。
++        teaching = teaching_objects(
++            teaching_labels_db, as_of, entity_type="sector", entity_id=ref.code_on_date,
++        )
+         if teaching:
+-            market = tracks["market"]
+-            # 教学对象本来就是盘面轨的对象（指数阶段），不是拿别的轨补编；盘面轨若是缺口而
+-            # 教学标签有值（实测不会——标签的输入就是盘面行），也如实放出对象而不是留缺口。
+-            tracks["market"] = [*market, *teaching] if isinstance(market, list) else teaching
++            # 市场级那批照旧进盘面轨；实体级的结构对象自己带 track，按它自己的轨放。
++            for obj in teaching:
++                t = obj.track if obj.entity_id != "__market__" else "market"
++                cur = tracks[t]
++                tracks[t] = [*cur, obj] if isinstance(cur, list) else [obj]
+     if ref.alias_applied:
+         tracks = {
+             track: result
+diff --git a/intelligence/services/river_teaching_bridge.py b/intelligence/services/river_teaching_bridge.py
+index e5608de9..3562eff8 100644
+--- a/intelligence/services/river_teaching_bridge.py
++++ b/intelligence/services/river_teaching_bridge.py
+@@ -38,11 +38,12 @@ from typing import Any
+ 
+ from intelligence.services.river import RiverObject, RiverSlice
+ from intelligence.services.river_window_contract import track_objects
+-from intelligence.services.teaching_framework.river_objects import CYCLE_LABELS, STAGE_LABELS
++from intelligence.services.teaching_framework.river_objects import CYCLE_LABELS, STAGE_LABELS, STRUCTURE_LABELS
+ 
+ TEACHING_NAMESPACE = "tf."
+ TEACHING_STAGE_OBJECT = "teaching_stage"
+ TEACHING_CYCLE_OBJECT = "teaching_cycle"
++TEACHING_STRUCTURE_OBJECT = "teaching_structure"
+ 
+ # 哪个标签挂在哪个河对象上。两个对象而不是一个，是因为阶段对象已接近 payload ≤ 20 键的索引层约束
+ # （仓里 CAPITAL / BREADTH / NARRATIVE 也是这么分的）。桥对调用方隐藏这个分法：
+@@ -50,6 +51,16 @@ TEACHING_CYCLE_OBJECT = "teaching_cycle"
+ _OBJECT_OF_LABEL: dict[str, str] = {
+     **{label: TEACHING_STAGE_OBJECT for label in STAGE_LABELS},
+     **{label: TEACHING_CYCLE_OBJECT for label in CYCLE_LABELS},
++    **{label: TEACHING_STRUCTURE_OBJECT for label in STRUCTURE_LABELS},
++}
++
++# 对象挂在哪条轨上。市场级那批挂 ``__market__`` 的盘面轨；结构事件是**实体级**的，
++# 挂切片自己那个实体的轨（板块 → theme）。写死 "market" 会让实体级标签永远绑不到值，
++# 而且是静默的 unknown —— 看不出是「没接旁路库」还是「找错了轨」。
++_TRACK_OF_OBJECT: dict[str, str] = {
++    TEACHING_STAGE_OBJECT: "market",
++    TEACHING_CYCLE_OBJECT: "market",
++    TEACHING_STRUCTURE_OBJECT: "theme",
+ }
+ 
+ 
+@@ -88,6 +99,14 @@ TEACHING_LABEL_KINDS: dict[str, str] = {
+     "tf.mainline_volume_top3": "bool",   # 「量板块＝容量占比前三申万一级」
+     "tf.mainline_share_trend_up": "bool",  # 「主线成交占比环比连续回落」取反
+     "tf.max_boards": "num",              # 情绪层「旧口径按连板高度」
++    # ── 结构事件（板块级）。创始人 09-08「MACD 底背离和缠论的用法能结合起来吗」，
++    # 第二十三段「板块和个股层面我也希望可以用」。⚠ 这组是**事件标签**：只落事件日，
++    # 「今天没事件」与「旁路库没接」在读数上长得一样，所以能写「出现底背离确认」，
++    # 写不出「没有顶背离」—— 后者需要旁路库先落一条覆盖行，不在本次范围。
++    "tf.macd_bottom_div_observe": "bool",   # 两低：后低收盘更低而 DIF 更高
++    "tf.macd_bottom_div_confirm": "bool",   # 三低：收盘递降、DIF 递升
++    "tf.macd_bottom_div_failed": "bool",    # 失效：fail_horizon 内收盘跌破锚点低点
++    "tf.macd_top_div": "bool",              # 顶背离：两高收盘更高而 DIF 更低
+ }
+ 
+ # 显式留置：算得出、进了河，但**不开放给判定**。每条必须有理由，理由必须可追到记录。
+@@ -104,7 +123,7 @@ TEACHING_LABELS_WITHHELD: dict[str, str] = {
+ def assert_teaching_catalog_parity() -> None:
+     """开放表 ∪ 留置表 必须恰好等于河上真实搬运的那批教学标签。偏了就抛。"""
+     declared = set(TEACHING_LABEL_KINDS) | set(TEACHING_LABELS_WITHHELD)
+-    actual = set(STAGE_LABELS) | set(CYCLE_LABELS)
++    actual = set(STAGE_LABELS) | set(CYCLE_LABELS) | set(STRUCTURE_LABELS)
+     missing = sorted(actual - declared)
+     extra = sorted(declared - actual)
+     if missing or extra:
+@@ -139,7 +158,7 @@ def teaching_kind(label: str) -> str:
+ 
+ 
+ def _object_for(sl: RiverSlice, object_type: str) -> RiverObject | None:
+-    for o in track_objects(sl, "market"):
++    for o in track_objects(sl, _TRACK_OF_OBJECT.get(object_type, "market")):
+         if o.object_type == object_type:
+             return o
+     return None
+diff --git a/intelligence/services/teaching_framework/river_objects.py b/intelligence/services/teaching_framework/river_objects.py
+index 4fe121e9..9cc627dd 100644
+--- a/intelligence/services/teaching_framework/river_objects.py
++++ b/intelligence/services/teaching_framework/river_objects.py
+@@ -92,8 +92,15 @@ def _has_table(con: Any, table: str) -> bool:
+     return bool(con.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?", [table]).fetchone()[0])
+ 
+ 
+-def teaching_objects(labels_db: str | Path, as_of: str, *, top: int = 10) -> list[RiverObject]:
+-    """Read the teaching sidecar for ``as_of`` and return the ``teaching_*`` river objects (possibly empty)."""
++def teaching_objects(
++    labels_db: str | Path, as_of: str, *, top: int = 10,
++    entity_type: str | None = None, entity_id: str | None = None,
++) -> list[RiverObject]:
++    """Read the teaching sidecar for ``as_of`` and return the ``teaching_*`` river objects (possibly empty).
++
++    ``entity_type`` / ``entity_id`` 给定时额外带出该实体的结构事件对象（``teaching_structure``）。
++    不给 = 只要市场级那批，与改动前逐字节一致。
++    """
+     path = Path(labels_db).expanduser()
+     if not path.is_file():
+         raise FileNotFoundError(f"教学框架旁路库不存在: {path}（先跑 scripts/teaching_framework.py build-labels）")
+@@ -131,6 +138,10 @@ def teaching_objects(labels_db: str | Path, as_of: str, *, top: int = 10) -> lis
+         leaders = _range_leaders_object(con, day, as_of, top=top)
+         if leaders is not None:
+             out.append(leaders)
++        if entity_type is not None and entity_id is not None:
++            structure = _structure_object(con, day, as_of, entity_type=entity_type, entity_id=entity_id)
++            if structure is not None:
++                out.append(structure)
+         return out
+     finally:
+         con.close()
+@@ -199,6 +210,52 @@ def _labels_object(con: Any, day: date, as_of: str, *, labels: tuple[str, ...],
+     )
+ 
+ 
++# 结构事件（第二十三段「板块和个股层面我也希望可以用」）：板块 / 个股层的 MACD 背离。
++# 与上面所有标签组不同——这组**不是市场级**，每行挂在一个具体 entity_id 上，
++# 所以它进的是切片自己那个实体的轨（板块 → theme），不是 ``__market__``。
++# scripts/teaching_framework.py:1309 STRUCTURE_ENTITY_LABELS 是同一份名单的 SSOT 对侧。
++STRUCTURE_LABELS = (
++    "tf.macd_bottom_div_observe", "tf.macd_bottom_div_confirm",
++    "tf.macd_bottom_div_failed", "tf.macd_top_div",
++)
++
++
++def _structure_object(con: Any, day: date, as_of: str, *, entity_type: str, entity_id: str) -> RiverObject | None:
++    """某个板块 / 个股当日的 MACD 背离事件 → 一个对象，只搬不解释。
++
++    **只落事件日**（``scripts/teaching_framework.py:1316``）：``value_num`` 恒为 1.0，
++    ``value_text`` 是锚点日（事件指向的极值日）。没事件的日子根本没有行，
++    所以这里返回 None —— 判定路径会当 unknown，不当「没背离」。
++    这两件事在读数上长得一样，混起来就是 ``rules.text_domain_error`` 那句
++    「『从未成立』与『今天没成立』在读数上长得一样」的同一个坑。
++    """
++    if not _has_table(con, "history_teaching_labels"):
++        return None
++    rows = _rows(
++        con,
++        f"""SELECT label, value_num, value_text, framework_version, computed_at FROM history_teaching_labels
++            WHERE entity_type = ? AND entity_id = ? AND status = 'ok' AND trade_date = ?
++              AND label IN ({", ".join("?" for _ in STRUCTURE_LABELS)}) AND value_num IS NOT NULL
++            ORDER BY label""",
++        [entity_type, entity_id, day, *STRUCTURE_LABELS],
++    )
++    if not rows:
++        return None
++    payload: dict[str, Any] = {str(r["label"]).removeprefix("tf."): r["value_num"] for r in rows}
++    # 锚点日单独带出来：事件指向哪一天的极值，是人读这条事件时第一个要问的。
++    payload["anchor_days"] = {
++        str(r["label"]).removeprefix("tf."): str(r["value_text"]) for r in rows if r["value_text"] is not None
++    }
++    payload["framework_version"] = sorted({str(r["framework_version"]) for r in rows})[0]
++    return RiverObject(
++        track="theme" if entity_type == "sector" else "stock", entity_id=entity_id,
++        object_type="teaching_structure",
++        ref=f"history_teaching_labels:{as_of}:{entity_type}:{entity_id}:structure",
++        source_hash=_hash(payload), valid_from=as_of,
++        recorded_at=_ts(max(r["computed_at"] for r in rows)), payload=payload,
++    )
++
++
+ def _gap_reason(con: Any, day: date, gap_kind: str) -> str | None:
+     if not _has_table(con, "history_teaching_gaps"):
+         return None
+diff --git a/intelligence/tests/test_river_teaching_bridge.py b/intelligence/tests/test_river_teaching_bridge.py
+index b6578cea..b088a254 100644
+--- a/intelligence/tests/test_river_teaching_bridge.py
++++ b/intelligence/tests/test_river_teaching_bridge.py
+@@ -301,3 +301,112 @@ def test_sibling_overlap_check_works_on_teaching_predicates() -> None:
+         [(st.Predicate("tf.stage_coarse", "==", "左底向下"),)],
+     )
+     assert "左底向下" in text_domain and "__other__" in text_domain
++
++
++# ── 结构事件（板块级）：第一批非市场级的教学标签 ──────────────────────────────
++
++SECTOR_A, SECTOR_B = "801080.TI", "801770.TI"
++STRUCTURE_ROWS = (("tf.macd_bottom_div_confirm", "2026-01-05"), ("tf.macd_top_div", "2026-01-09"))
++
++
++@pytest.fixture()
++def sidecar_with_structure(sidecar: Path) -> Path:
++    """给板块 SECTOR_A 写两条背离事件行（底背离确认 + 顶背离）。
++
++    同样不改公共夹具——理由见 ``sidecar_with_cycle``。
++    """
++    import duckdb
++
++    con = duckdb.connect(str(sidecar))
++    try:
++        cols = [r[1] for r in con.execute("PRAGMA table_info('history_teaching_labels')").fetchall()]
++        template = con.execute(
++            "SELECT * FROM history_teaching_labels WHERE label = 'tf.money_losing_streak' AND trade_date = ?",
++            [DEV_DAY],
++        ).fetchone()
++        assert template is not None, "夹具形状变了，样板行取不到"
++        idx = {c: cols.index(c) for c in ("label", "value_num", "value_text", "entity_type", "entity_id")}
++        for label, anchor in STRUCTURE_ROWS:
++            row = list(template)
++            row[idx["label"]], row[idx["value_num"]], row[idx["value_text"]] = label, 1.0, anchor
++            row[idx["entity_type"]], row[idx["entity_id"]] = "sector", SECTOR_A
++            con.execute(f"INSERT INTO history_teaching_labels VALUES ({', '.join('?' for _ in cols)})", row)
++    finally:
++        con.close()
++    return sidecar
++
++
++def _entity_slice(sidecar: Path, entity_id: str) -> RiverSlice:
++    objs = teaching_objects(sidecar, DEV_DAY, top=2, entity_type="sector", entity_id=entity_id)
++    tracks: dict[str, Any] = {"market": [], "theme": []}
++    for o in objs:
++        tracks["market" if o.entity_id == "__market__" else o.track].append(o)
++    return RiverSlice(
++        as_of=DEV_DAY, entity_id=entity_id, entity_name="测试板块",
++        knowledge_cutoff=DEV_DAY, tracks=tracks,
++    )
++
++
++def test_sector_level_divergence_reaches_the_judgment_path(sidecar_with_structure: Path) -> None:
++    """第一个**非市场级**教学标签走通判定路径。
++
++    此前河上 65 个教学标签全是 ``entity_type='market'``，规则 DSL 的板块层只有
++    ``dual_red_streak`` 一个、个股层 0 个。这条钉的是「板块自己的背离」能被绑上。
++    """
++    sl = _entity_slice(sidecar_with_structure, SECTOR_A)
++    value, refs = bridge.bind_teaching("tf.macd_bottom_div_confirm", sl)
++    assert value is True
++    assert refs and refs[0].endswith(f":sector:{SECTOR_A}:structure")
++    assert bridge.bind_teaching("tf.macd_top_div", sl)[0] is True
++
++
++def test_structure_object_rides_the_entity_track_not_the_market_track(sidecar_with_structure: Path) -> None:
++    """结构对象必须挂实体自己的轨。
++
++    桥原先把轨写死成 ``"market"``。那样实体级标签永远绑不到值，且失败是**静默的**
++    unknown——收据上看不出是「没接旁路库」还是「找错了轨」。
++    """
++    sl = _entity_slice(sidecar_with_structure, SECTOR_A)
++    assert [o.object_type for o in sl.tracks["theme"]] == ["teaching_structure"]
++    assert all(o.object_type != "teaching_structure" for o in sl.tracks["market"])
++    assert bridge._TRACK_OF_OBJECT["teaching_structure"] == "theme"
++    assert bridge._TRACK_OF_OBJECT["teaching_stage"] == "market"  # 市场级那批没被挪走
++
++
++def test_divergence_is_unknown_not_false_when_the_entity_has_no_event(
++    sidecar_with_structure: Path,
++) -> None:
++    """换一个没有事件行的板块 → unknown，不是「没背离」。
++
++    这组是**事件标签**（只落事件日）：「今天没事件」与「旁路库没接」在读数上长得一样。
++    绑成 False 会让「没有顶背离」这种分枝在旁路库缺席时悄悄成立——正是 rules 里
++    「『从未成立』与『今天没成立』在读数上长得一样」防的同一个坑。
++    """
++    sl = _entity_slice(sidecar_with_structure, SECTOR_B)
++    assert sl.tracks["theme"] == []
++    assert bridge.bind_teaching("tf.macd_top_div", sl) == (None, [])
++    # 一个对象缺席不能拖垮另一个：同片切片上的市场级标签照常绑得到
++    assert bridge.bind_teaching("tf.above_week_ma", sl)[0] is not None
++
++
++def test_market_level_objects_are_unchanged_when_no_entity_is_given(sidecar_with_structure: Path) -> None:
++    """不传实体 = 与改动前逐字节一致。结构对象是**附加**，不是改写。"""
++    before = [o.to_dict() for o in teaching_objects(sidecar_with_structure, DEV_DAY, top=2)]
++    after = [
++        o.to_dict()
++        for o in teaching_objects(sidecar_with_structure, DEV_DAY, top=2, entity_type="sector", entity_id=SECTOR_A)
++        if o.entity_id == "__market__"
++    ]
++    assert before == after
++
++
++def test_sector_divergence_compiles_into_a_scenario_tree_condition() -> None:
++    """用户第二十三段的原话「板块和个股层面我也希望可以用」——板块层先通。"""
++    preds, errs = st.compile_condition(
++        {"all": [
++            {"label": "tf.macd_bottom_div_confirm", "op": "==", "value": True},
++            {"label": "tf.mainline_volume_top3", "op": "==", "value": True},
++        ]},
++        where="n1",
++    )
++    assert errs == [] and preds is not None and len(preds) == 2
 -- 
 2.39.5
 

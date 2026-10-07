@@ -95,7 +95,8 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 | `teaching-cycle-labels.patch` | **搬运**。旁路库算了却从未上河的 9 个周期位置标签 → `teaching_cycle` 对象并开放判定。只搬不算,不新增任何计算或阈值。**用户框架概念可判定 5 → 20 / 21** |
 | `spt-007-adjudication.patch` | 裁定 `sptfei.筹码与结构.007`「临近突破状态」为独立条目,并挂 `definitional_gap`(9 次引用 0 次定义) |
 | `sibling-domain-keyerror-fix.patch` | **修 bug**。`_domain()` 对 `tf.*` 谓词 KeyError,兄弟节点互斥检查形同虚设。桥补丁自带,非合并引入 |
-| `second-batch-all-six.patch` | 第二批六个的一把梭 |
+| `sector-divergence-on-judgment-path.patch` | **板块层第一次有料**。4 个 MACD 背离标签接上判定路径,桥离开盘面轨 |
+| `second-batch-all-seven.patch` | 第二批七个的一把梭 |
 
 候选产物（不写回生产画像，供本机应用）：
 - `2026-10-07-sptfei-lens-split-candidate.json` —— SPT 86 条拆分结果
@@ -109,7 +110,7 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 
 ---
 
-## ⚠ 两批补丁会冲突 —— 用 `ALL-ELEVEN-merged.patch`
+## ⚠ 两批补丁会冲突 —— 用 `ALL-TWELVE-merged.patch`
 
 两批都改了 `intelligence/services/scenario_trees.py` 的 import 行和 `compile_condition` 闸口,
 **直接依次 `git am` 会在第二批第一个补丁处冲突**。
@@ -118,13 +119,13 @@ python3 scripts/export_perspective_framework.py --perspective sptfei --user <你
 
 ```bash
 git clone -b docs/cloud-research-context https://github.com/moscrol/finance.git
-cd finance && git am ALL-ELEVEN-merged.patch      # 旧 5 + 新 6,冲突已解
+cd finance && git am ALL-TWELVE-merged.patch      # 旧 5 + 新 7,冲突已解
 ```
 
 解法是两边都保留:`text_domain_error`(旧补丁 3)与 `river_teaching_bridge`(新补丁 1)同时 import,
 闸口按 `tf.*` → 走桥 / 否则 → 原逻辑 分流。
 
-**组合验证**:11 个补丁全部落地 → 相关范围 **1471 passed / 46 skipped / 1 failed**。
+**组合验证**:12 个补丁全部落地 → 相关范围 **1471 passed / 46 skipped / 1 failed**。
 那 1 个失败(`test_ceiling_pit_fixture.py::test_temporal_classifier_...` 的 `InvalidInputException`)
 在**未打任何补丁的干净 clone 上同样失败**,是既有问题,与本批无关。
 另有 3 个文件因沙箱 `PermissionError` 无法收集,同样在干净 clone 上复现。
@@ -133,5 +134,15 @@ cd finance && git am ALL-ELEVEN-merged.patch      # 旧 5 + 新 6,冲突已解
 
 | | 本轮前 | 本轮后 |
 |---|---|---|
-| 判定路径认得的标签 | 4 | 7(供应商)+ 23(教学)= 30 |
+| 判定路径认得的标签 | 4 | 7(供应商)+ **27**(教学)= **34** |
 | 用户框架概念可判定 | 5 / 21 | **20 / 21** |
+| **板块层标签** | **1** | **5** |
+
+判定路径按层级(用户 10-07「从大到小」三层模型):
+
+| 层级 | 规则 DSL | 教学桥 |
+|---|---:|---:|
+| 大盘 | 4 | 23 |
+| 题材 | 5 | 0 |
+| **板块** | 1 | **4** ← 本轮 |
+| 个股 | 0 | 0 ← 河上没有个股主体的切片,见三层核验报告 |
