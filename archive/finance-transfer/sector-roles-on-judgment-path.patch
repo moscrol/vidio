@@ -1,0 +1,368 @@
+From fe68f410e7fc7e546788628a49cfd7419f0d81df Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@arena.local>
+Date: Wed, 7 Oct 2026 14:12:03 +0000
+Subject: [PATCH 8/8] =?UTF-8?q?feat(river):=20=E6=9D=BF=E5=9D=97=E8=A7=92?=
+ =?UTF-8?q?=E8=89=B2=EF=BC=88=E9=87=8F=E6=9D=BF=E5=9D=97/=E4=BB=B7?=
+ =?UTF-8?q?=E6=9D=BF=E5=9D=97/=E9=94=90=E5=BA=A6/RPS/=E8=B5=9A=E9=92=B1?=
+ =?UTF-8?q?=E6=95=88=E5=BA=94=EF=BC=89=E6=8E=A5=E4=B8=8A=E5=88=A4=E5=AE=9A?=
+ =?UTF-8?q?=E8=B7=AF=E5=BE=84=20+=20=E5=90=8C=E5=90=8D=E7=A2=B0=E6=92=9E?=
+ =?UTF-8?q?=E5=AE=88=E9=97=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+创始人 10-07「板块的分析又有这个容量占比、价板块这些我们本来有的定义」——
+核验下来确实「本来就有」：sector_roles.SECTOR_LABELS 18 个标签逐日按板块算好
+并落在 history_teaching_labels（entity_type='sector'，与上一个补丁的背离事件同住）。
+判定路径一个都看不见。又是算了没往判定路径送。
+
+搬 17 个，口径一字未改：
+- 角色 role_volume_top3（量板块＝容量占比前三的申万一级，07-03 答疑 1）/
+  role_price_top10（价板块＝5 日涨幅靠前但量能不足以进前三，第十段取前 10）/
+  role_sharpness_top10 / role_breadth_top_l1 / mainline_vendor / dual_red_strict
+- 名次 rps_3d/5d/10d_rank / limit_up_count / sharpness_limit_rank / sharpness_rank_mean
+- 赚钱效应五个定义并列照搬（limit_top10 / dual_red / rps5_top10 / rank_mean_top10 /
+  kmeans_hot）。并列是作者的刻意选择——「特征可以组合，要联立分析，不一定要直接
+  锁死答案」（第六、七段）——桥不替他选哪个是对的。
+
+过程中发现一颗雷：tf.mainline_volume_top3 在市场级（CYCLE_LABELS，P4 已搬）与
+板块级（SECTOR_LABELS）同名而含义不同。_OBJECT_OF_LABEL 是以标签名为键的平表，
+碰撞时谓词绑到哪一层取决于字典插入顺序——不报错，只给错答案。这正是模块
+docstring 末段记的「手抄一份四元组导致两处同名不同物」那个坑的复发。
+
+两手处理：
+(a) 搬运侧剔除板块级那个名字——sector_roles:265 显示它就是 role_volume_top3 的
+    别名，搬它零收益却要付碰撞代价；
+(b) 加导入期碰撞断言，四组标签名两两不得重叠，撞了立刻炸。变异验证：把剔除条件
+    改成 if True，导入即抛并指名道姓两个组。这颗雷不该靠下次有人碰巧发现。
+
+SECTOR_ROLE_LABELS 从 sector_roles.SECTOR_LABELS 推导而非手抄，同一个坑不踩第二次。
+
+板块层 1 → 22。判定路径上的教学标签 27 → 44。
+
+5 个测试：角色绑定走通（含 value_num=0 必须是「确定的假」而非缺失）、角色与结构
+同轨但两个对象且 ref 可分辨、同名碰撞不变量、以及用户「从大到小」三层
+（大盘 stage_coarse × 板块 role_volume_top3 × 板块 macd_bottom_div_confirm）
+一条条件混用三层可编译。
+
+教学/河/情景树/判定回归 520 passed / 2 skipped（本补丁前 516）。
+---
+ .../services/river_teaching_bridge.py         | 53 +++++++++++-
+ .../teaching_framework/river_objects.py       | 76 +++++++++++++----
+ .../tests/test_river_teaching_bridge.py       | 84 +++++++++++++++++++
+ 3 files changed, 195 insertions(+), 18 deletions(-)
+
+diff --git a/intelligence/services/river_teaching_bridge.py b/intelligence/services/river_teaching_bridge.py
+index 3562eff8..4a4b3cc0 100644
+--- a/intelligence/services/river_teaching_bridge.py
++++ b/intelligence/services/river_teaching_bridge.py
+@@ -38,12 +38,18 @@ from typing import Any
+ 
+ from intelligence.services.river import RiverObject, RiverSlice
+ from intelligence.services.river_window_contract import track_objects
+-from intelligence.services.teaching_framework.river_objects import CYCLE_LABELS, STAGE_LABELS, STRUCTURE_LABELS
++from intelligence.services.teaching_framework.river_objects import (
++    CYCLE_LABELS,
++    SECTOR_ROLE_LABELS,
++    STAGE_LABELS,
++    STRUCTURE_LABELS,
++)
+ 
+ TEACHING_NAMESPACE = "tf."
+ TEACHING_STAGE_OBJECT = "teaching_stage"
+ TEACHING_CYCLE_OBJECT = "teaching_cycle"
+ TEACHING_STRUCTURE_OBJECT = "teaching_structure"
++TEACHING_SECTOR_ROLE_OBJECT = "teaching_sector_role"
+ 
+ # 哪个标签挂在哪个河对象上。两个对象而不是一个，是因为阶段对象已接近 payload ≤ 20 键的索引层约束
+ # （仓里 CAPITAL / BREADTH / NARRATIVE 也是这么分的）。桥对调用方隐藏这个分法：
+@@ -52,8 +58,29 @@ _OBJECT_OF_LABEL: dict[str, str] = {
+     **{label: TEACHING_STAGE_OBJECT for label in STAGE_LABELS},
+     **{label: TEACHING_CYCLE_OBJECT for label in CYCLE_LABELS},
+     **{label: TEACHING_STRUCTURE_OBJECT for label in STRUCTURE_LABELS},
++    **{label: TEACHING_SECTOR_ROLE_OBJECT for label in SECTOR_ROLE_LABELS},
+ }
+ 
++# 同名不同物是本仓踩过的坑（见模块 docstring 末段）。一个标签名只能属于一个对象：
++# 教学标签现在横跨 market / sector 两个实体层，``tf.mainline_volume_top3`` 就同时存在于
++# 市场级 CYCLE_LABELS 与板块级 SECTOR_LABELS（含义不同）。碰撞必须在导入时就炸，
++# 不能等到某天一条谓词悄悄绑到了另一层的读数上——那种错不会报错，只会给出错的答案。
++_LABEL_GROUPS = (
++    ("STAGE_LABELS", STAGE_LABELS), ("CYCLE_LABELS", CYCLE_LABELS),
++    ("STRUCTURE_LABELS", STRUCTURE_LABELS), ("SECTOR_ROLE_LABELS", SECTOR_ROLE_LABELS),
++)
++_seen: dict[str, str] = {}
++for _group_name, _group in _LABEL_GROUPS:
++    for _label in _group:
++        if _label in _seen:
++            raise AssertionError(
++                f"教学标签 {_label!r} 同时出现在 {_seen[_label]} 与 {_group_name}。"
++                "一个名字只能属于一个河对象，否则谓词会绑到哪一层取决于字典插入顺序——"
++                "静默给出另一层的读数。请改名或在搬运侧剔除其中一个（并写明理由）。"
++            )
++        _seen[_label] = _group_name
++del _seen, _group_name, _group, _label
++
+ # 对象挂在哪条轨上。市场级那批挂 ``__market__`` 的盘面轨；结构事件是**实体级**的，
+ # 挂切片自己那个实体的轨（板块 → theme）。写死 "market" 会让实体级标签永远绑不到值，
+ # 而且是静默的 unknown —— 看不出是「没接旁路库」还是「找错了轨」。
+@@ -61,6 +88,7 @@ _TRACK_OF_OBJECT: dict[str, str] = {
+     TEACHING_STAGE_OBJECT: "market",
+     TEACHING_CYCLE_OBJECT: "market",
+     TEACHING_STRUCTURE_OBJECT: "theme",
++    TEACHING_SECTOR_ROLE_OBJECT: "theme",
+ }
+ 
+ 
+@@ -107,6 +135,27 @@ TEACHING_LABEL_KINDS: dict[str, str] = {
+     "tf.macd_bottom_div_confirm": "bool",   # 三低：收盘递降、DIF 递升
+     "tf.macd_bottom_div_failed": "bool",    # 失效：fail_horizon 内收盘跌破锚点低点
+     "tf.macd_top_div": "bool",              # 顶背离：两高收盘更高而 DIF 更低
++    # ── 板块角色（C 类）。创始人 10-07「板块的分析又有这个容量占比、价板块这些
++    # 我们本来有的定义」。口径见 sector_roles 模块 docstring，本次一字未改。
++    "tf.role_volume_top3": "bool",          # 量板块 =「容量占比前三的申万一级里的板块」（07-03 答疑 1）
++    "tf.role_price_top10": "bool",          # 价板块 =「5 日涨幅靠前但量能不足以进占比前三」（第十段，前 10）
++    "tf.role_sharpness_top10": "bool",      # 锐度前 10
++    "tf.role_breadth_top_l1": "bool",       # 宽度第一的申万一级
++    "tf.mainline_vendor": "bool",           # 供应商口径的主线板块
++    "tf.dual_red_strict": "bool",           # 双红：pct>0 ∧ diff_ratio>10 ∧ amount>500（回测层同一口径）
++    "tf.rps_3d_rank": "num",                # 板块级短期 RPS 名次
++    "tf.rps_5d_rank": "num",
++    "tf.rps_10d_rank": "num",
++    "tf.limit_up_count": "num",             # 板块内涨停家数
++    "tf.sharpness_limit_rank": "num",       # 锐度分量一：涨停家数名次
++    "tf.sharpness_rank_mean": "num",        # 锐度分量二：区间涨幅名次均值（两列都出，合成方式待定）
++    # 赚钱效应五个定义并列 ——「特征可以组合，要联立分析，不一定要直接锁死答案」（第六、七段）。
++    # 并列是作者的刻意选择，不是没做完；桥照搬，不替他选哪个是「对的」。
++    "tf.money_effect.limit_top10": "bool",
++    "tf.money_effect.dual_red": "bool",
++    "tf.money_effect.rps5_top10": "bool",
++    "tf.money_effect.rank_mean_top10": "bool",
++    "tf.money_effect.kmeans_hot": "bool",
+ }
+ 
+ # 显式留置：算得出、进了河，但**不开放给判定**。每条必须有理由，理由必须可追到记录。
+@@ -123,7 +172,7 @@ TEACHING_LABELS_WITHHELD: dict[str, str] = {
+ def assert_teaching_catalog_parity() -> None:
+     """开放表 ∪ 留置表 必须恰好等于河上真实搬运的那批教学标签。偏了就抛。"""
+     declared = set(TEACHING_LABEL_KINDS) | set(TEACHING_LABELS_WITHHELD)
+-    actual = set(STAGE_LABELS) | set(CYCLE_LABELS) | set(STRUCTURE_LABELS)
++    actual = set(STAGE_LABELS) | set(CYCLE_LABELS) | set(STRUCTURE_LABELS) | set(SECTOR_ROLE_LABELS)
+     missing = sorted(actual - declared)
+     extra = sorted(declared - actual)
+     if missing or extra:
+diff --git a/intelligence/services/teaching_framework/river_objects.py b/intelligence/services/teaching_framework/river_objects.py
+index 9cc627dd..eb2e1b2e 100644
+--- a/intelligence/services/teaching_framework/river_objects.py
++++ b/intelligence/services/teaching_framework/river_objects.py
+@@ -142,6 +142,10 @@ def teaching_objects(
+             structure = _structure_object(con, day, as_of, entity_type=entity_type, entity_id=entity_id)
+             if structure is not None:
+                 out.append(structure)
++            if entity_type == "sector":
++                role = _sector_role_object(con, day, as_of, entity_id=entity_id)
++                if role is not None:
++                    out.append(role)
+         return out
+     finally:
+         con.close()
+@@ -214,48 +218,88 @@ def _labels_object(con: Any, day: date, as_of: str, *, labels: tuple[str, ...],
+ # 与上面所有标签组不同——这组**不是市场级**，每行挂在一个具体 entity_id 上，
+ # 所以它进的是切片自己那个实体的轨（板块 → theme），不是 ``__market__``。
+ # scripts/teaching_framework.py:1309 STRUCTURE_ENTITY_LABELS 是同一份名单的 SSOT 对侧。
++_SECTOR_LABELS_SSOT: tuple[str, ...]
++from intelligence.services.teaching_framework.sector_roles import SECTOR_LABELS as _SECTOR_LABELS_SSOT  # noqa: E402
++
+ STRUCTURE_LABELS = (
+     "tf.macd_bottom_div_observe", "tf.macd_bottom_div_confirm",
+     "tf.macd_bottom_div_failed", "tf.macd_top_div",
+ )
+ 
+ 
+-def _structure_object(con: Any, day: date, as_of: str, *, entity_type: str, entity_id: str) -> RiverObject | None:
+-    """某个板块 / 个股当日的 MACD 背离事件 → 一个对象，只搬不解释。
++# 板块角色（C 类，sector_roles.SECTOR_LABELS）：量板块 / 价板块 / 锐度 / RPS / 双红 /
++# 赚钱效应五定义。创始人 10-07「板块的分析又有这个容量占比、价板块这些我们本来有的定义」。
++# 名单从 sector_roles 推导而不是手抄——手抄一份四元组导致「两处同名不同物」是本仓踩过的坑。
++#
++# 刻意剔除 ``mainline_volume_top3``：它在 sector_roles:265 就是 ``role_volume_top3`` 的别名，
++# 而这个名字在**市场级**已经被 CYCLE_LABELS 占了（含义不同）。同名不同物正是上面那个坑，
++# 搬别名零收益、却要付命名空间碰撞的代价，所以搬 role_volume_top3 就够了。
++SECTOR_ROLE_LABELS: tuple[str, ...] = tuple(
++    f"tf.{name}" for name in _SECTOR_LABELS_SSOT if name != "mainline_volume_top3"
++)
+ 
+-    **只落事件日**（``scripts/teaching_framework.py:1316``）：``value_num`` 恒为 1.0，
+-    ``value_text`` 是锚点日（事件指向的极值日）。没事件的日子根本没有行，
+-    所以这里返回 None —— 判定路径会当 unknown，不当「没背离」。
+-    这两件事在读数上长得一样，混起来就是 ``rules.text_domain_error`` 那句
+-    「『从未成立』与『今天没成立』在读数上长得一样」的同一个坑。
+-    """
++
++def _entity_labels_object(
++    con: Any, day: date, as_of: str, *, entity_type: str, entity_id: str,
++    labels: tuple[str, ...], object_type: str, suffix: str, with_text: bool = False,
++) -> RiverObject | None:
++    """一组**实体级**标签 → 一个对象。与 ``_labels_object`` 的区别只在实体不是 ``market``。"""
+     if not _has_table(con, "history_teaching_labels"):
+         return None
+     rows = _rows(
+         con,
+         f"""SELECT label, value_num, value_text, framework_version, computed_at FROM history_teaching_labels
+             WHERE entity_type = ? AND entity_id = ? AND status = 'ok' AND trade_date = ?
+-              AND label IN ({", ".join("?" for _ in STRUCTURE_LABELS)}) AND value_num IS NOT NULL
++              AND label IN ({", ".join("?" for _ in labels)}) AND value_num IS NOT NULL
+             ORDER BY label""",
+-        [entity_type, entity_id, day, *STRUCTURE_LABELS],
++        [entity_type, entity_id, day, *labels],
+     )
+     if not rows:
+         return None
+     payload: dict[str, Any] = {str(r["label"]).removeprefix("tf."): r["value_num"] for r in rows}
+-    # 锚点日单独带出来：事件指向哪一天的极值，是人读这条事件时第一个要问的。
+-    payload["anchor_days"] = {
+-        str(r["label"]).removeprefix("tf."): str(r["value_text"]) for r in rows if r["value_text"] is not None
+-    }
++    if with_text:
++        anchors = {
++            str(r["label"]).removeprefix("tf."): str(r["value_text"]) for r in rows if r["value_text"] is not None
++        }
++        if anchors:
++            payload["anchor_days"] = anchors
+     payload["framework_version"] = sorted({str(r["framework_version"]) for r in rows})[0]
+     return RiverObject(
+         track="theme" if entity_type == "sector" else "stock", entity_id=entity_id,
+-        object_type="teaching_structure",
+-        ref=f"history_teaching_labels:{as_of}:{entity_type}:{entity_id}:structure",
++        object_type=object_type,
++        ref=f"history_teaching_labels:{as_of}:{entity_type}:{entity_id}:{suffix}",
+         source_hash=_hash(payload), valid_from=as_of,
+         recorded_at=_ts(max(r["computed_at"] for r in rows)), payload=payload,
+     )
+ 
+ 
++def _structure_object(con: Any, day: date, as_of: str, *, entity_type: str, entity_id: str) -> RiverObject | None:
++    """某个板块 / 个股当日的 MACD 背离事件 → 一个对象，只搬不解释。
++
++    **只落事件日**（``scripts/teaching_framework.py:1316``）：``value_num`` 恒为 1.0，
++    ``value_text`` 是锚点日（事件指向的极值日）。没事件的日子根本没有行，
++    所以这里返回 None —— 判定路径会当 unknown，不当「没背离」。
++    这两件事在读数上长得一样，混起来就是 ``rules.text_domain_error`` 那句
++    「『从未成立』与『今天没成立』在读数上长得一样」的同一个坑。
++    """
++    return _entity_labels_object(
++        con, day, as_of, entity_type=entity_type, entity_id=entity_id,
++        labels=STRUCTURE_LABELS, object_type="teaching_structure", suffix="structure", with_text=True,
++    )
++
++
++def _sector_role_object(con: Any, day: date, as_of: str, *, entity_id: str) -> RiverObject | None:
++    """某个板块当日的角色标签（量板块 / 价板块 / 锐度 / RPS / 双红 / 赚钱效应）。
++
++    与结构事件不同，角色标签是**逐日全量**的：板块在就有行，不在就是真的没算出来
++    （``sector_roles`` 全程 fail-closed，窗口不全或输入 NULL 一律给 NULL，不补零）。
++    """
++    return _entity_labels_object(
++        con, day, as_of, entity_type="sector", entity_id=entity_id,
++        labels=SECTOR_ROLE_LABELS, object_type="teaching_sector_role", suffix="sector_role",
++    )
++
++
+ def _gap_reason(con: Any, day: date, gap_kind: str) -> str | None:
+     if not _has_table(con, "history_teaching_gaps"):
+         return None
+diff --git a/intelligence/tests/test_river_teaching_bridge.py b/intelligence/tests/test_river_teaching_bridge.py
+index b088a254..39b79275 100644
+--- a/intelligence/tests/test_river_teaching_bridge.py
++++ b/intelligence/tests/test_river_teaching_bridge.py
+@@ -410,3 +410,87 @@ def test_sector_divergence_compiles_into_a_scenario_tree_condition() -> None:
+         where="n1",
+     )
+     assert errs == [] and preds is not None and len(preds) == 2
++
++
++# ── 板块角色（C 类）：量板块 / 价板块 / 锐度 / RPS / 双红 / 赚钱效应 ──────────
++
++ROLE_ROWS = {
++    "tf.role_volume_top3": 1.0, "tf.role_price_top10": 0.0,
++    "tf.rps_5d_rank": 4.0, "tf.limit_up_count": 7.0,
++    "tf.money_effect.kmeans_hot": 1.0, "tf.dual_red_strict": 1.0,
++}
++
++
++@pytest.fixture()
++def sidecar_with_roles(sidecar: Path) -> Path:
++    """给 SECTOR_A 写板块角色行。同样不改公共夹具。"""
++    import duckdb
++
++    con = duckdb.connect(str(sidecar))
++    try:
++        cols = [r[1] for r in con.execute("PRAGMA table_info('history_teaching_labels')").fetchall()]
++        template = con.execute(
++            "SELECT * FROM history_teaching_labels WHERE label = 'tf.money_losing_streak' AND trade_date = ?",
++            [DEV_DAY],
++        ).fetchone()
++        assert template is not None, "夹具形状变了，样板行取不到"
++        idx = {c: cols.index(c) for c in ("label", "value_num", "value_text", "entity_type", "entity_id")}
++        for label, num in ROLE_ROWS.items():
++            row = list(template)
++            row[idx["label"]], row[idx["value_num"]], row[idx["value_text"]] = label, num, None
++            row[idx["entity_type"]], row[idx["entity_id"]] = "sector", SECTOR_A
++            con.execute(f"INSERT INTO history_teaching_labels VALUES ({', '.join('?' for _ in cols)})", row)
++    finally:
++        con.close()
++    return sidecar
++
++
++def test_sector_roles_reach_the_judgment_path(sidecar_with_roles: Path) -> None:
++    """创始人 10-07 点名的「容量占比、价板块这些我们本来有的定义」接上判定路径。"""
++    sl = _entity_slice(sidecar_with_roles, SECTOR_A)
++    assert bridge.bind_teaching("tf.role_volume_top3", sl)[0] is True      # 量板块
++    assert bridge.bind_teaching("tf.role_price_top10", sl)[0] is False     # 价板块：确定的假
++    assert bridge.bind_teaching("tf.rps_5d_rank", sl)[0] == 4.0
++    _, refs = bridge.bind_teaching("tf.money_effect.kmeans_hot", sl)
++    assert refs and refs[0].endswith(f":sector:{SECTOR_A}:sector_role")
++
++
++def test_role_and_structure_are_separate_objects_on_the_same_track(
++    sidecar_with_roles: Path, sidecar_with_structure: Path
++) -> None:
++    """角色与结构同在 theme 轨但是两个对象，各自的 ref 要能分辨出来源。"""
++    sl = _entity_slice(sidecar_with_roles, SECTOR_A)
++    kinds = sorted(o.object_type for o in sl.tracks["theme"])
++    assert kinds == ["teaching_sector_role", "teaching_structure"]
++    role_ref = bridge.bind_teaching("tf.role_volume_top3", sl)[1][0]
++    div_ref = bridge.bind_teaching("tf.macd_bottom_div_confirm", sl)[1][0]
++    assert role_ref != div_ref and role_ref.endswith(":sector_role") and div_ref.endswith(":structure")
++
++
++def test_no_teaching_label_belongs_to_two_objects() -> None:
++    """同名不同物守门。
++
++    ``tf.mainline_volume_top3`` 在市场级（CYCLE_LABELS）和板块级（SECTOR_LABELS）都存在、
++    含义不同。碰撞时谓词绑到哪一层取决于字典插入顺序——**不报错，只给错答案**。
++    所以搬运侧剔除了板块级那个别名（它本就等于 role_volume_top3），这里钉住不变量本身。
++    """
++    seen: dict[str, str] = {}
++    for name, group in bridge._LABEL_GROUPS:
++        for label in group:
++            assert label not in seen, f"{label} 同时在 {seen[label]} 与 {name}"
++            seen[label] = name
++    assert "tf.mainline_volume_top3" in dict(bridge._LABEL_GROUPS)["CYCLE_LABELS"]
++    assert "tf.role_volume_top3" in dict(bridge._LABEL_GROUPS)["SECTOR_ROLE_LABELS"]
++
++
++def test_user_three_level_rule_compiles_end_to_end() -> None:
++    """用户 10-07「从大到小」：大盘阶段 × 板块角色 × 板块背离，一条条件里混用三层。"""
++    preds, errs = st.compile_condition(
++        {"all": [
++            {"label": "tf.stage_coarse", "op": "==", "value": "共建主线"},   # 大盘
++            {"label": "tf.role_volume_top3", "op": "==", "value": True},      # 板块：量板块
++            {"label": "tf.macd_bottom_div_confirm", "op": "==", "value": True},  # 板块结构
++        ]},
++        where="n1",
++    )
++    assert errs == [] and preds is not None and len(preds) == 3
+-- 
+2.39.5
+
