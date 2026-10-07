@@ -12,7 +12,8 @@
 | `river-ci-contract-coverage.patch` | PR 1：让河的契约在 CI 上真的跑起来 + `derive_streak` 类型门 |
 | `river-label-binding-expansion.patch` | PR 2：把已注册但未绑定的标签接进切片，可判标签 4 → 7 |
 | `river-text-domain-gate.patch` | PR 3：文本谓词检查取值域（由 agent 消费实验挖出） |
-| `river-all-three.patch` | 上面三个的合集，一次 `git am` 全上 |
+| `perspective-river-map.patch` | PR 4：视角↔河 映射表 + 可消费性审计工具 |
+| `river-all-four.patch` | 上面四个的合集，一次 `git am` 全上 |
 
 ## 迁移方式
 
@@ -36,15 +37,28 @@ git am < /path/to/river-text-domain-gate.patch
 git push -u origin feat/river-text-domain-gate && gh pr create
 ```
 
-或者一把梭（三个 commit 一个分支）：
+# PR 4（基于 PR 3）
+git checkout -b feat/perspective-river-map
+git am < /path/to/perspective-river-map.patch
+git push -u origin feat/perspective-river-map && gh pr create
+```
+
+或者一把梭（四个 commit 一个分支）：
 
 ```bash
 git checkout -b feat/river-consumability
-git am < /path/to/river-all-three.patch
+git am < /path/to/river-all-four.patch
 ```
 
-三个补丁都已在**干净的 `main` clone** 上验过 `git am` + 实跑测试
-（最后一次：三个按序 am 后 `158 passed`）。
+装好之后可以直接跑这条，看你自己的视角河能接住几条：
+
+```bash
+python3 scripts/audit_perspective_consumability.py --perspective kol_fengyuan
+python3 scripts/audit_perspective_consumability.py --perspective sptfei --user linxiaoqi5111 --list-criteria
+```
+
+四个补丁都已在**干净的 `main` clone** 上验过 `git am` + 实跑测试
+（最后一次：四个按序 am 后 `75 passed`，并在该 clone 上跑通了视角审计）。
 
 ## 合并前必做
 

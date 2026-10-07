@@ -1,7 +1,7 @@
 From be8d464c78d760c0b80a4af8a9cc9ad64817cab2 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 08:47:15 +0000
-Subject: [PATCH 1/3] test(river): run the time-river contracts in CI and
+Subject: [PATCH 1/4] test(river): run the time-river contracts in CI and
  reject non-boolean streaks
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -871,7 +871,7 @@ index 00000000..006a6f8d
 From 2d233e670a94975b12801cffe21efb616b3045d1 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 09:38:38 +0000
-Subject: [PATCH 2/3] =?UTF-8?q?feat(river):=20=E6=8A=8A=E5=B7=B2=E6=B3=A8?=
+Subject: [PATCH 2/4] =?UTF-8?q?feat(river):=20=E6=8A=8A=E5=B7=B2=E6=B3=A8?=
  =?UTF-8?q?=E5=86=8C=E4=BD=86=E6=B2=A1=E6=8E=A5=E7=BA=BF=E7=9A=84=E6=A0=87?=
  =?UTF-8?q?=E7=AD=BE=E6=8E=A5=E8=BF=9B=E5=88=87=E7=89=87=EF=BC=8C=E5=8F=AF?=
  =?UTF-8?q?=E5=88=A4=E8=AF=8D=E6=B1=87=204=20=E2=86=92=207?=
@@ -1654,7 +1654,7 @@ index 006a6f8d..9d0d6320 100644
 From 3f225892ff8471c660523d019d28d72320151a08 Mon Sep 17 00:00:00 2001
 From: moscrol <moscrol@users.noreply.github.com>
 Date: Wed, 7 Oct 2026 09:58:21 +0000
-Subject: [PATCH 3/3] =?UTF-8?q?feat(rules):=20=E6=96=87=E6=9C=AC=E8=B0=93?=
+Subject: [PATCH 3/4] =?UTF-8?q?feat(rules):=20=E6=96=87=E6=9C=AC=E8=B0=93?=
  =?UTF-8?q?=E8=AF=8D=E6=A3=80=E6=9F=A5=E5=8F=96=E5=80=BC=E5=9F=9F=E2=80=94?=
  =?UTF-8?q?=E2=80=94=E5=86=99=E9=94=99=E4=B8=80=E4=B8=AA=E8=AF=8D=E4=B8=8D?=
  =?UTF-8?q?=E8=AF=A5=E5=BE=97=E5=88=B0=E4=B8=80=E6=9D=A1=E6=B0=B8=E4=B8=8D?=
@@ -2046,6 +2046,845 @@ index 9d0d6320..368d242c 100644
 +    domains = rules._closed_text_domains()  # noqa: SLF001
 +    assert domains["lifecycle_stage"] == tuple(CANONICAL_STAGES)
 +    assert domains["opinion_stage"] == (*STAGES, "unverifiable")
+-- 
+2.39.5
+
+
+From 5746e27ffb0b6d2c99bd03e0961542a89f6d08f5 Mon Sep 17 00:00:00 2001
+From: moscrol <moscrol@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 10:13:06 +0000
+Subject: [PATCH 4/4] =?UTF-8?q?feat(perspective):=20=E8=A7=86=E8=A7=92?=
+ =?UTF-8?q?=E2=86=94=E6=B2=B3=20=E6=98=A0=E5=B0=84=E8=A1=A8=20+=20?=
+ =?UTF-8?q?=E5=8F=AF=E6=B6=88=E8=B4=B9=E6=80=A7=E5=AE=A1=E8=AE=A1=E2=80=94?=
+ =?UTF-8?q?=E2=80=94=E6=8A=8A=E3=80=8C=E5=AF=B9=E4=B8=8D=E4=B8=8A=E3=80=8D?=
+ =?UTF-8?q?=E5=8F=98=E6=88=90=E4=B8=80=E4=B8=AA=E5=8F=AF=E5=A4=8D=E6=B5=8B?=
+ =?UTF-8?q?=E7=9A=84=E6=95=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+视角画像与时间长河互不引用。实测双向 0 处 import：perspective_lab /
+perspective_exam / perspective_learning / framework_interpretation /
+ask_synthesis / adaptive_research 六个模块对 river 零引用，river*.py 对
+perspective 也零引用。画像里是散文（market_lenses 的 name/description 字符串），
+河里是 7 个可判标签，中间没有任何映射。
+
+后果不是「少了个功能」，是每次要用某个视角读行情，agent 都得临场把散文翻译成
+标签组合：翻译结果不确定、不可复算、不可回溯，也没有任何人能说出这次翻译漏了
+哪条判据。风远的「五维排序」里五个维度，河能接住几个？此前没人能回答。
+
+新增三样：
+
+1. scripts/audit_perspective_consumability.py
+   逐条核对画像判据落在哪一档：✅可判 / 🟡有料无词 / 🟠有库无河 / ❌无数据 /
+   🔵架构已有。三个口径全部现查不抄——标签白名单从 river_derive 取、河发了哪些
+   字段从一片真切片上数、库里有哪些列从 schema.sql 读。任何一处抄成常量，
+   这份审计都会在河变了之后继续报旧数。不给 --db 就退回夹具库，读数偏保守
+   （只会把 🟡 误报成 🟠，不会反过来）。
+
+2. docs/learning/perspective-river-map/kol_fengyuan.json
+   风远 15 条画像原文 → 28 条可核对判据的映射。人工写、署名、标 draft。
+   为什么不自动匹配：对应关系是语义的——「拥挤度」→opinion_stage=='拥挤'、
+   「先定周期位置」→lifecycle_stage，字面毫无交集；而字面能对上的
+   （「涨幅收敛」vs pct_chg）恰恰最容易判错，有原始字段≠有判据。
+   认定权在用户，agent 只能草拟。
+
+3. tests/test_perspective_river_map.py
+   映射表自己的门禁。最关键一条是 profile_coverage 与画像做**集合相等**比对：
+   画像加一条而映射表没跟，审计会对着旧分母输出一个好看的百分比。
+   第一版覆盖检查用字符串前缀模糊匹配，把 6 条已覆盖的误报成未覆盖——
+   会误报的检查比没有检查更坏，人会学会忽略它。
+   另外钉住：档位不得写进 JSON（必须现算，否则河扩了标签审计还报旧档，
+   且只会往低估方向错、更难发现）；needs_labels 不得引用河判不了的词。
+
+首次读数（风远，夹具库口径）：
+  ✅可判 5/28 · 🟡有料无词 9/28 · 🟠有库无河 3/28 · ❌无数据 8/28 · 🔵架构已有 3/28
+
+两个结构性发现写进映射表注释：
+- 🟡 那 9 条最便宜：原料已在河里发出来，缺的只是标签名 + 一次口径确认。
+  本月把可判词汇 4→7 走的就是这一档。
+- 风远方法论的结构与情景树同构：「条件化买点，列出满足几条」=={all:[谓词]}+otherwise、
+  「验证窗口」==STEP_KINDS T+1/T+3/T+5、「显式失效条件+升级记录」==规则生命周期+四态。
+  断的不是架构，是中间那层词。
+
+顺带更正质检报告两处：fact_stock_daily 自 2026-09-07 起有 OHLC（我此前写「没有」是错的），
+但个股轨只发 close/pct_chg/amount/turnover，所以 high/low 是「有库无河」不是「无数据」。
+
+读数：tests/test_perspective_river_map.py 7 passed；ruff 全绿。
+---
+ .../perspective-river-map/kol_fengyuan.json   | 289 +++++++++++++++++
+ scripts/audit_perspective_consumability.py    | 290 ++++++++++++++++++
+ tests/test_perspective_river_map.py           | 168 ++++++++++
+ 3 files changed, 747 insertions(+)
+ create mode 100644 docs/learning/perspective-river-map/kol_fengyuan.json
+ create mode 100644 scripts/audit_perspective_consumability.py
+ create mode 100644 tests/test_perspective_river_map.py
+
+diff --git a/docs/learning/perspective-river-map/kol_fengyuan.json b/docs/learning/perspective-river-map/kol_fengyuan.json
+new file mode 100644
+index 00000000..07026847
+--- /dev/null
++++ b/docs/learning/perspective-river-map/kol_fengyuan.json
+@@ -0,0 +1,289 @@
++{
++  "perspective": "kol_fengyuan",
++  "display_name": "风远框架视角",
++  "version": "v0-draft-2026-10-07",
++  "author": "agent 草拟，未经用户认定",
++  "status": "draft",
++  "why_manual": [
++    "视角画像是散文，河是标签，中间的对应关系是语义的不是字面的：",
++    "「拥挤度」→ opinion_stage=='拥挤'、「先定周期位置」→ lifecycle_stage，",
++    "两组词字面毫无交集；反过来字面能对上的（「涨幅收敛」vs pct_chg）恰恰最容易判错，",
++    "因为「有原始字段」不等于「有判据」。所以这张表必须人工写、署名、可复核。",
++    "认定权在用户：agent 只能草拟，不能替你决定你的判据该落到哪个标签上。"
++  ],
++  "how_to_read": [
++    "needs_labels  这条判据要河的哪些可判标签；全部具备 → ✅ 可判",
++    "needs_fields  退而求其次：河发了哪些原始字段；有 → 🟡 有料无词（最便宜的一档）",
++    "needs_schema  再退：库里有哪些列但六轨不读 → 🟠 有库无河",
++    "architecture  不是数据问题，架构已经实现了这个形状 → 🔵",
++    "档位每次现算，不写死：河扩了标签，🟡 会自动变 ✅。"
++  ],
++  "criteria": [
++    {
++      "lens": "镜头1 双锚",
++      "criterion": "方向锚：板块方向股恶化",
++      "needs_fields": [
++        "leader_plate"
++      ],
++      "note": "河发了 leader_plate，但「谁是方向股」「什么叫恶化」都没有定义。方向股大概率不等于龙头股。"
++    },
++    {
++      "lens": "镜头1 双锚",
++      "criterion": "高度锚：连板高标恶化",
++      "needs_fields": [
++        "up_stat_boards",
++        "limit_times"
++      ],
++      "note": "连板数原料齐全。缺的是「板块当日最高连板数」这个聚合标签，以及「恶化」的口径（断板？降高度？）。"
++    },
++    {
++      "lens": "镜头1 双锚",
++      "criterion": "最后一龙冲高回落",
++      "needs_schema": [
++        "high",
++        "low"
++      ],
++      "note": "fact_stock_daily 2026-09-07 起有 OHLC，但个股轨只发 close/pct_chg/amount/turnover，不发 high/low。日线 OHLC 只能做「冲高回落」的粗代理，真盘中形态本仓没有。"
++    },
++    {
++      "lens": "镜头2 出清",
++      "criterion": "A型：恐慌放量",
++      "needs_labels": [
++        "volume_surge"
++      ],
++      "note": "volume_surge 是全市场口径（fact_market_daily），不是板块口径。用它代理板块恐慌放量是降级，要在读数里说明。"
++    },
++    {
++      "lens": "镜头2 出清",
++      "criterion": "A型：V 型回归（1-3 天）",
++      "needs_schema": [
++        "high",
++        "low",
++        "open"
++      ],
++      "note": "同上：列在库里、河不发。且「V 回」还需要段内形态判定，不是单日能判的。"
++    },
++    {
++      "lens": "镜头2 出清",
++      "criterion": "B型：买盘枯竭缩量阴跌",
++      "needs_fields": [
++        "amount_vs_yesterday_pct",
++        "volume_state"
++      ],
++      "note": "缩量不是 not volume_surge——放量阈值是 >10%，缩量要另一个阈值，不对称。这是典型的「有料无词」。"
++    },
++    {
++      "lens": "镜头3 五维",
++      "criterion": "拥挤度",
++      "needs_labels": [
++        "opinion_stage"
++      ],
++      "note": "opinion_stage=='拥挤' 是本仓现成的拥挤度判据。注意它的口径是研报覆盖密度，不是筹码拥挤。"
++    },
++    {
++      "lens": "镜头3 五维",
++      "criterion": "市场场景（恐慌反弹/主升/高位拥挤）",
++      "needs_labels": [
++        "market_stage"
++      ],
++      "note": "market_stage 的取值由上游供应商决定（主升/反弹/横盘/顶部横盘/底部横盘/下跌/探底），与风远的三场景不是同一套词，要映射。"
++    },
++    {
++      "lens": "镜头3 五维",
++      "criterion": "是否已定价",
++      "needs_schema": [
++        "event_pricing"
++      ],
++      "absent_note": "event_pricing 模块存在，但实测五个 market-class 四态全为 not_distinguishable（N 13–21），样本不足以支撑判据。"
++    },
++    {
++      "lens": "镜头3 五维",
++      "criterion": "确定性 / 弹性 / 兑现时间",
++      "absent_note": "三个维度都没有可计算定义。弹性或可用历史波动代理，确定性与兑现时间需要产业数据。"
++    },
++    {
++      "lens": "镜头4 三级信号",
++      "criterion": "领先：CapEx / 交期 / 利用率",
++      "absent_note": "产业链数据，本仓一张表都没有。这条不该指望河来回答。"
++    },
++    {
++      "lens": "镜头4 三级信号",
++      "criterion": "确认：现货价 / 涨幅收敛",
++      "needs_fields": [
++        "pct_chg"
++      ],
++      "note": "涨幅收敛可从 pct_chg 序列派生（需要区间，不是单日）。现货价没有。"
++    },
++    {
++      "lens": "镜头4 三级信号",
++      "criterion": "滞后：合约价转负 / 库存",
++      "absent_note": "同领先指标，产业数据缺失。"
++    },
++    {
++      "lens": "镜头5 供给侧",
++      "criterion": "寡头格局 / 零新增产能 / 扩产周期",
++      "absent_note": "产业结构数据，本仓范围外。"
++    },
++    {
++      "lens": "风险触发",
++      "criterion": "利多不涨：有研报 + 不涨",
++      "needs_fields": [
++        "report_type",
++        "is_hot",
++        "pct_chg"
++      ],
++      "note": "两边原料都在，而且在同一片切片上（舆论轨 + 盘面轨）。这是最接近「只差一个标签」的一条。"
++    },
++    {
++      "lens": "风险触发",
++      "criterion": "竞价第一屏任一锚恶化",
++      "absent_note": "盘中数据，本仓是日线库。这条永远不该指望河。"
++    },
++    {
++      "lens": "风险触发",
++      "criterion": "纯叙事票无业绩锚",
++      "needs_fields": [
++        "core_theme",
++        "verification_points"
++      ],
++      "note": "fact_theme_fundamental_doc 有 core_theme / verification_points，但那是 LLM 生成的散文（derivation=frozen_llm），不能直接当业绩锚的证据。"
++    },
++    {
++      "lens": "风险触发",
++      "criterion": "ETF 无差别赎回砸盘",
++      "absent_note": "无 ETF 份额表，无北向，无两融。"
++    },
++    {
++      "lens": "买点条件",
++      "criterion": "缩量止跌",
++      "needs_fields": [
++        "amount_vs_yesterday_pct",
++        "volume_state"
++      ],
++      "note": "同 B 型出清：缺一个缩量阈值。"
++    },
++    {
++      "lens": "买点条件",
++      "criterion": "日内 V 反",
++      "needs_schema": [
++        "high",
++        "low"
++      ],
++      "note": "同上。"
++    },
++    {
++      "lens": "买点条件",
++      "criterion": "同板块龙头开板（炸板）",
++      "needs_fields": [
++        "limit_status"
++      ],
++      "note": "limit_status 有 U/Z/D 三态（Z=炸板），题材轨已经发了。缺的是「板块内有无炸板」这个聚合标签。又一条只差标签名的。"
++    },
++    {
++      "lens": "买点条件",
++      "criterion": "指数同步止跌",
++      "needs_labels": [
++        "market_stage"
++      ],
++      "note": "market_stage + sh_deviation_pct 可代理。严格的「止跌」要区间判定。"
++    },
++    {
++      "lens": "推理模式",
++      "criterion": "先定周期位置再谈标的",
++      "needs_labels": [
++        "lifecycle_stage"
++      ],
++      "note": "lifecycle_stage 七段（酝酿/首发/发酵/主升/分歧/退潮/回流）正是周期位置。2026-10-07 刚接进可判白名单。"
++    },
++    {
++      "lens": "推理模式",
++      "criterion": "条件化买点：列出当前满足几条",
++      "architecture": "ScenarioTree 的 {\"all\": [谓词...]} + 强制 otherwise 就是这个形状；条件化结论是河的设计前提，不是缺口"
++    },
++    {
++      "lens": "推理模式",
++      "criterion": "资金结构归因（减仓/止损/割肉/ETF赎回）",
++      "needs_fields": [
++        "fund_flow_1d_sum",
++        "fund_caliber"
++      ],
++      "note": "只有净额，没有分解。把净流出归因成四类资金，现有数据做不到——这条的瓶颈不是标签，是口径本身不存在。"
++    },
++    {
++      "lens": "证伪式",
++      "criterion": "判断给出验证窗口与反向证据清单",
++      "architecture": "STEP_KINDS = T+1 / T+3 / T+5 + ScenarioTree 的 resolution；G-14 project() 强制 omitted/limits/gaps"
++    },
++    {
++      "lens": "证伪式",
++      "criterion": "显式失效条件与升级记录",
++      "architecture": "规则生命周期 + label_version + 方法验证四态（supported/refuted/not_distinguishable/insufficient）"
++    },
++    {
++      "lens": "证伪式",
++      "criterion": "对自己持仓观点做反顺从检查",
++      "absent_note": "本仓不持有仓位数据，也刻意不做持仓关联（红线：不给策略）。这条属于人的纪律，不该数据化。"
++    }
++  ],
++  "profile_coverage": {
++    "镜头·双锚模型：方向锚（板块方向股）与高度锚（连板高标）同时恶化+最后一龙冲高回落=全板块逆转信号": [
++      "方向锚：板块方向股恶化",
++      "高度锚：连板高标恶化",
++      "最后一龙冲高回落"
++    ],
++    "镜头·出清形态判别：区分A型出清（恐慌放量+V回，1-3天）与B型出清（买盘枯竭缩量阴跌，周期更长），两种形态的买点条件完全不同": [
++      "A型：恐慌放量",
++      "A型：V 型回归（1-3 天）",
++      "B型：买盘枯竭缩量阴跌"
++    ],
++    "镜头·五维排序：确定性×弹性×兑现时间×拥挤度×是否已定价，按市场场景（恐慌反弹/主升/高位拥挤）动态调权重，命中一票否决项直接出局": [
++      "拥挤度",
++      "市场场景（恐慌反弹/主升/高位拥挤）",
++      "是否已定价",
++      "确定性 / 弹性 / 兑现时间"
++    ],
++    "镜头·三级信号体系：领先指标（CapEx/交期/利用率）→确认指标（现货价/涨幅收敛）→滞后指标（合约价转负/库存），按层级而非单点判断周期位置": [
++      "领先：CapEx / 交期 / 利用率",
++      "确认：现货价 / 涨幅收敛",
++      "滞后：合约价转负 / 库存"
++    ],
++    "镜头·供给侧通胀框架：全球寡头格局+零新增产能+扩产周期长+需求爆发=供给弹性≈0环节的涨价确定性排序": [
++      "寡头格局 / 零新增产能 / 扩产周期"
++    ],
++    "风险触发·利多不涨+连板高标同时出现（板块抱团踩踏前兆，优先减仓）": [
++      "利多不涨：有研报 + 不涨"
++    ],
++    "风险触发·竞价第一屏任一锚恶化（高贝塔持仓先减1/3，举证责任翻转为证明该留）": [
++      "竞价第一屏任一锚恶化"
++    ],
++    "风险触发·纯叙事票无业绩锚且估值锚定极远期（一票否决）": [
++      "纯叙事票无业绩锚"
++    ],
++    "风险触发·ETF无差别赎回砸盘期接飞刀": [
++      "ETF 无差别赎回砸盘"
++    ],
++    "推理模式·先定周期位置再谈标的：先用三级信号体系判断板块处于周期哪一段，再讨论个股；不脱离出清/退潮阶段谈买点": [
++      "先定周期位置再谈标的"
++    ],
++    "推理模式·条件化买点：买点必须是多条件同时满足（如缩量止跌+日内V反+同板块龙头开板+指数同步止跌），列出当前满足几条": [
++      "条件化买点：列出当前满足几条",
++      "缩量止跌",
++      "日内 V 反",
++      "同板块龙头开板（炸板）",
++      "指数同步止跌"
++    ],
++    "推理模式·资金结构归因：暴跌先区分基本面恶化还是多类资金共振卖出（减仓/止损/割肉/ETF赎回），归因不同则应对不同": [
++      "资金结构归因（减仓/止损/割肉/ETF赎回）"
++    ],
++    "证伪式·每个框架给出显式失效条件与升级记录（如原三条件失效则升级为四条件并注明原因）": [
++      "显式失效条件与升级记录"
++    ],
++    "证伪式·判断给出验证窗口与反向证据清单：出现哪些信号即降级或放弃": [
++      "判断给出验证窗口与反向证据清单"
++    ],
++    "证伪式·对自己持仓观点做反顺从检查，不因有仓位就调低风险权重": [
++      "对自己持仓观点做反顺从检查"
++    ]
++  },
++  "coverage_note": "每个 key 是画像里的一条原文，value 是本表把它拆成的可核对判据。工具用集合相等比对：画像加一条而这里没声明，直接报错。一条原文拆成多条是常态——风远的「条件化买点」一句话里就含四个独立观测量。"
++}
+diff --git a/scripts/audit_perspective_consumability.py b/scripts/audit_perspective_consumability.py
+new file mode 100644
+index 00000000..f9ba3605
+--- /dev/null
++++ b/scripts/audit_perspective_consumability.py
+@@ -0,0 +1,290 @@
++#!/usr/bin/env python3
++"""视角可消费性审计：我的视角里的每一条判据，河现在接得住几条。
++
++    python3 scripts/audit_perspective_consumability.py --perspective kol_fengyuan
++    python3 scripts/audit_perspective_consumability.py --perspective sptfei --user linxiaoqi5111
++    python3 scripts/audit_perspective_consumability.py --all --json
++
++## 为什么要这个工具
++
++视角画像（``perspective_lab``）与时间长河（``river``）**互不引用**——实测双向 0 处 import。
++画像里是散文（``market_lenses`` 的 name / description 字符串），河里是 7 个可判标签，
++中间没有任何映射。于是每次要用「风远视角」读一段行情，agent 都得临场把散文翻译成
++标签组合：翻译结果不确定、不可复算、不可回溯，也没人能说出「这次翻译漏了哪条判据」。
++
++本工具不替你做那个翻译——它**把差距变成一个可以反复测量的数**：
++
++    每条判据落在哪一档？
++      ✅ 可判       河的可判标签里有对应的词，能直接写进情景树的分枝条件
++      🟡 有料无词   河发了原始字段，但没有标签；agent 每次都要自己从原料重推
++      🟠 有库无河   库里有这张表/这个列，但六轨一个都不读，透过河看不见
++      ❌ 无数据     库里就没有
++      🔵 架构已有   不是数据问题；情景树 / 规则 DSL 已经实现了这个形状
++
++## 为什么判定要靠人工映射表而不是自动匹配
++
++试过关键词匹配，不可用：「拥挤度」要对上 ``opinion_stage == '拥挤'``、
++「市场场景」要对上 ``market_stage``、「先定周期位置」要对上 ``lifecycle_stage``——
++全是语义对应，字面毫无交集。而字面能匹配上的（「涨幅收敛」vs ``pct_chg``）恰恰
++是最容易判错的那种：有原始字段 ≠ 有判据。
++
++所以映射表是**人工写的、带署名的、要你点头的**（``docs/learning/perspective-river-map/``）。
++工具只负责：① 检查映射表有没有漏掉画像里的判据；② 按映射表核对河此刻的实际能力；
++③ 把结果变成一行可比的读数。映射表写错了，工具不会救你——但至少错在明处、有版本、能复核。
++
++## 输出的那个数怎么用
++
++不要当「完成度」看。它真正的用处是**排工作的优先级**：
++
++- 🟡 这一档最便宜。原料已经在河里发出来了，缺的只是一个标签名 + 一次口径确认。
++  本仓 2026-10-07 把可判词汇从 4 扩到 7，走的就是这一档（见
++  ``docs/verification/2026-10-07-river-label-binding-expansion.md``）。
++- 🟠 要改的是取数层：六轨该不该读这张表，是设计决定不是工程量。
++- ❌ 要接新数据源，最贵，而且很多（盘中、产业链）根本不在本仓范围内——
++  这一档数字高不丢人，它只是在说「这条判据不该指望河来回答」。
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++from pathlib import Path
++from typing import Any
++
++REPO_ROOT = Path(__file__).resolve().parent.parent
++if str(REPO_ROOT) not in sys.path:
++    sys.path.insert(0, str(REPO_ROOT))
++
++MAP_DIR = REPO_ROOT / "docs" / "learning" / "perspective-river-map"
++
++VERDICTS = ("judgeable", "raw_only", "in_db_not_in_river", "absent", "architecture")
++MARK = {
++    "judgeable": "✅ 可判",
++    "raw_only": "🟡 有料无词",
++    "in_db_not_in_river": "🟠 有库无河",
++    "absent": "❌ 无数据",
++    "architecture": "🔵 架构已有",
++}
++
++
++# --------------------------------------------------------------------------- #
++# 河此刻的实际能力（现查，不抄）
++# --------------------------------------------------------------------------- #
++def river_capability(db_path: str | None, entity: str, as_of: str | None) -> dict[str, Any]:
++    """河现在能判什么、能发什么字段、库里有什么列。
++
++    三者都**现查**：标签白名单从 ``river_derive`` 取，发出的字段从一片真切片上数，
++    库里的列从 ``schema.sql`` 读。任何一处抄成常量，这份审计就会在河变了之后继续报旧数。
++    """
++    from intelligence.services import river_derive as rd
++
++    labels = set(rd.SLICE_EVALUABLE_LABELS)
++
++    emitted: set[str] = set()
++    slice_note = ""
++    if db_path:
++        from intelligence.services.river import slice_river
++
++        sl = slice_river(as_of, entity, db_path=db_path, allow_hindsight=True)
++        for o in sl.objects:
++            emitted |= set((o.payload or {}).keys())
++        slice_note = f"{entity} @ {as_of}（{len(sl.objects)} 个对象）"
++    else:
++        # 没给库就退回夹具库。夹具不含真库的全部形状，所以「河发了哪些字段」这一列
++        # 会偏保守——偏保守比偏乐观好：它只会把 🟡 误报成 🟠，不会把 🟠 误报成 🟡。
++        import tempfile
++
++        from tests.fixtures.river_mini_db import ENTITY, build_mini_db, trading_days
++        from intelligence.services.river import slice_river
++
++        fx = build_mini_db(Path(tempfile.mkdtemp()) / "mini.duckdb")
++        sl = slice_river(trading_days()[-1], ENTITY, db_path=fx, allow_hindsight=True)
++        for o in sl.objects:
++            emitted |= set((o.payload or {}).keys())
++        slice_note = f"夹具库 {ENTITY} @ {trading_days()[-1]}（保守读数，真库字段更多）"
++
++    schema = (REPO_ROOT / "market_feature_store" / "schema.sql").read_text(encoding="utf-8")
++    return {"labels": labels, "emitted": emitted, "schema": schema, "slice_note": slice_note}
++
++
++def classify(entry: dict[str, Any], cap: dict[str, Any]) -> tuple[str, str]:
++    """按映射表声明的依赖，核对河此刻**真的**提供到哪一档。
++
++    注意方向：映射表声明的是「这条判据需要什么」，不是「它属于哪一档」。
++    档位每次现算——河扩了标签，昨天的 🟡 今天自动变 ✅，不需要改映射表。
++    这正是把结论挂在能力上而不是挂在注释上的意义。
++    """
++    if entry.get("architecture"):
++        return "architecture", str(entry["architecture"])
++
++    need_labels = entry.get("needs_labels") or []
++    hit = [x for x in need_labels if x in cap["labels"]]
++    if need_labels and len(hit) == len(need_labels):
++        return "judgeable", f"标签 {hit}"
++    if hit:
++        miss = [x for x in need_labels if x not in cap["labels"]]
++        return "raw_only", f"只有 {hit}，还缺标签 {miss}"
++
++    need_fields = entry.get("needs_fields") or []
++    have = [x for x in need_fields if x in cap["emitted"]]
++    if have:
++        return "raw_only", f"河发了 {have}，但没有标签"
++
++    need_cols = entry.get("needs_schema") or []
++    insch = [x for x in need_cols if x in cap["schema"]]
++    if insch:
++        return "in_db_not_in_river", f"schema 有 {insch}，六轨不读"
++
++    return "absent", entry.get("absent_note") or "库里没有"
++
++
++# --------------------------------------------------------------------------- #
++# 映射表
++# --------------------------------------------------------------------------- #
++def load_map(pid: str) -> dict[str, Any]:
++    path = MAP_DIR / f"{pid}.json"
++    if not path.exists():
++        raise SystemExit(
++            f"没有 {pid} 的映射表：{path}\n"
++            f"  视角画像是散文，河是标签，中间那层对应关系必须有人写下来并署名。\n"
++            f"  现有映射表：{sorted(p.stem for p in MAP_DIR.glob('*.json')) or '（一张都没有）'}\n"
++            f"  照着现有的抄一份，或者先跑 --list-criteria 把画像里的判据导出来当草稿。"
++        )
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def profile_criteria(pid: str, user: str | None) -> list[str]:
++    """从画像里把「可操作判据」摊平成一张清单，用来核对映射表有没有漏。
++
++    摊的是 ``market_lenses`` / ``risk_triggers`` / ``reasoning_patterns`` /
++    ``falsification_style`` 四个字段——这四个是**会落到判断上**的。
++    ``voice_guidance`` / ``anti_patterns`` 不摊：前者是文风，后者是「不要做什么」，
++    都不该变成数据条件。
++    """
++    from intelligence.services.perspective_lab import _BUILTIN_PROFILES
++
++    prof: dict[str, Any] | None = _BUILTIN_PROFILES.get(pid)
++    if prof is None and user:
++        p = REPO_ROOT / "intelligence" / "users" / user / "perspectives" / "profiles" / f"{pid}.json"
++        if p.exists():
++            prof = json.loads(p.read_text(encoding="utf-8"))
++    if prof is None:
++        raise SystemExit(
++            f"找不到画像 {pid}。内置的有 {sorted(_BUILTIN_PROFILES)}；\n"
++            f"  蒸馏出来的落在 intelligence/users/<user>/perspectives/profiles/<id>.json，"
++            f"要加 --user。"
++        )
++    out: list[str] = []
++    for ln in prof.get("market_lenses") or []:
++        out.append(f"镜头·{ln.get('name')}：{ln.get('description')}")
++    out += [f"风险触发·{x}" for x in prof.get("risk_triggers") or []]
++    out += [f"推理模式·{r.get('name')}：{r.get('rule')}" for r in prof.get("reasoning_patterns") or []]
++    out += [f"证伪式·{x}" for x in prof.get("falsification_style") or []]
++    return out
++
++
++# --------------------------------------------------------------------------- #
++def audit(pid: str, cap: dict[str, Any], *, user: str | None) -> dict[str, Any]:
++    spec = load_map(pid)
++    rows = []
++    for e in spec["criteria"]:
++        v, why = classify(e, cap)
++        rows.append({"lens": e.get("lens", ""), "criterion": e["criterion"], "verdict": v, "why": why})
++    tally = {v: sum(1 for r in rows if r["verdict"] == v) for v in VERDICTS}
++
++    # 画像改了而映射表没跟上，这份审计就会对着一个过期的判据集报数——而且报得像没事一样。
++    #
++    # 覆盖检查必须**精确**，不能模糊匹配：第一版用了字符串前缀匹配，把 6 条已经拆进
++    # 映射表的判据误报成「未覆盖」。在一个把「看着合理的假数字」当头号敌人的仓里，
++    # 一个会误报的检查比没有检查更坏——人会学会忽略它。
++    #
++    # 改为：映射表必须用 profile_coverage 显式声明它覆盖了画像里的哪几条原文，
++    # 两边做集合相等比较。画像加了一条而映射表没声明 → 直接报出来，零歧义。
++    try:
++        live = profile_criteria(pid, user)
++    except SystemExit:
++        live = []
++    coverage = spec.get("profile_coverage") or {}
++    uncovered = sorted(set(live) - set(coverage)) if live else []
++    stale = sorted(set(coverage) - set(live)) if live else []
++
++    return {
++        "perspective": pid,
++        "map_version": spec.get("version"),
++        "map_author": spec.get("author"),
++        "rows": rows,
++        "tally": tally,
++        "total": len(rows),
++        "profile_criteria_count": len(live),
++        "uncovered": uncovered,
++        "stale": stale,
++        "river": {"labels": sorted(cap["labels"]), "slice": cap["slice_note"]},
++    }
++
++
++def render(rep: dict[str, Any]) -> None:
++    print(f"\n视角 {rep['perspective']}    映射表 {rep['map_version']}（{rep['map_author']}）")
++    print(f"河的可判标签（{len(rep['river']['labels'])}）：{rep['river']['labels']}")
++    print(f"切片样本：{rep['river']['slice']}")
++    print("-" * 104)
++    print(f"{'镜头':<16}{'判据':<34}{'结论':<14}依据")
++    print("-" * 104)
++    for r in rep["rows"]:
++        print(f"{r['lens']:<16}{r['criterion']:<34}{MARK[r['verdict']]:<14}{r['why']}")
++    print("-" * 104)
++    t, tot = rep["tally"], rep["total"]
++    for v in VERDICTS:
++        n = t.get(v, 0)
++        if n:
++            print(f"  {MARK[v]:<14}{n:>3}/{tot}  ({100 * n / tot:.0f}%)")
++    cheap = t.get("raw_only", 0)
++    if cheap:
++        print(f"\n  → 最便宜的一档是 🟡 有料无词（{cheap} 条）：原料已经在河里，缺的只是标签名 + 一次口径确认。")
++    if rep["uncovered"]:
++        print(f"\n  ⚠ 画像里有 {len(rep['uncovered'])} 条判据没进映射表（映射表落后于画像）：")
++        for c in rep["uncovered"]:
++            print(f"      - {c[:92]}")
++    if rep["stale"]:
++        print(f"\n  ⚠ 映射表声明覆盖了 {len(rep['stale'])} 条画像里已经没有的判据（画像改过，映射表没跟）：")
++        for c in rep["stale"]:
++            print(f"      - {c[:92]}")
++    if not rep["uncovered"] and not rep["stale"] and rep["profile_criteria_count"]:
++        print(f"\n  ✓ 映射表与画像逐条对齐（{rep['profile_criteria_count']} 条原文全部有归属）")
++
++
++def main(argv: list[str] | None = None) -> int:
++    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++    ap.add_argument("--perspective", help="画像 id，例如 kol_fengyuan")
++    ap.add_argument("--all", action="store_true", help="审计全部已有映射表")
++    ap.add_argument("--user", help="蒸馏画像所属用户（内置画像不用给）")
++    ap.add_argument("--db", help="主库路径；不给则用夹具库（读数偏保守）")
++    ap.add_argument("--entity", default="半导体")
++    ap.add_argument("--as-of")
++    ap.add_argument("--list-criteria", action="store_true", help="只把画像里的判据导出来，当映射表草稿")
++    ap.add_argument("--json", action="store_true")
++    a = ap.parse_args(argv)
++
++    if a.list_criteria:
++        if not a.perspective:
++            ap.error("--list-criteria 要配 --perspective")
++        for c in profile_criteria(a.perspective, a.user):
++            print(c)
++        return 0
++
++    pids = sorted(p.stem for p in MAP_DIR.glob("*.json")) if a.all else [a.perspective]
++    if not pids or pids == [None]:
++        ap.error("要么 --perspective，要么 --all")
++
++    cap = river_capability(a.db, a.entity, a.as_of)
++    reports = [audit(p, cap, user=a.user) for p in pids]
++    if a.json:
++        print(json.dumps(reports if a.all else reports[0], ensure_ascii=False, indent=2))
++    else:
++        for r in reports:
++            render(r)
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/test_perspective_river_map.py b/tests/test_perspective_river_map.py
+new file mode 100644
+index 00000000..25cf88cf
+--- /dev/null
++++ b/tests/test_perspective_river_map.py
+@@ -0,0 +1,168 @@
++"""视角 ↔ 河 映射表的契约。
++
++这张表是**唯一**把「我的判据」和「河的标签」连起来的东西。此前两边互不引用
++（实测双向 0 处 import），agent 每次都得临场把散文翻译成标签组合——翻译结果
++不确定、不可复算、也没人说得出这次漏了哪条判据。
++
++所以映射表本身要有门禁。它最可能的三种烂法：
++
++1. **悄悄落后于画像**：画像加了一条判据，映射表没跟，审计照样输出一个好看的百分比，
++   而那个分母是旧的。第一版的覆盖检查用字符串前缀模糊匹配，把 6 条已覆盖的判据
++   误报成未覆盖——会误报的检查比没有检查更坏，人会学会忽略它。改成集合相等。
++2. **引用不存在的标签**：映射表写 ``needs_labels: ["xxx"]``，而河里根本没这个词，
++   于是这条判据永远停在 🟡，看着像「数据不够」，实际是映射表打错字。
++3. **档位写死**：把结论直接写进 JSON（"这条是可判的"）。那样河扩了标签之后，
++   审计还在报旧档。档位必须每次现算。
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++REPO_ROOT = Path(__file__).resolve().parent.parent
++MAP_DIR = REPO_ROOT / "docs" / "learning" / "perspective-river-map"
++MAPS = sorted(MAP_DIR.glob("*.json"))
++
++VALID_KEYS = {
++    "lens", "criterion", "needs_labels", "needs_fields", "needs_schema",
++    "architecture", "absent_note", "note",
++}
++
++
++def _ids(paths: list[Path]) -> list[str]:
++    return [p.stem for p in paths]
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++@pytest.mark.parametrize("path", MAPS, ids=_ids(MAPS))
++def test_映射表与画像逐条对齐(path: Path) -> None:
++    """``profile_coverage`` 的 key 集合必须**恰好等于**画像里的判据原文集合。
++
++    少一条 = 映射表落后于画像（审计的分母是旧的）；
++    多一条 = 画像改过而映射表还认领着已经不存在的判据。
++    两种都要红，且要指名道姓说出是哪一条。
++    """
++    import sys
++
++    if str(REPO_ROOT) not in sys.path:
++        sys.path.insert(0, str(REPO_ROOT))
++    from scripts.audit_perspective_consumability import profile_criteria
++
++    spec = json.loads(path.read_text(encoding="utf-8"))
++    live = set(profile_criteria(spec["perspective"], None))
++    declared = set(spec.get("profile_coverage") or {})
++
++    missing = sorted(live - declared)
++    stale = sorted(declared - live)
++    assert not missing, f"{path.name} 没有覆盖画像里的这些判据（审计分母会偏小）：\n  " + "\n  ".join(missing)
++    assert not stale, f"{path.name} 认领了画像里已经没有的判据：\n  " + "\n  ".join(stale)
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++@pytest.mark.parametrize("path", MAPS, ids=_ids(MAPS))
++def test_覆盖声明引用的判据都真实存在(path: Path) -> None:
++    """``profile_coverage`` 的 value 里每个名字都要在 ``criteria`` 里找得到，反之亦然。
++
++    一条画像原文拆成多条可核对判据是常态（风远的「条件化买点」一句里含四个独立观测量），
++    但拆出来的每一条都必须被某条原文认领——否则它是凭空多出来的，没人知道它从哪来。
++    """
++    spec = json.loads(path.read_text(encoding="utf-8"))
++    names = {c["criterion"] for c in spec["criteria"]}
++    claimed = {n for v in (spec.get("profile_coverage") or {}).values() for n in v}
++
++    assert not (claimed - names), f"覆盖声明引用了不存在的判据：{sorted(claimed - names)}"
++    assert not (names - claimed), f"这些判据没被任何画像原文认领：{sorted(names - claimed)}"
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++@pytest.mark.parametrize("path", MAPS, ids=_ids(MAPS))
++def test_引用的标签必须是河真的能判的(path: Path) -> None:
++    """``needs_labels`` 里打错一个字，这条判据会永远停在 🟡，看着像数据不够、实则是笔误。
++
++    注意这里比的是 ``SLICE_EVALUABLE_LABELS`` 而不是 ``ALL_LABELS``：
++    映射表声明「这条判据靠这个标签」，指的是能写进情景树分枝的那种能判。
++    """
++    from intelligence.services.river_derive import SLICE_EVALUABLE_LABELS
++
++    spec = json.loads(path.read_text(encoding="utf-8"))
++    bad = []
++    for c in spec["criteria"]:
++        for lab in c.get("needs_labels") or []:
++            if lab not in SLICE_EVALUABLE_LABELS:
++                bad.append(f"{c['criterion']} → {lab!r}")
++    assert not bad, (
++        "映射表引用了河判不了的标签（是笔误还是该先去接线？）：\n  "
++        + "\n  ".join(bad)
++        + f"\n  当前可判：{sorted(SLICE_EVALUABLE_LABELS)}"
++    )
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++@pytest.mark.parametrize("path", MAPS, ids=_ids(MAPS))
++def test_映射表不得写死档位(path: Path) -> None:
++    """档位（可判 / 有料无词 / …）必须由工具现算，不能存进 JSON。
++
++    写死的后果很具体：河今天把 lifecycle_stage 接进了白名单，这条判据应当自动从
++    🟡 升到 ✅。若 JSON 里存着「🟡」，审计会继续报旧档，而且**没有任何测试会红**——
++    一个只会往「低估自己能力」方向出错的数字，比高估更难被发现。
++    """
++    spec = json.loads(path.read_text(encoding="utf-8"))
++    for c in spec["criteria"]:
++        extra = set(c) - VALID_KEYS
++        assert not extra, f"{c['criterion']}: 未知字段 {sorted(extra)}（档位由工具现算，不写进表）"
++        assert "verdict" not in c and "status" not in c
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++@pytest.mark.parametrize("path", MAPS, ids=_ids(MAPS))
++def test_每条判据都要说清楚凭什么(path: Path) -> None:
++    """四个依赖字段至少占一个。一条都不写 = 这条判据没人想过它要什么数据。"""
++    spec = json.loads(path.read_text(encoding="utf-8"))
++    naked = [
++        c["criterion"]
++        for c in spec["criteria"]
++        if not any(c.get(k) for k in ("needs_labels", "needs_fields", "needs_schema", "architecture", "absent_note"))
++    ]
++    assert not naked, f"这些判据没声明任何依赖：{naked}"
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++@pytest.mark.parametrize("path", MAPS, ids=_ids(MAPS))
++def test_草稿必须标明未经认定(path: Path) -> None:
++    """映射表编码的是**用户自己的**判据，认定权不在 agent。
++
++    agent 草拟的表必须自带 ``status: draft`` 与署名，否则下游会把一份猜测当成
++    已确认的方法论——本仓 skill 第 4 步写明「认定权在用户」，这是同一条纪律。
++    """
++    spec = json.loads(path.read_text(encoding="utf-8"))
++    assert spec.get("author"), "映射表必须署名"
++    assert spec.get("version"), "映射表必须有版本"
++    if "agent" in spec["author"] and "认定" not in spec["author"]:
++        pytest.fail("agent 草拟的映射表要在 author 里写明是否经用户认定")
++
++
++@pytest.mark.skipif(not MAPS, reason="还没有任何映射表")
++def test_审计跑得起来且档位是现算的() -> None:
++    """端到端：工具能跑完，且 lifecycle_stage 这条确实被算成「可判」。
++
++    最后这句是有来历的阳性对照：2026-10-07 之前 ``lifecycle_stage`` 不在可判白名单里，
++    这条判据当时应当是 🟡。它现在是 ✅，证明档位真的跟着河的能力走，而不是抄的 JSON。
++    """
++    import sys
++
++    if str(REPO_ROOT) not in sys.path:
++        sys.path.insert(0, str(REPO_ROOT))
++    from scripts.audit_perspective_consumability import audit, river_capability
++
++    cap = river_capability(None, "半导体", None)
++    rep = audit("kol_fengyuan", cap, user=None)
++
++    assert rep["total"] == sum(rep["tally"].values())
++    cycle = next(r for r in rep["rows"] if r["criterion"] == "先定周期位置再谈标的")
++    assert cycle["verdict"] == "judgeable", (
++        "lifecycle_stage 已在可判白名单里，这条判据应当现算成「可判」；"
++        f"实际 {cycle['verdict']}（{cycle['why']}）"
++    )
 -- 
 2.39.5
 
