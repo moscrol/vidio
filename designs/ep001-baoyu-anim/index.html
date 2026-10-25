@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>001 · baoyu animated-video · 数字对了也不能一起升级</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #05080f; overflow: hidden; }
+  #root { position: absolute; inset: 0; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.5/babel.min.js"></script>
+<script type="text/babel" src="animations.jsx"></script>
+<script type="text/babel">
+const { useMemo } = React;
+
+const C = {
+  bg: "#0b1220",
+  card: "#17233c",
+  text: "#f3f6fb",
+  muted: "#9aabc4",
+  gold: "#e8b54d",
+  green: "#3ecf8e",
+  red: "#f07178",
+  line: "rgba(255,255,255,0.08)",
+};
+
+const FULL =
+  "「储能成交额增加 20%，属于健康分歧，明天会回流，A 是最强标的。」";
+
+function Badge({ text, t, start = 0 }) {
+  const op = animate({ from: 0, to: 1, start, end: start + 0.35, ease: Easing.easeOutCubic })(t);
+  const y = animate({ from: 18, to: 0, start, end: start + 0.35, ease: Easing.easeOutCubic })(t);
+  return (
+    <div style={{
+      position: "absolute", left: 64, top: 72,
+      opacity: op, transform: `translateY(${y}px)`,
+      fontSize: 22, fontWeight: 700, color: C.gold,
+      background: "rgba(232,181,77,0.14)",
+      border: "1px solid rgba(232,181,77,0.35)",
+      borderRadius: 999, padding: "12px 24px", letterSpacing: "0.04em",
+      fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    }}>{text}</div>
+  );
+}
+
+function Warn() {
+  return (
+    <div style={{
+      position: "absolute", right: 64, top: 86,
+      fontSize: 18, color: C.muted,
+      fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    }}>架构演示 · 非投资建议</div>
+  );
+}
+
+function Foot({ n }) {
+  return (
+    <div style={{
+      position: "absolute", left: 64, right: 64, bottom: 48,
+      display: "flex", justifyContent: "space-between",
+      fontSize: 18, color: "#5d6d88",
+      fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    }}>
+      <span>001 · baoyu animated-video</span>
+      <span>{n} / 6</span>
+    </div>
+  );
+}
+
+function SceneShell({ children, showWarn = false }) {
+  return (
+    <div style={{ position: "absolute", inset: 0 }}>
+      <div style={{
+        position: "absolute", width: 520, height: 520, borderRadius: "50%",
+        right: -120, top: 160,
+        background: "radial-gradient(circle, rgba(232,181,77,0.12) 0%, transparent 70%)",
+      }} />
+      {showWarn && <Warn />}
+      {children}
+    </div>
+  );
+}
+
+// ── Scene 1: typewriter bubble ────────────────────────────────
+function SceneCase() {
+  const { localTime } = useSprite();
+  const typeStart = 0.9;
+  const typeDur = 2.5;
+  let shown = "";
+  if (localTime < typeStart) shown = "";
+  else {
+    const p = clamp((localTime - typeStart) / typeDur, 0, 1);
+    const n = Math.floor(p * FULL.length);
+    shown = FULL.slice(0, n);
+  }
+  const cursorOn = Math.floor(localTime * 4) % 2 === 0;
+
+  const hOp = animate({ from: 0, to: 1, start: 0.15, end: 0.55, ease: Easing.easeOutCubic })(localTime);
+  const hY = animate({ from: 36, to: 0, start: 0.15, end: 0.55, ease: Easing.easeOutCubic })(localTime);
+  const bOp = animate({ from: 0, to: 1, start: 0.55, end: 1.0, ease: Easing.easeOutCubic })(localTime);
+  const bY = animate({ from: 40, to: 0, start: 0.55, end: 1.0, ease: Easing.easeOutBack })(localTime);
+
+  return (
+    <SceneShell showWarn>
+      <Badge text="01 · 案例" t={localTime} start={0.05} />
+      <div style={{
+        position: "absolute", left: 64, top: 180, right: 64,
+        opacity: hOp, transform: `translateY(${hY}px)`,
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        <div style={{ fontSize: 56, fontWeight: 900, lineHeight: 1.18, color: C.text }}>
+          开发研究 Agent 时<br />
+          <span style={{ color: C.gold }}>我见过这种回复</span>
+        </div>
+        <div style={{ marginTop: 24, fontSize: 28, color: C.muted, fontWeight: 500 }}>
+          乍一看很专业。拆开才知道问题在哪。
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", left: 64, right: 64, top: 560,
+        opacity: bOp, transform: `translateY(${bY}px)`,
+        background: C.card, border: `1px solid ${C.line}`,
+        borderRadius: 28, padding: "40px 36px",
+        boxShadow: "0 24px 60px rgba(0,0,0,0.28)",
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        <div style={{ fontSize: 20, fontWeight: 700, color: C.gold, marginBottom: 18, letterSpacing: "0.06em" }}>
+          AI 输出 · 示意
+        </div>
+        <div style={{ fontSize: 32, lineHeight: 1.55, fontWeight: 600, minHeight: "5.5em", color: C.text }}>
+          {shown}
+          <span style={{
+            display: "inline-block", width: 3, height: "0.9em",
+            background: C.gold, marginLeft: 4, verticalAlign: -2,
+            opacity: cursorOn ? 1 : 0,
+          }} />
+        </div>
+      </div>
+      <Foot n={1} />
+    </SceneShell>
+  );
+}
+
+// ── Scene 2: four tags ────────────────────────────────────────
+const ROWS = [
+  { t: "成交额增加 20%", tag: "可核验事实", color: C.green, bg: "rgba(62,207,142,0.14)" },
+  { t: "属于健康分歧", tag: "解释", color: C.gold, bg: "rgba(232,181,77,0.14)" },
+  { t: "明天会回流", tag: "预测", color: C.red, bg: "rgba(240,113,120,0.14)" },
+  { t: "A 是最强标的", tag: "选择 / 建议", color: C.red, bg: "rgba(240,113,120,0.14)" },
+];
+
+function SceneSplit() {
+  const { localTime } = useSprite();
+  return (
+    <SceneShell showWarn>
+      <Badge text="02 · 拆开看" t={localTime} start={0.05} />
+      <div style={{
+        position: "absolute", left: 64, top: 180, right: 64,
+        opacity: animate({ from: 0, to: 1, start: 0.1, end: 0.45 })(localTime),
+        transform: `translateY(${animate({ from: 28, to: 0, start: 0.1, end: 0.45 })(localTime)}px)`,
+        fontSize: 56, fontWeight: 900, lineHeight: 1.18, color: C.text,
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        同一句话里<br />有<span style={{ color: C.gold }}>四种地位</span>
+      </div>
+      {ROWS.map((r, i) => {
+        const st = 0.55 + i * 0.5;
+        const op = animate({ from: 0, to: 1, start: st, end: st + 0.4, ease: Easing.easeOutCubic })(localTime);
+        const y = animate({ from: 40, to: 0, start: st, end: st + 0.4, ease: Easing.easeOutBack })(localTime);
+        return (
+          <div key={i} style={{
+            position: "absolute", left: 64, right: 64, top: 460 + i * 150,
+            opacity: op, transform: `translateY(${y}px)`,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: C.card, border: `1px solid ${C.line}`,
+            borderRadius: 20, padding: "28px 26px",
+            fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+          }}>
+            <div style={{ fontSize: 28, fontWeight: 700 }}>{r.t}</div>
+            <div style={{
+              fontSize: 22, fontWeight: 800, color: r.color, background: r.bg,
+              padding: "12px 18px", borderRadius: 12, whiteSpace: "nowrap",
+            }}>{r.tag}</div>
+          </div>
+        );
+      })}
+      <Foot n={2} />
+    </SceneShell>
+  );
+}
+
+// ── Scene 3: punchline ────────────────────────────────────────
+function ScenePunch() {
+  const { localTime } = useSprite();
+  const sc = animate({ from: 0.86, to: 1, start: 0.15, end: 0.75, ease: Easing.easeOutBack })(localTime);
+  const op = animate({ from: 0, to: 1, start: 0.15, end: 0.55, ease: Easing.easeOutCubic })(localTime);
+  const subOp = animate({ from: 0, to: 1, start: 0.9, end: 1.35 })(localTime);
+  return (
+    <SceneShell>
+      <Badge text="03 · 金句" t={localTime} start={0.05} />
+      <div style={{
+        position: "absolute", left: 64, right: 64, top: 720,
+        opacity: op, transform: `scale(${sc})`, transformOrigin: "left center",
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        <div style={{ fontSize: 64, fontWeight: 900, lineHeight: 1.22, color: C.text }}>
+          数字对了
+          <span style={{ display: "block", color: C.gold, marginTop: 12 }}>也不能一起升级</span>
+        </div>
+        <div style={{ marginTop: 36, fontSize: 28, color: C.muted, opacity: subOp, lineHeight: 1.5 }}>
+          大模型在预测下一个词。<br />流畅 ≠ 真实 · 意见 ≠ 决策权
+        </div>
+      </div>
+      <Foot n={3} />
+    </SceneShell>
+  );
+}
+
+// ── Scene 4: five layers ──────────────────────────────────────
+const LAYERS = [
+  { n: "1", t: "生成器", d: "写候选，不宣布终审" },
+  { n: "2", t: "数据证据", d: "对齐外部可追溯记录" },
+  { n: "3", t: "确定性校验", d: "同输入 → 同检查结果" },
+  { n: "4", t: "历史重放", d: "禁止偷看当时不可知信息" },
+  { n: "5", t: "人工金标准", d: "模糊边界与争议样本" },
+];
+
+function SceneLayers() {
+  const { localTime } = useSprite();
+  return (
+    <SceneShell>
+      <Badge text="04 · 通式" t={localTime} start={0.05} />
+      <div style={{
+        position: "absolute", left: 64, top: 160, right: 64,
+        opacity: animate({ from: 0, to: 1, start: 0.1, end: 0.4 })(localTime),
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        <div style={{ fontSize: 48, fontWeight: 900, color: C.text }}>
+          所以我按<span style={{ color: C.gold }}>五层</span>挡
+        </div>
+        <div style={{ marginTop: 12, fontSize: 24, color: C.muted }}>生成只写候选，再逐级升级</div>
+      </div>
+      {LAYERS.map((L, i) => {
+        const st = 0.5 + i * 0.28;
+        const op = animate({ from: 0, to: 1, start: st, end: st + 0.35, ease: Easing.easeOutCubic })(localTime);
+        const x = animate({ from: -40, to: 0, start: st, end: st + 0.35, ease: Easing.easeOutCubic })(localTime);
+        return (
+          <div key={i} style={{
+            position: "absolute", left: 64, right: 64, top: 360 + i * 120,
+            opacity: op, transform: `translateX(${x}px)`,
+            display: "grid", gridTemplateColumns: "56px 1fr", gap: 18, alignItems: "center",
+            background: "rgba(255,255,255,0.04)", border: `1px solid ${C.line}`,
+            borderRadius: 16, padding: "16px 22px",
+            fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+          }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: C.gold, textAlign: "center" }}>{L.n}</div>
+            <div>
+              <div style={{ fontSize: 26, fontWeight: 800 }}>{L.t}</div>
+              <div style={{ fontSize: 20, color: C.muted, marginTop: 4 }}>{L.d}</div>
+            </div>
+          </div>
+        );
+      })}
+      {(() => {
+        const st = 2.1;
+        const op = animate({ from: 0, to: 1, start: st, end: st + 0.4 })(localTime);
+        const y = animate({ from: 24, to: 0, start: st, end: st + 0.4 })(localTime);
+        return (
+          <div style={{
+            position: "absolute", left: 64, right: 64, top: 980,
+            opacity: op, transform: `translateY(${y}px)`,
+            border: "2px solid rgba(232,181,77,0.45)", borderRadius: 18,
+            padding: "22px 24px", background: "rgba(232,181,77,0.12)",
+            fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+          }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: C.gold }}>+ 权限 authority</div>
+            <div style={{ fontSize: 22, color: "#d8e0ee", marginTop: 8 }}>
+              没验收的分数，不能自动写库、不能当硬闸门
+            </div>
+          </div>
+        );
+      })()}
+      <Foot n={4} />
+    </SceneShell>
+  );
+}
+
+// ── Scene 5 chips ─────────────────────────────────────────────
+const CHIPS = ["客服 Agent", "企业知识库", "代码助手", "研究 Agent"];
+
+function SceneChips() {
+  const { localTime } = useSprite();
+  return (
+    <SceneShell>
+      <Badge text="05 · 可复用" t={localTime} start={0.05} />
+      <div style={{
+        position: "absolute", left: 64, top: 220, right: 64,
+        opacity: animate({ from: 0, to: 1, start: 0.1, end: 0.4 })(localTime),
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        <div style={{ fontSize: 56, fontWeight: 900 }}>同一套问题</div>
+        <div style={{ marginTop: 16, fontSize: 28, color: C.muted }}>先问它是事实、解释，还是动作。</div>
+      </div>
+      {CHIPS.map((c, i) => {
+        const st = 0.55 + i * 0.14;
+        const op = animate({ from: 0, to: 1, start: st, end: st + 0.3, ease: Easing.easeOutBack })(localTime);
+        const sc = animate({ from: 0.7, to: 1, start: st, end: st + 0.3, ease: Easing.easeOutBack })(localTime);
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        return (
+          <div key={i} style={{
+            position: "absolute",
+            left: 64 + col * 480, top: 480 + row * 100,
+            opacity: op, transform: `scale(${sc})`,
+            fontSize: 26, fontWeight: 700, padding: "18px 30px",
+            borderRadius: 999, background: "rgba(255,255,255,0.06)",
+            border: `1px solid ${C.line}`,
+            fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+          }}>{c}</div>
+        );
+      })}
+      <div style={{
+        position: "absolute", left: 64, right: 64, top: 760,
+        opacity: animate({ from: 0, to: 1, start: 1.3, end: 1.7 })(localTime),
+        fontSize: 28, color: C.muted, lineHeight: 1.5,
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        生成不是真相 —— 错误要很难一路升到决策权。
+      </div>
+      <Foot n={5} />
+    </SceneShell>
+  );
+}
+
+// ── Scene 6 CTA ───────────────────────────────────────────────
+function SceneCta() {
+  const { localTime } = useSprite();
+  const op = animate({ from: 0, to: 1, start: 0.1, end: 0.55 })(localTime);
+  const y = animate({ from: 32, to: 0, start: 0.1, end: 0.55 })(localTime);
+  return (
+    <SceneShell>
+      <Badge text="06 · 讨论" t={localTime} start={0.05} />
+      <div style={{
+        position: "absolute", left: 64, right: 64, top: 700,
+        opacity: op, transform: `translateY(${y}px)`,
+        fontFamily: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+      }}>
+        <div style={{ fontSize: 52, fontWeight: 900, lineHeight: 1.25, color: C.text }}>
+          你最近被 AI
+          <span style={{ display: "block", color: C.gold, marginTop: 10 }}>哪一句「像真的」带偏过？</span>
+        </div>
+        <div style={{
+          marginTop: 36, fontSize: 26, color: C.muted,
+          opacity: animate({ from: 0, to: 1, start: 0.7, end: 1.1 })(localTime),
+        }}>
+          评论区聊聊 · 不求关注 · 非投资建议
+        </div>
+      </div>
+      <Foot n={6} />
+    </SceneShell>
+  );
+}
+
+function App() {
+  // Same narrative timing as HyperFrames for fair compare
+  return (
+    <Stage
+      width={1080}
+      height={1920}
+      duration={32}
+      fps={30}
+      background={C.bg}
+      loop={true}
+      autoplay={true}
+      persistKey="ep001-baoyu-anim"
+    >
+      <Sprite start={0} end={5.5}><SceneCase /></Sprite>
+      <Sprite start={5.5} end={13.5}><SceneSplit /></Sprite>
+      <Sprite start={13.5} end={18.5}><ScenePunch /></Sprite>
+      <Sprite start={18.5} end={26}><SceneLayers /></Sprite>
+      <Sprite start={26} end={29.5}><SceneChips /></Sprite>
+      <Sprite start={29.5} end={32}><SceneCta /></Sprite>
+    </Stage>
+  );
+}
+
+function mount() {
+  const el = document.getElementById("root");
+  if (!el) return requestAnimationFrame(mount);
+  ReactDOM.createRoot(el).render(<App />);
+}
+mount();
+</script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

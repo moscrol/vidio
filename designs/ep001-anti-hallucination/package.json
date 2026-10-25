@@ -1,0 +1,16 @@
+{
+  "name": "ep001-anti-hallucination",
+  "version": "1.0.0",
+  "description": "竖屏讲解幻灯（1080×1920），对接 `ops/douyin/scripts/001-五层防幻觉-生成不是真相.md`。",
+  "main": "deck-stage.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
+}

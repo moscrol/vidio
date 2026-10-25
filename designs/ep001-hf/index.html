@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>001 · 无卡 · 数字对了也不能一起升级</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "PingFang SC"; src: local("PingFang SC"), local("PingFangSC-Regular"); }
+      @font-face { font-family: "Hiragino Sans GB"; src: local("Hiragino Sans GB"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #070a12;
+        font-family: "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+        color: #f2f4f8;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        background: #070a12;
+      }
+      /* ambient hairline grid — not cards */
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 80px 80px;
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .rule {
+        position: absolute;
+        left: 72px;
+        right: 72px;
+        height: 1px;
+        background: rgba(255,255,255,0.1);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+      .pad {
+        width: 100%;
+        height: 100%;
+        padding: 100px 72px 120px;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+      }
+      .pad.center {
+        justify-content: center;
+        padding-bottom: 200px;
+      }
+      .kicker {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #e8b54d;
+        margin-bottom: 36px;
+      }
+      .warn {
+        position: absolute;
+        top: 56px;
+        right: 72px;
+        font-size: 16px;
+        color: rgba(154, 171, 196, 0.75);
+        letter-spacing: 0.04em;
+      }
+      .huge {
+        font-size: 72px;
+        font-weight: 900;
+        line-height: 1.12;
+        letter-spacing: -0.03em;
+      }
+      .huge .g { color: #e8b54d; }
+      .body {
+        margin-top: 28px;
+        font-size: 30px;
+        line-height: 1.55;
+        color: rgba(242, 244, 248, 0.55);
+        font-weight: 500;
+        max-width: 920px;
+      }
+      /* continuous sentence — NO bubble */
+      .sentence {
+        margin-top: 56px;
+        font-size: 38px;
+        font-weight: 650;
+        line-height: 1.7;
+        color: rgba(242, 244, 248, 0.92);
+        max-width: 920px;
+      }
+      .sentence .cursor {
+        display: inline-block;
+        width: 3px;
+        height: 0.95em;
+        background: #e8b54d;
+        margin-left: 2px;
+        vertical-align: -3px;
+      }
+      /* in-place status marks under segments */
+      .seg {
+        display: inline;
+        position: relative;
+        transition: color 0.2s;
+      }
+      .seg.mark-ok { color: #3ecf8e; }
+      .seg.mark-maybe { color: #e8b54d; }
+      .seg.mark-no { color: #f07178; }
+      .labels {
+        margin-top: 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .lab {
+        display: flex;
+        align-items: baseline;
+        gap: 20px;
+        font-size: 26px;
+        font-weight: 600;
+      }
+      .lab .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        transform: translateY(-2px);
+      }
+      .lab .w { color: rgba(242,244,248,0.9); flex: 1; }
+      .lab .s { font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
+      .lab.ok .s { color: #3ecf8e; }
+      .lab.ok .dot { background: #3ecf8e; }
+      .lab.maybe .s { color: #e8b54d; }
+      .lab.maybe .dot { background: #e8b54d; }
+      .lab.no .s { color: #f07178; }
+      .lab.no .dot { background: #f07178; }
+
+      .punch {
+        font-size: 84px;
+        font-weight: 900;
+        line-height: 1.12;
+        letter-spacing: -0.035em;
+      }
+      .punch .g {
+        display: block;
+        color: #e8b54d;
+        margin-top: 8px;
+      }
+      .punch-sub {
+        margin-top: 48px;
+        font-size: 28px;
+        line-height: 1.55;
+        color: rgba(242, 244, 248, 0.5);
+      }
+
+      /* layer stack: pure type + hairline, no boxes */
+      .layer-list {
+        margin-top: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .layer-row {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 12px;
+        padding: 22px 0;
+        border-top: 1px solid rgba(255,255,255,0.08);
+      }
+      .layer-row:last-of-type { border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .layer-row .n {
+        font-size: 36px;
+        font-weight: 900;
+        color: #e8b54d;
+        line-height: 1.1;
+      }
+      .layer-row .t {
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+      .layer-row .d {
+        margin-top: 6px;
+        font-size: 22px;
+        color: rgba(242,244,248,0.48);
+        font-weight: 500;
+      }
+      .auth-line {
+        margin-top: 36px;
+        padding-top: 28px;
+        border-top: 2px solid rgba(232, 181, 77, 0.55);
+        font-size: 28px;
+        font-weight: 700;
+        color: #e8b54d;
+        line-height: 1.45;
+      }
+      .auth-line .sub {
+        display: block;
+        margin-top: 10px;
+        font-size: 24px;
+        font-weight: 500;
+        color: rgba(242,244,248,0.65);
+      }
+
+      /* contexts as plain words, no chips */
+      .plain-list {
+        margin-top: 56px;
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1.65;
+        letter-spacing: -0.02em;
+      }
+      .plain-list span {
+        display: block;
+      }
+      .plain-list .dim {
+        color: rgba(242,244,248,0.35);
+      }
+
+      .foot {
+        position: absolute;
+        bottom: 52px;
+        left: 72px;
+        right: 72px;
+        font-size: 16px;
+        color: rgba(93, 109, 136, 0.9);
+        display: flex;
+        justify-content: space-between;
+        letter-spacing: 0.04em;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div class="grid" data-layout-ignore></div>
+
+      <!-- 1 纯字钩子 + 打字句 -->
+      <div id="s1" class="scene clip" data-start="0" data-duration="5.2" data-track-index="0">
+        <div class="warn">架构演示 · 非投资建议</div>
+        <div class="pad">
+          <div class="kicker" id="s1-k">CASE</div>
+          <div class="huge" id="s1-h">
+            开发研究 Agent 时<br />
+            <span class="g">我见过这种回复</span>
+          </div>
+          <div class="body" id="s1-b">乍一看很专业。拆开才知道问题在哪。</div>
+          <div class="sentence" id="s1-sent">
+            <span id="s1-type"></span><span class="cursor" id="s1-cursor"></span>
+          </div>
+        </div>
+        <div class="foot"><span>001 · NO CARD</span><span>1 / 6</span></div>
+      </div>
+
+      <!-- 2 句内染色 + 左侧圆点列表（非卡） -->
+      <div id="s2" class="scene clip" data-start="5.2" data-duration="7.5" data-track-index="0">
+        <div class="warn">架构演示 · 非投资建议</div>
+        <div class="pad">
+          <div class="kicker" id="s2-k">DISSECT</div>
+          <div class="huge" id="s2-h" style="font-size: 56px">
+            同一句话里<br /><span class="g">四种地位</span>
+          </div>
+          <div class="sentence" id="s2-sent" style="margin-top: 40px; font-size: 34px">
+            <span class="seg" id="seg1">成交额增加 20%</span><span class="dim-comma">，</span>
+            <span class="seg" id="seg2">属于健康分歧</span><span class="dim-comma">，</span>
+            <span class="seg" id="seg3">明天会回流</span><span class="dim-comma">，</span>
+            <span class="seg" id="seg4">A 是最强标的</span>。
+          </div>
+          <div class="labels" id="s2-labs">
+            <div class="lab ok" id="lab1"><span class="dot"></span><span class="w">成交额 +20%</span><span class="s">可核验事实</span></div>
+            <div class="lab maybe" id="lab2"><span class="dot"></span><span class="w">健康分歧</span><span class="s">解释</span></div>
+            <div class="lab no" id="lab3"><span class="dot"></span><span class="w">明天回流</span><span class="s">预测</span></div>
+            <div class="lab no" id="lab4"><span class="dot"></span><span class="w">A 最强</span><span class="s">选择 / 建议</span></div>
+          </div>
+        </div>
+        <div class="foot"><span>001 · NO CARD</span><span>2 / 6</span></div>
+      </div>
+
+      <!-- 3 全屏金句 -->
+      <div id="s3" class="scene clip" data-start="12.7" data-duration="4.5" data-track-index="0">
+        <div class="pad center">
+          <div class="kicker" id="s3-k">ONE LINE</div>
+          <div class="punch" id="s3-p">
+            数字对了
+            <span class="g">也不能一起升级</span>
+          </div>
+          <div class="punch-sub" id="s3-s">
+            大模型在预测下一个词。<br />
+            流畅 ≠ 真实 · 意见 ≠ 决策权
+          </div>
+        </div>
+        <div class="foot"><span>001 · NO CARD</span><span>3 / 6</span></div>
+      </div>
+
+      <!-- 4 纯排版列表 -->
+      <div id="s4" class="scene clip" data-start="17.2" data-duration="7" data-track-index="0">
+        <div class="pad">
+          <div class="kicker" id="s4-k">SYSTEM</div>
+          <div class="huge" id="s4-h" style="font-size: 52px">
+            所以我按<span class="g">五层</span>挡
+          </div>
+          <div class="body" id="s4-b" style="margin-top: 12px; font-size: 24px">生成只写候选，再逐级升级</div>
+          <div class="layer-list" id="s4-list">
+            <div class="layer-row" id="L1"><div class="n">01</div><div><div class="t">生成器</div><div class="d">写候选，不宣布终审</div></div></div>
+            <div class="layer-row" id="L2"><div class="n">02</div><div><div class="t">数据证据</div><div class="d">对齐外部可追溯记录</div></div></div>
+            <div class="layer-row" id="L3"><div class="n">03</div><div><div class="t">确定性校验</div><div class="d">同输入 → 同检查结果</div></div></div>
+            <div class="layer-row" id="L4"><div class="n">04</div><div><div class="t">历史重放</div><div class="d">禁止偷看当时不可知信息</div></div></div>
+            <div class="layer-row" id="L5"><div class="n">05</div><div><div class="t">人工金标准</div><div class="d">模糊边界与争议样本</div></div></div>
+          </div>
+          <div class="auth-line" id="Lauth">
+            + 权限
+            <span class="sub">没验收的分数，不能自动写库、不能当硬闸门</span>
+          </div>
+        </div>
+        <div class="foot"><span>001 · NO CARD</span><span>4 / 6</span></div>
+      </div>
+
+      <!-- 5 纯字场景 -->
+      <div id="s5" class="scene clip" data-start="24.2" data-duration="3.3" data-track-index="0">
+        <div class="pad">
+          <div class="kicker" id="s5-k">PORTABLE</div>
+          <div class="huge" id="s5-h" style="font-size: 56px">同一套问题</div>
+          <div class="body" id="s5-b">先问它是事实、解释，还是动作。</div>
+          <div class="plain-list" id="s5-list">
+            <span id="p1">客服 Agent</span>
+            <span id="p2" class="dim">企业知识库</span>
+            <span id="p3">代码助手</span>
+            <span id="p4" class="dim">研究 Agent</span>
+          </div>
+          <div class="body" id="s5-end" style="margin-top: auto; padding-top: 48px; color: rgba(232,181,77,0.9); font-size: 26px">
+            生成不是真相 —— 错误要很难一路升到决策权。
+          </div>
+        </div>
+        <div class="foot"><span>001 · NO CARD</span><span>5 / 6</span></div>
+      </div>
+
+      <!-- 6 开放问题 -->
+      <div id="s6" class="scene clip" data-start="27.5" data-duration="2.5" data-track-index="0">
+        <div class="pad center">
+          <div class="kicker" id="s6-k">ASK</div>
+          <div class="punch" id="s6-p" style="font-size: 64px">
+            你最近被 AI
+            <span class="g">哪一句「像真的」带偏过？</span>
+          </div>
+          <div class="punch-sub" id="s6-s">评论区聊聊 · 不求关注 · 非投资建议</div>
+        </div>
+        <div class="foot"><span>001 · NO CARD</span><span>6 / 6</span></div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const FULL =
+        "「储能成交额增加 20%，属于健康分歧，明天会回流，A 是最强标的。」";
+      const typeEl = document.getElementById("s1-type");
+      const chars = Array.from(FULL);
+
+      // ── S1 ──
+      tl.set("#s1", { opacity: 1 }, 0);
+      tl.from("#s1-k", { y: 16, opacity: 0, duration: 0.35, ease: "power3.out" }, 0.12);
+      tl.from("#s1-h", { y: 40, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.22);
+      tl.from("#s1-b", { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 0.42);
+      tl.from("#s1-sent", { opacity: 0, duration: 0.3, ease: "power1.out" }, 0.7);
+
+      const typeStart = 1.0;
+      const typeDur = 2.4;
+      chars.forEach((_, i) => {
+        const t = typeStart + (i / chars.length) * typeDur;
+        tl.call(() => {
+          typeEl.textContent = FULL.slice(0, i + 1);
+        }, null, t);
+      });
+      tl.to("#s1-cursor", { opacity: 0, duration: 0.18, ease: "none", repeat: 10, yoyo: true }, 0.95);
+
+      // ── S2 ──
+      tl.set("#s1", { opacity: 0 }, 5.2);
+      tl.set("#s2", { opacity: 1 }, 5.2);
+      tl.from("#s2-k", { y: 14, opacity: 0, duration: 0.3, ease: "power2.out" }, 5.3);
+      tl.from("#s2-h", { y: 28, opacity: 0, duration: 0.45, ease: "expo.out" }, 5.4);
+      tl.from("#s2-sent", { opacity: 0, duration: 0.35, ease: "power1.out" }, 5.65);
+
+      const segs = [
+        { id: "#seg1", lab: "#lab1", cls: "mark-ok", t: 6.1 },
+        { id: "#seg2", lab: "#lab2", cls: "mark-maybe", t: 6.85 },
+        { id: "#seg3", lab: "#lab3", cls: "mark-no", t: 7.6 },
+        { id: "#seg4", lab: "#lab4", cls: "mark-no", t: 8.35 },
+      ];
+      segs.forEach(({ id, lab, cls, t }) => {
+        tl.from(lab, { x: -24, opacity: 0, duration: 0.4, ease: "power3.out" }, t);
+        tl.call(() => {
+          document.querySelector(id).classList.add(cls);
+        }, null, t + 0.05);
+      });
+      // start labels hidden
+      gsap.set(["#lab1", "#lab2", "#lab3", "#lab4"], { opacity: 0 });
+
+      // ── S3 ──
+      tl.set("#s2", { opacity: 0 }, 12.7);
+      tl.set("#s3", { opacity: 1 }, 12.7);
+      tl.from("#s3-k", { opacity: 0, duration: 0.25, ease: "power1.out" }, 12.8);
+      tl.from("#s3-p", { y: 48, opacity: 0, duration: 0.65, ease: "power4.out" }, 12.9);
+      tl.from("#s3-s", { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 13.5);
+
+      // ── S4 ──
+      tl.set("#s3", { opacity: 0 }, 17.2);
+      tl.set("#s4", { opacity: 1 }, 17.2);
+      tl.from("#s4-k", { opacity: 0, y: 12, duration: 0.28, ease: "power2.out" }, 17.3);
+      tl.from("#s4-h", { y: 24, opacity: 0, duration: 0.4, ease: "power3.out" }, 17.4);
+      tl.from("#s4-b", { opacity: 0, duration: 0.3, ease: "power1.out" }, 17.55);
+      ["#L1", "#L2", "#L3", "#L4", "#L5"].forEach((sel, i) => {
+        tl.from(sel, { y: 18, opacity: 0, duration: 0.32, ease: "power2.out" }, 17.85 + i * 0.22);
+      });
+      tl.from("#Lauth", { y: 16, opacity: 0, duration: 0.4, ease: "power3.out" }, 19.15);
+
+      // ── S5 ──
+      tl.set("#s4", { opacity: 0 }, 24.2);
+      tl.set("#s5", { opacity: 1 }, 24.2);
+      tl.from("#s5-k", { opacity: 0, duration: 0.25, ease: "power1.out" }, 24.3);
+      tl.from("#s5-h", { y: 24, opacity: 0, duration: 0.4, ease: "power3.out" }, 24.35);
+      tl.from("#s5-b", { opacity: 0, duration: 0.3, ease: "power1.out" }, 24.55);
+      ["#p1", "#p2", "#p3", "#p4"].forEach((sel, i) => {
+        tl.from(sel, { x: -20, opacity: 0, duration: 0.3, ease: "power2.out" }, 24.8 + i * 0.12);
+      });
+      tl.from("#s5-end", { opacity: 0, duration: 0.35, ease: "power1.out" }, 25.5);
+
+      // ── S6 ──
+      tl.set("#s5", { opacity: 0 }, 27.5);
+      tl.set("#s6", { opacity: 1 }, 27.5);
+      tl.from("#s6-k", { opacity: 0, duration: 0.2, ease: "power1.out" }, 27.55);
+      tl.from("#s6-p", { y: 36, opacity: 0, duration: 0.55, ease: "power3.out" }, 27.65);
+      tl.from("#s6-s", { opacity: 0, duration: 0.35, ease: "power2.out" }, 28.15);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
